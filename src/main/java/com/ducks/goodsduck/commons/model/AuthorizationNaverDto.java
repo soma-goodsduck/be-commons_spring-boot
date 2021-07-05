@@ -1,9 +1,9 @@
-package com.ducks.goodsduck.commons.domain;
+package com.ducks.goodsduck.commons.model;
 
 import lombok.Getter;
 
 @Getter
-public class AuthorizationNaver {
+public class AuthorizationNaverDto {
     private String access_token;
     private String refresh_token;
     private String token_type;

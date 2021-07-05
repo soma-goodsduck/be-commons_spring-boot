@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.domain.AuthorizationNaver;
+import com.ducks.goodsduck.commons.model.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +29,7 @@ public class OauthNaverService {
     private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
     private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri"); //
 
-    public AuthorizationNaver callTokenApi(String code, String state) {
+    public AuthorizationNaverDto callTokenApi(String code, String state) {
         String grantType = "authorization_code";
 
         HttpHeaders headers = new HttpHeaders();
@@ -49,19 +49,18 @@ public class OauthNaverService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-            AuthorizationNaver authorization = objectMapper.readValue(response.getBody(), AuthorizationNaver.class);
-            System.out.println("authorization.getAccess_token() = " + authorization.getAccess_token());
+            AuthorizationNaverDto authorization = objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
 
             return authorization;
         } catch (RestClientException | JsonProcessingException ex) {
             ex.printStackTrace();
-            return new AuthorizationNaver();
+            return new AuthorizationNaverDto();
         }
     }
 
     /**
      * accessToken 을 이용한 유저정보 받기
-     * @return
+     * @return Json Data(String)
      */
     public String callGetUserByAccessToken(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -75,11 +74,10 @@ public class OauthNaverService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-            // 값 리턴
             return response.getBody();
         }catch (RestClientException ex) {
             ex.printStackTrace();
-            return "Error";
+            return "Error"; //
         }
     }
 }
