@@ -1,30 +1,47 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.model.SocialAccountDto;
+import com.ducks.goodsduck.commons.model.UserDto;
+import com.ducks.goodsduck.commons.model.UserSignUpRequest;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin("*")
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping("/oauth2/authorization/naver")
-    public String oauth2AuthorizationNaver(
+    public SocialAccountDto oauth2AuthorizationNaver(
                                          @RequestParam("code") String code,
-                                         @RequestParam("state") String state
-    ) {
-        System.out.println("naver 로그인 컨트롤러 요청!!");
-        System.out.println("redirect-uri:" + PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri"));
-
-        return userService.oauth2AuthoriationNaver(code, state);
+                                         @RequestParam("state") String state) {
+        return userService.oauth2AuthorizationNaver(code, state);
     }
 
-    @GetMapping("")
-    public void home() {
-
+    @GetMapping("/user")
+    public List<UserDto> getUserList() {
+        return userService.findAll();
     }
+
+    @GetMapping("/user/{user_id}")
+    public UserDto getUser(@RequestParam Long user_id) {
+        return userService.find(user_id);
+    }
+
+    /**
+     * 회원가입
+     * Request :
+     */
+    @PostMapping("/signup")
+    public UserDto userSignUp(@RequestBody UserSignUpRequest userSignUpRequest) {
+        return userService.signUp(userSignUpRequest);
+    }
+
 }
