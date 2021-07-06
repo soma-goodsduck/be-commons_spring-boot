@@ -1,10 +1,9 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.SocialAccountDto;
-import com.ducks.goodsduck.commons.model.UserDto;
-import com.ducks.goodsduck.commons.model.UserSignUpRequest;
+import com.ducks.goodsduck.commons.model.dto.SocialAccountDto;
+import com.ducks.goodsduck.commons.model.dto.UserDto;
+import com.ducks.goodsduck.commons.model.dto.UserSignUpRequest;
 import com.ducks.goodsduck.commons.service.UserService;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://db7ce5a8bb28d2.localhost.run", allowCredentials = "true")
 @RequestMapping("/api/v1")
 public class UserController {
 
@@ -44,4 +43,8 @@ public class UserController {
         return userService.signUp(userSignUpRequest);
     }
 
+    @GetMapping("/login")
+    public UserDto login(@RequestParam("token") String token) {
+        return userService.checkLoginStatus(token);
+    }
 }

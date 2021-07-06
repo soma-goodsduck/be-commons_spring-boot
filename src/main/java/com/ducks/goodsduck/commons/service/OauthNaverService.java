@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.AuthorizationNaverDto;
+import com.ducks.goodsduck.commons.model.dto.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

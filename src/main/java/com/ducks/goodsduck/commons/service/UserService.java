@@ -1,19 +1,20 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.AuthorizationNaverDto;
-import com.ducks.goodsduck.commons.model.SocialAccountDto;
-import com.ducks.goodsduck.commons.model.UserDto;
+import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.entity.SocialAccount;
 import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
+import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +24,7 @@ public class UserService {
     private final OauthNaverService oauthNaverService;
     private final UserRepository userRepository;
     private final SocialAccountRepository socialAccountRepository;
+    private final JwtService jwtService;
 
     // 네이버로 인증받기
     public SocialAccountDto oauth2AuthorizationNaver(String code, String state) {
@@ -45,21 +47,17 @@ public class UserService {
     public List<UserDto> findAll(){
         return userRepository.findAll()
                 .stream()
-                .map(UserDto::new)
+                .map(user -> new UserDto(user))
                 .collect(Collectors.toList());
     }
 
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
         System.out.println("userSignUpRequest = " + userSignUpRequest);
-        User savedUser = userRepository.save(
-                new User(userSignUpRequest.getNickName(),
-                        userSignUpRequest.getEmail(),
-                        userSignUpRequest.getPhoneNumber())
-        );
 
         SocialType socialType = SocialType.NAVER;
 
+        //TODO: null로 이루어진 데이터 모두 insert 되는 예외 처리하기
         switch (userSignUpRequest
                 .getSocialAccountType()
                 .toLowerCase()) {
@@ -71,20 +69,40 @@ public class UserService {
                 break;
         }
 
-        socialAccountRepository.save(
-                new SocialAccount(
-                        userSignUpRequest.getSocialAccountId(),
-                        socialType,
-                        savedUser
-                )
-        );
+        SocialAccount socialAccount = new SocialAccount(userSignUpRequest.getSocialAccountId(), socialType);
+        User user = new User(userSignUpRequest.getNickName(),
+                userSignUpRequest.getEmail(),
+                userSignUpRequest.getPhoneNumber());
+        user.addSocialAccount(socialAccount);
 
-        return new UserDto(savedUser);
+        User savedUser = userRepository.save(user);
+        socialAccountRepository.save(socialAccount);
+        for (SocialAccount sc: savedUser.getSocialAccounts()) {
+            System.out.println("sc = " + sc);
+        }
+        UserDto userDto = new UserDto(user);
+        userDto.registerJwt(
+                jwtService.createToken("for user check", 1000000, new JwtDto(savedUser.getId()))
+        );
+        return userDto;
     }
 
     public UserDto find(Long user_id) {
         return userRepository.findById(user_id)
-                .map(UserDto::new)
-                .orElseGet(UserDto::new); // user를 못찾으면 빈 UserDto 반환 (임시)
+                .map(user -> new UserDto(user))
+                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
+                 // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환 (임시)
+    }
+
+    //TODO: 로그인 로직 추가하기
+
+    //TODO: 유저 권한 체크 (로그인 상태 여부)
+    public UserDto checkLoginStatus(String token) {
+        Map<String, Object> payloads = jwtService.getPayloads(token);
+        int userId = (int)payloads.get("userId"); // (need check) 이 과정이 의미가 있는지..
+        return userRepository.findById(Long.valueOf(userId))
+                .map(user -> user.login()) // lastLoginAt 갱신
+                .map(user -> new UserDto(user))
+                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
     }
 }

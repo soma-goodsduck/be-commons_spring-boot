@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model;
+package com.ducks.goodsduck.commons.model.dto;
 
 import lombok.Data;
 
