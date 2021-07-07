@@ -9,7 +9,7 @@ on:
     
 name: Deploy String boot to Amazon EC2
 env:
-  PROJECT_NAME: be-commons_spring_boot
+  PROJECT_NAME: be-commons_spring-boot
 
 jobs:
   deploy:
