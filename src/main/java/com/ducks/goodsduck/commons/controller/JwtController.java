@@ -18,22 +18,11 @@ public class JwtController {
     @Autowired
     private JwtService jwtService;
 
-    @GetMapping("/gen/token")
-    public Map<String, Object> genToken(@RequestParam(value="subject") String subject) {
-        String token = jwtService.createToken(subject, (2 * 1000 * 60), new JwtDto(10L));
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put("result", token);
-        return map;
-    }
-
-//    @ResponseBody
     @GetMapping("/get/subject")
     public Map<String, Object> getSubject(@RequestParam("token") String token) {
         String subject = jwtService.getSubject(token);
         Map<String, Object> map = new LinkedHashMap<String, Object>();
-        System.out.println("subject = " + subject);
         map.put("result", subject);
-        System.out.println("map = " + map.toString());
         return map;
     }
 

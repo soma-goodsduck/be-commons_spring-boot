@@ -7,8 +7,7 @@ import java.util.Map;
 
 @Service
 public interface JwtService {
-    String createToken(String subject, long expireTime, JwtDto jwtDto);
-
+    String createToken(String subject, JwtDto jwtDto);
     String getSubject(String token);
     Map<String, Object> getPayloads(String token);
 }

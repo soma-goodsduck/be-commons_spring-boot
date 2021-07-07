@@ -7,19 +7,23 @@ import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
+
+    private static final String TOKEN_USAGE = "For member-checking";
 
     private final OauthNaverService oauthNaverService;
     private final UserRepository userRepository;
@@ -77,32 +81,42 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
         socialAccountRepository.save(socialAccount);
-        for (SocialAccount sc: savedUser.getSocialAccounts()) {
-            System.out.println("sc = " + sc);
-        }
+
         UserDto userDto = new UserDto(user);
-        userDto.registerJwt(
-                jwtService.createToken("for user check", 1000000, new JwtDto(savedUser.getId()))
+        return userDto.registerJwt(
+                jwtService.createToken(TOKEN_USAGE, new JwtDto(savedUser.getId()))
         );
-        return userDto;
     }
 
     public UserDto find(Long user_id) {
         return userRepository.findById(user_id)
                 .map(user -> new UserDto(user))
-                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
-                 // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환 (임시)
+                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)); // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
     }
 
-    //TODO: 로그인 로직 추가하기
-
-    //TODO: 유저 권한 체크 (로그인 상태 여부)
     public UserDto checkLoginStatus(String token) {
-        Map<String, Object> payloads = jwtService.getPayloads(token);
-        int userId = (int)payloads.get("userId"); // (need check) 이 과정이 의미가 있는지..
-        return userRepository.findById(Long.valueOf(userId))
+        Map<String, Object> payloads = new HashMap<>();
+        try {
+            payloads = jwtService.getPayloads(token);
+        } catch (JwtException e) {
+            // 비밀키 상이(SignatureException), 토큰 정보 위조(MalformedJwtException) , 만료된 경우(ExpiredJwtException)
+            log.warn(e.getMessage());
+            return UserDto.createUserDto(UserRole.ANONYMOUS);
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return UserDto.createUserDto(UserRole.ANONYMOUS);
+        }
+
+        // 토큰의 만료 기한이 다 된 경우
+        Long userId = (Long) payloads.get("userId");
+
+        return userRepository.findById(userId)
                 .map(user -> user.login()) // lastLoginAt 갱신
                 .map(user -> new UserDto(user))
+                .map(userDto -> userDto.registerJwt(
+                        // 토큰 재발급
+                        jwtService.createToken(TOKEN_USAGE, new JwtDto(userId))
+                ))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
     }
 }

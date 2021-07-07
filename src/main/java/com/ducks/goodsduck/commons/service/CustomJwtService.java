@@ -1,8 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.JwtDto;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -13,16 +15,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class CustomJwtService implements JwtService {
-    //TODO: 환경변수로 빼야함 (은닉)
-    private static final String SECRET_KEY = "aasjjkjaskjdl1kqweqwwrwqedqwdwqdwqdw2naskjkdakj34c8sa";
+
+    private static final long EXPIRE_TIME = Long.parseLong(PropertyUtil.getProperty("spring.security.jwt.expire-time"));
+    private static final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
 
     @Override
-    public String createToken(String subject, long expireTime, JwtDto jwtDto) {
-        if (expireTime <= 0) {
-            throw new RuntimeException("Expiry time must be greater than Zero : ["+expireTime+"] ");
-        }
-        // 토큰을 서명하기 위해 사용해야할 알고리즘 선택
+    public String createToken(String subject, JwtDto jwtDto) {
+        // 토큰을 서명하기 위해 사용할 알고리즘 선택
         SignatureAlgorithm signatureAlgorithm= SignatureAlgorithm.HS256;
 
         /* Header 설정 */
@@ -37,7 +38,7 @@ public class CustomJwtService implements JwtService {
                 .setSubject(subject)
                 .addClaims(payloads)
                 .signWith(signingKey, signatureAlgorithm)
-                .setExpiration(new Date(System.currentTimeMillis()+expireTime))
+                .setExpiration(new Date(System.currentTimeMillis()+EXPIRE_TIME))
                 .compact();
     }
 
@@ -48,8 +49,6 @@ public class CustomJwtService implements JwtService {
 
     @Override
     public Map<String, Object> getPayloads(String token) {
-
-        //TODO: token 검증 로직 (null, empty string, not valid, expired)
 
         return new HashMap<>(
                 Jwts.parserBuilder()

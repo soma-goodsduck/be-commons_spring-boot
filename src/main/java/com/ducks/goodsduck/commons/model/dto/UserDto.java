@@ -37,8 +37,9 @@ public class UserDto {
         this.jwt = "";
     }
 
-    public void registerJwt(String jwt) {
+    public UserDto registerJwt(String jwt) {
         this.jwt = jwt;
+        return this;
     }
 
 }
