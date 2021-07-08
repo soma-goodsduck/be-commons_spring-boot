@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDto {
 
+    private String socialAccountId;
     private String nickName;
     private String phoneNumber;
     private String email;
@@ -42,4 +43,8 @@ public class UserDto {
         return this;
     }
 
+    public UserDto registerSocialAccountId(String socialAccountId) {
+        this.socialAccountId = socialAccountId;
+        return this;
+    }
 }

@@ -18,8 +18,8 @@ import java.util.Map;
 @Slf4j
 public class CustomJwtService implements JwtService {
 
-    private static final long EXPIRE_TIME = Long.parseLong(PropertyUtil.getProperty("spring.security.jwt.expire-time"));
-    private static final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
+    private final long EXPIRE_TIME = Long.parseLong(String.valueOf(PropertyUtil.getProperty("spring.security.jwt.expire-time")));
+    private final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
 
     @Override
     public String createToken(String subject, JwtDto jwtDto) {

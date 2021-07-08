@@ -1,13 +1,11 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.SocialAccountDto;
 import com.ducks.goodsduck.commons.model.dto.UserDto;
 import com.ducks.goodsduck.commons.model.dto.UserSignUpRequest;
 import com.ducks.goodsduck.commons.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -19,7 +17,7 @@ public class UserController {
 
     /** 소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API */
     @GetMapping("/oauth2/authorization/naver")
-    public SocialAccountDto oauth2AuthorizationNaver(
+    public UserDto oauth2AuthorizationNaver(
                                          @RequestParam("code") String code,
                                          @RequestParam("state") String state) {
         return userService.oauth2AuthorizationNaver(code, state);

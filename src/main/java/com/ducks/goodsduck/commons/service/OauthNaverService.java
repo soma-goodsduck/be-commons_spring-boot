@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OauthNaverService {
 
     private final RestTemplate restTemplate;
@@ -76,6 +78,7 @@ public class OauthNaverService {
 
             return response.getBody();
         }catch (RestClientException ex) {
+            log.error(ex.getMessage());
             ex.printStackTrace();
             return "Error"; //
         }
