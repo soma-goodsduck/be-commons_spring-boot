@@ -1,0 +1,20 @@
+spring:
+  session:
+    store-type: jdbc
+    # spring.session.jdbc.initialize-schema: always 설정이 있어야만
+    # JPA 가 자동으로 세션 저장용 테이블을 생성한다.
+    jdbc:
+      initialize-schema: always
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
