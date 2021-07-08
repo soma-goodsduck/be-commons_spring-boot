@@ -4,8 +4,7 @@ REPOSITORY=/opt/be-commons_spring-boot
 cd $REPOSITORY
 
 APP_NAME=be-commons_spring-boot
-JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
-JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+JAR_PATH=$REPOSITORY/build/libs
 ENV_PATH=/opt/application_env
 
 #CURRENT_PID=$(pgrep -fl commons_s* | grep java)
