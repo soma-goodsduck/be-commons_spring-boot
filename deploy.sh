@@ -6,17 +6,30 @@ cd $REPOSITORY
 APP_NAME=be-commons_spring-boot
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+ENV_PATH=/opt/application_env
 
-CURRENT_PID=$(pgrep -fl commons_s* | grep java)
+#CURRENT_PID=$(pgrep -fl commons_s* | grep java)
+CURRENT_PID=$(pgrep -fl $REPOSITORY/build/libs/ | grep java | awk '{pring $1}')
+
+echo "현재 구동 중인 애플리케이션pid: $CURRENT_PID"
+
+echo "> JAR Path: $JAR_PATH"
 
 if [ -z $CURRENT_PID ]
 then
   echo "> 종료할것 없음."
 else
-  echo "> kill -9 $CURRENT_PID"
+  echo "> kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
   sleep 5
 fi
 
 echo "> $JAR_PATH 배포"
-nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
+
+JAR_NAME=$(ls -tr $JAR_PATH/*.jar | tail -n 1)
+
+echo "ENV PATH > $ENV_PATH"
+
+nohup java -jar \
+        -Dspring.config.location=classpath:/application.yml,$ENV_PATH/application-db.yml,$ENV_PATH/application-oauth2.yml \
+        $JAR_NAME > $JAR_PATH/nohup.out 2>&1 &
