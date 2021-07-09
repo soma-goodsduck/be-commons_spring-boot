@@ -2,8 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.JwtDto;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class CustomJwtService implements JwtService {
     @Override
     public String createToken(String subject, JwtDto jwtDto) {
         // 토큰을 서명하기 위해 사용할 알고리즘 선택
-        SignatureAlgorithm signatureAlgorithm= SignatureAlgorithm.HS256;
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
         /* Header 설정 */
 
@@ -48,15 +47,31 @@ public class CustomJwtService implements JwtService {
     }
 
     @Override
-    public Map<String, Object> getPayloads(String token) {
-
+    public Map<String, Object> getHeader(String token) {
         return new HashMap<>(
-                Jwts.parserBuilder()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
-                .build()
-                .parseClaimsJws(token)
+                getClaims(token)
+                        .getHeader()
+        );
+    }
+
+    @Override
+    public Map<String, Object> getPayloads(String token) {
+        return new HashMap<>(
+                getClaims(token)
                 .getBody()
         );
+    }
 
+    @Override
+    public String getSignature(String token) {
+        return getClaims(token).getSignature();
+    }
+
+    @Override
+    public Jws<Claims> getClaims(String token) throws JwtException {
+        return Jwts.parserBuilder()
+                        .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                        .build()
+                        .parseClaimsJws(token);
     }
 }

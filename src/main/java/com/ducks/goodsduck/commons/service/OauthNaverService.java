@@ -80,7 +80,7 @@ public class OauthNaverService {
         }catch (RestClientException ex) {
             log.error(ex.getMessage());
             ex.printStackTrace();
-            return "Error"; //
+            return "Error"; //TODO 어떻게 처리할지
         }
     }
 }
