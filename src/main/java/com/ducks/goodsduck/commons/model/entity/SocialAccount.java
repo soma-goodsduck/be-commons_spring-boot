@@ -1,7 +1,10 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.enums.SocialType;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -16,8 +19,8 @@ public class SocialAccount {
     @Enumerated(EnumType.STRING)
     private SocialType type;
 
-    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public SocialAccount(String id, SocialType type) {

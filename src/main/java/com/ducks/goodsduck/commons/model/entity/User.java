@@ -32,17 +32,17 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
-    public User(UserRole role) {
-        this.role = this.role;
-    }
+//    public User(UserRole role) {
+//        this.role = this.role;
+//    }
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.role = UserRole.USER;
         this.createdAt = LocalDateTime.now();
         this.lastLoginAt = LocalDateTime.now();
+        this.role = UserRole.USER;
     }
 
     public void addSocialAccount(SocialAccount socialAccount) {
@@ -50,8 +50,7 @@ public class User {
         socialAccounts.add(socialAccount);
     }
 
-    public User login() {
+    public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
-        return this;
     }
 }

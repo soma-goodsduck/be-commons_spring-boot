@@ -41,7 +41,7 @@ class CustomJwtServiceTest {
     void setUp() {
         EXPIRE_TIME = Long.parseLong(String.valueOf(PropertyUtil.getProperty("spring.security.jwt.expire-time")));
         SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
-        jwt = jwtService.createToken(sub, new JwtDto(1L));
+        jwt = jwtService.createJwt(sub, new JwtDto(1L));
     }
 
     /** 토큰 생성 관련 */

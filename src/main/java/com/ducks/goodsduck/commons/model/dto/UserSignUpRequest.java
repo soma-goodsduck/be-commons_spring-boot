@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.model.enums.SocialType;
 import lombok.Data;
 
 /**
@@ -11,10 +12,8 @@ import lombok.Data;
 public class UserSignUpRequest {
 
     private String socialAccountId;
-    private String socialAccountType;
+    private SocialType socialAccountType;
     private String nickName;
     private String email;
     private String phoneNumber;
-
-
 }

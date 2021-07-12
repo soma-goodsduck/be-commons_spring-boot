@@ -2,7 +2,10 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.JwtDto;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +23,18 @@ public class CustomJwtService implements JwtService {
     private final long EXPIRE_TIME = Long.parseLong(String.valueOf(PropertyUtil.getProperty("spring.security.jwt.expire-time")));
     private final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
 
+    public Jws<Claims> getClaims(String token) {
+        return Jwts.parserBuilder()
+                        .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                        .build()
+                        .parseClaimsJws(token);
+    }
+
     @Override
-    public String createToken(String subject, JwtDto jwtDto) {
+    public String createJwt(String subject, JwtDto jwtDto) {
+
         // 토큰을 서명하기 위해 사용할 알고리즘 선택
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+        SignatureAlgorithm signatureAlgorithm= SignatureAlgorithm.HS256;
 
         /* Header 설정 */
 
@@ -33,29 +44,18 @@ public class CustomJwtService implements JwtService {
 
         byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
         Key signingKey = new SecretKeySpec(secretKeyBytes, signatureAlgorithm.getJcaName());
+
         return Jwts.builder()
                 .setSubject(subject)
                 .addClaims(payloads)
                 .signWith(signingKey, signatureAlgorithm)
-                .setExpiration(new Date(System.currentTimeMillis()+EXPIRE_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .compact();
     }
 
     @Override
-    public String getSubject(String token) {
-        return (String) getPayloads(token).get("sub");
-    }
-
-    @Override
-    public Map<String, Object> getHeader(String token) {
-        return new HashMap<>(
-                getClaims(token)
-                        .getHeader()
-        );
-    }
-
-    @Override
     public Map<String, Object> getPayloads(String token) {
+
         return new HashMap<>(
                 getClaims(token)
                 .getBody()
@@ -63,15 +63,18 @@ public class CustomJwtService implements JwtService {
     }
 
     @Override
-    public String getSignature(String token) {
-        return getClaims(token).getSignature();
+    public Map<String, Object> getHeader(String token) {
+        return getClaims(token)
+                .getHeader();
     }
 
+    //     return new HashMap<>(
+//            Jwts.parserBuilder()
+//            .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+//            .build()
+//                .parseClaimsJws(token)
     @Override
-    public Jws<Claims> getClaims(String token) throws JwtException {
-        return Jwts.parserBuilder()
-                        .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
-                        .build()
-                        .parseClaimsJws(token);
+    public String getSubject(String token) {
+        return (String) getPayloads(token).get("sub");
     }
 }

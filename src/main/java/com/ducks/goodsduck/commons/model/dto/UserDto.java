@@ -2,14 +2,13 @@ package com.ducks.goodsduck.commons.model.dto;
 
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class UserDto {
 
     private String socialAccountId;
@@ -27,6 +26,7 @@ public class UserDto {
         userDto.setRole(role);
         return userDto;
     }
+
     public UserDto(User user) {
         this.nickName = user.getNickName();
         this.phoneNumber = user.getPhoneNumber();
@@ -36,15 +36,5 @@ public class UserDto {
         this.createdAt = user.getCreatedAt();
         this.lastLoginAt = user.getLastLoginAt();
         this.jwt = "";
-    }
-
-    public UserDto registerJwt(String jwt) {
-        this.jwt = jwt;
-        return this;
-    }
-
-    public UserDto registerSocialAccountId(String socialAccountId) {
-        this.socialAccountId = socialAccountId;
-        return this;
     }
 }

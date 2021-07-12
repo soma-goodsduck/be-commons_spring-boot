@@ -1,39 +1,31 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.AuthorizationNaverDto;
+import com.ducks.goodsduck.commons.model.dto.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.util.URLEncoder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
-
 @Service
 @RequiredArgsConstructor
-@Transactional
-@Slf4j
-public class OauthNaverService {
+public class OauthKakaoService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    private final String naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
-    private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
-    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
+    private final String kakaoOauth2ClinetId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.kakao.client-id");
+    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.kakao.redirect-uri");
 
-    public AuthorizationNaverDto callTokenApi(String code, String state) {
+    public AuthorizationKakaoDto callTokenApi(String code) {
         String grantType = "authorization_code";
 
         HttpHeaders headers = new HttpHeaders();
@@ -41,24 +33,22 @@ public class OauthNaverService {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
-        params.add("client_id", naverOauth2ClientId);
-        params.add("client_secret", naverOauth2ClientSecret);
-        params.add("redirect_uri", URLEncoder.DEFAULT.encode(frontendRedirectUrl, StandardCharsets.UTF_8)); //
+        params.add("client_id", kakaoOauth2ClinetId);
+        params.add("redirect_uri", frontendRedirectUrl + "/auth/kakao/callback");
         params.add("code", code);
-        params.add("state", state);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        String url = "https://kauth.kakao.com/oauth/token";
 
-        String url = "https://nid.naver.com/oauth2.0/token";
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-            AuthorizationNaverDto authorization = objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
-
+            AuthorizationKakaoDto authorization = objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
             return authorization;
+
         } catch (RestClientException | JsonProcessingException ex) {
             ex.printStackTrace();
-            return new AuthorizationNaverDto();
+//            throw new ProcyanException(E00001);
+            throw new IllegalStateException();
         }
     }
 
@@ -74,14 +64,15 @@ public class OauthNaverService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        String url = "https://openapi.naver.com/v1/nid/me";
+        String url = "https://kapi.kakao.com/v2/user/me";
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
+            // 값 리턴
             return response.getBody();
         }catch (RestClientException ex) {
-            log.debug("social request exception ocurred : {} \n {}", ex.getMessage(), ex);
-            return "request not available"; //
+            ex.printStackTrace();
+//            throw new ProcyanException(E00002);
+            throw new IllegalStateException();
         }
     }
 }
