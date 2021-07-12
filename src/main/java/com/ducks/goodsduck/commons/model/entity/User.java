@@ -29,12 +29,27 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "ITEM_ID")
+    private List<Item> items = new ArrayList<Item>();
+
+    /** user_item 다대다 식별 관계 정의 */
+    @ManyToMany
+    @JoinTable(name = "USER_ITEM",
+            joinColumns = @JoinColumn(name = "USER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
+    private List<Item> likeItems = new ArrayList<Item>();
+
+    /** user_idol_group 다대다 식별 관계 정의 */
+    @ManyToMany
+    @JoinTable(name = "USER_IDOL_GROUP",
+                joinColumns = @JoinColumn(name = "USER_ID"),
+                inverseJoinColumns = @JoinColumn(name = "IDOL_GROUP_ID"))
+    private List<IdolGroup> likeIdolGroups = new ArrayList<IdolGroup>();
+
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
-
-//    public User(UserRole role) {
-//        this.role = this.role;
-//    }
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
