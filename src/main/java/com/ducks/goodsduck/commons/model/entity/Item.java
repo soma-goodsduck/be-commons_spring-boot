@@ -21,11 +21,19 @@ public class Item {
     @Column(name = "ITEM_ID")
     private Long id;
 
-    //TODO USER 엔티티와의 관계 정의
+    /** USER 테이블과의 다대일 관계 정의 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID")
+    private User user;
 
     //TODO IDOLMEMBER 엔티티와의 관계 정의
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDOL_MEMBER_ID")
+    private IdolMember idolMember;
 
-    //TODO CATEGORY_ITEM 엔티티와의 관계 정의
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CATEGORY_ITEM_ID")
+    private CategoryItem categoryItem;
 
     private String name;
     private int price;
