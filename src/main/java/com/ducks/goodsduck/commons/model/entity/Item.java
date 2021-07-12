@@ -66,6 +66,5 @@ public class Item {
         this.updatedAt = LocalDateTime.now();
         this.views = 0;
         this.likesItemCount = 0;
-
     }
 }
