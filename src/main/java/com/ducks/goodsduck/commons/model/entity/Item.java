@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class Item {
 
     @Id @GeneratedValue
+    @Column(name = "ITEM_ID")
     private Long id;
 
     //TODO USER 엔티티와의 관계 정의
@@ -42,6 +43,7 @@ public class Item {
     private String description;
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
+    private int views;
     private int likesItemCount;
 
     public Item(ItemUploadRequest itemUploadRequest) {
@@ -54,6 +56,7 @@ public class Item {
         this.description = itemUploadRequest.getDescription();
         this.itemCreatedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.views = 0;
         this.likesItemCount = 0;
 
     }

@@ -17,7 +17,7 @@ import java.util.List;
 public class User {
 
     @Id @GeneratedValue
-    @Column(name = "user_id")
+    @Column(name = "USER_ID")
     private Long id;
     private String nickName;
     private String email;
