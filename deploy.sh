@@ -8,7 +8,6 @@ APP_NAME=be-commons_spring-boot
 JAR_PATH=$REPOSITORY/build/libs/
 ENV_PATH=/opt/application_env
 
-#CURRENT_PID=$(pgrep -f commons-d*.jar)
 CURRENT_PID=$(pgrep -fl $REPOSITORY/build/libs/ | grep java | awk '{print $1}')
 
 echo "현재 구동 중인 애플리케이션pid: $CURRENT_PID"
