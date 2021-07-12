@@ -6,15 +6,21 @@ spring:
     jdbc:
       initialize-schema: always
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+logging:
+  level:
+    web: debug
+    org:
+      hibernate:
+        SQL: DEBUG
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
