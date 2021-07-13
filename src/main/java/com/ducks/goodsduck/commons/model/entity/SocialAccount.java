@@ -14,6 +14,7 @@ import javax.persistence.*;
 public class SocialAccount {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "SOCIAL_ACCOUNT_ID")
     private String id;
 
     @Enumerated(EnumType.STRING)
