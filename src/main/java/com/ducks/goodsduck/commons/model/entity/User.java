@@ -28,12 +28,16 @@ public class User {
     private UserRole role;
 
     @OneToMany
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "SOCIAL_ACCOUNT_ID")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany
-    @JoinColumn(name = "ITEM_ID")
-    private List<Item> items = new ArrayList<Item>();
+    @JoinColumn(name = "ACCOUNT_ID")
+    private List<Account> accounts = new ArrayList<Account>();
+
+    @OneToMany
+    @JoinColumn(name = "ADDRESS_ID")
+    private List<Address> addresses = new ArrayList<Address>();
 
     /** user_item 다대다 식별 관계 정의 */
     @ManyToMany

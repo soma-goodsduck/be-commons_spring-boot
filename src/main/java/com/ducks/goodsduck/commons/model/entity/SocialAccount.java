@@ -20,7 +20,7 @@ public class SocialAccount {
     private SocialType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "USER_ID")
     private User user;
 
     public SocialAccount(String id, SocialType type) {
