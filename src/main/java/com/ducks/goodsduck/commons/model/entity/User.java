@@ -27,7 +27,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany
+    @JoinColumn(name = "USER_ID")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany
