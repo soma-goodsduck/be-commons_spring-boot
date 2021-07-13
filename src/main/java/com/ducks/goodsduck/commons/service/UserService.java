@@ -39,7 +39,7 @@ public class UserService {
         var authorizationNaverDto = oauthNaverService.callTokenApi(code, state);
 
         // 소셜로그인 정보
-        String userInfoFromNaver = oauthNaverService.callGetUserByAccessToken(authorizationNaverDto.getAccessToken());
+        String userInfoFromNaver = oauthNaverService.callGetUserByAccessToken(authorizationNaverDto.getAccess_token());
 
         // 비회원 체크
         var jsonUserInfo = new JSONObject(userInfoFromNaver);
@@ -74,7 +74,7 @@ public class UserService {
         var authorizationKakaoDto = oauthKakaoService.callTokenApi(code);
 
         // 소셜로그인 정보
-        String userInfoFromKakao = oauthKakaoService.callGetUserByAccessToken(authorizationKakaoDto.getAccessToken());
+        String userInfoFromKakao = oauthKakaoService.callGetUserByAccessToken(authorizationKakaoDto.getAccess_token());
 
         // 비회원 체크
         var jsonUserInfo = new JSONObject(userInfoFromKakao);
