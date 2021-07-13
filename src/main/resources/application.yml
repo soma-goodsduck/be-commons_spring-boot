@@ -1,16 +1,7 @@
 spring:
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     open-in-view: true
-    hibernate:
-      ddl-auto: create-drop
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-logging:
-  level:
-    web: debug
-    org:
-      hibernate:
-        SQL: DEBUG

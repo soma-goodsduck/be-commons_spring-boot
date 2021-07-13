@@ -27,16 +27,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @OneToMany
-    @JoinColumn(name = "SOCIAL_ACCOUNT_ID")
+    @OneToMany(mappedBy = "user")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "ACCOUNT_ID")
+    @OneToMany(mappedBy = "user")
     private List<Account> accounts = new ArrayList<Account>();
 
-    @OneToMany
-    @JoinColumn(name = "ADDRESS_ID")
+    @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<Address>();
 
     /** user_item 다대다 식별 관계 정의 */
