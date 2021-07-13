@@ -12,11 +12,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationContextServe implements ApplicationContextAware {
+
+    //TODO SonarLint - static 필드 지양 - 수정 필요
     private static ApplicationContext applicationContext;
+
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         applicationContext = context;
     }
+
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }

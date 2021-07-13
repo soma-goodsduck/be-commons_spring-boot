@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class AuthorizationKakaoDto {
 
-    private String access_token;
-    private String refresh_token;
-    private String token_type;
-    private String expires_in;
+    private String accessToken;
+    private String refreshToken;
+    private String tokenType;
+    private String expiresIn;
     private String scope;
-    private String refresh_token_expires_in;
+    private String refreshTokenExpiresIn;
 }

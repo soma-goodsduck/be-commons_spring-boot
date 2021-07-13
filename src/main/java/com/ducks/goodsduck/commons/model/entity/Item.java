@@ -26,7 +26,6 @@ public class Item {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    //TODO IDOLMEMBER 엔티티와의 관계 정의
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDOL_MEMBER_ID")
     private IdolMember idolMember;

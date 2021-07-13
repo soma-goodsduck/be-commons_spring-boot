@@ -46,8 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/user/{user_id}")
-    public UserDto getUser(@RequestParam Long user_id) {
-        return userService.find(user_id)
+    public UserDto getUser(@RequestParam Long userId) {
+        return userService.find(userId)
                 .map(user -> new UserDto(user))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)); // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
     }

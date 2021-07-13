@@ -19,7 +19,7 @@ public class JwtController {
     @GetMapping("/gen/token")
     public Map<String, Object> genToken(@RequestParam(value="subject") String subject) {
         String token = jwtService.createJwt(subject, new JwtDto(10L));
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("result", token);
         return map;
     }
@@ -27,7 +27,7 @@ public class JwtController {
     @GetMapping("/get/subject")
     public Map<String, Object> getSubject(@RequestHeader("token") String token) {
         String subject = jwtService.getSubject(token);
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("result", subject);
         return map;
     }

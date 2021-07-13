@@ -10,10 +10,9 @@ import java.util.Arrays;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
     @Bean
-    public FilterRegistrationBean getFilterRegistrationBean() {
-        FilterRegistrationBean registrationBean = new FilterRegistrationBean(new AccessControlAllowFilter());
+    public FilterRegistrationBean<AccessControlAllowFilter> getFilterRegistrationBean() {
+        FilterRegistrationBean<AccessControlAllowFilter> registrationBean = new FilterRegistrationBean<>(new AccessControlAllowFilter());
         registrationBean.setOrder(Integer.MIN_VALUE);
-        //registrationBean.addUrlPatterns("/*");
         registrationBean.setUrlPatterns(Arrays.asList("/api/v1/*"));
         return registrationBean;
     }

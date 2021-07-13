@@ -22,7 +22,7 @@ public class UserDto {
     private LocalDateTime lastLoginAt;
 
     public static UserDto createUserDto(UserRole role) {
-        UserDto userDto = new UserDto();
+        var userDto = new UserDto();
         userDto.setRole(role);
         return userDto;
     }

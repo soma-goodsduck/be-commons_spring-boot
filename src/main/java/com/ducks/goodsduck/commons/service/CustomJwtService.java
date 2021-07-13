@@ -34,7 +34,7 @@ public class CustomJwtService implements JwtService {
     public String createJwt(String subject, JwtDto jwtDto) {
 
         // 토큰을 서명하기 위해 사용할 알고리즘 선택
-        SignatureAlgorithm signatureAlgorithm= SignatureAlgorithm.HS256;
+        var signatureAlgorithm= SignatureAlgorithm.HS256;
 
         /* Header 설정 */
 

@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OauthKakaoService {
 
     private final RestTemplate restTemplate;
@@ -26,9 +28,9 @@ public class OauthKakaoService {
     private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.kakao.redirect-uri");
 
     public AuthorizationKakaoDto callTokenApi(String code) {
-        String grantType = "authorization_code";
+        var grantType = "authorization_code";
 
-        HttpHeaders headers = new HttpHeaders();
+        var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -38,16 +40,14 @@ public class OauthKakaoService {
         params.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        String url = "https://kauth.kakao.com/oauth/token";
+        var url = "https://kauth.kakao.com/oauth/token";
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-            AuthorizationKakaoDto authorization = objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
-            return authorization;
+            return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
 
         } catch (RestClientException | JsonProcessingException ex) {
-            ex.printStackTrace();
-//            throw new ProcyanException(E00001);
+            log.debug("exception occured in request to authorize with Kakao : {}", ex.getMessage(), ex);
             throw new IllegalStateException();
         }
     }
@@ -57,21 +57,21 @@ public class OauthKakaoService {
      * @return Json Data(String)
      */
     public String callGetUserByAccessToken(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
+        var headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        String url = "https://kapi.kakao.com/v2/user/me";
+        var url = "https://kapi.kakao.com/v2/user/me";
+
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
             // 값 리턴
             return response.getBody();
         }catch (RestClientException ex) {
-            ex.printStackTrace();
-//            throw new ProcyanException(E00002);
+            log.debug("exception occured in getting access token with Kakao : {}", ex.getMessage(), ex);
             throw new IllegalStateException();
         }
     }

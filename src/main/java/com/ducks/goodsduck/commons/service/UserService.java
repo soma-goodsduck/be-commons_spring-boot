@@ -36,23 +36,23 @@ public class UserService {
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
-        AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callTokenApi(code, state);
+        var authorizationNaverDto = oauthNaverService.callTokenApi(code, state);
 
         // 소셜로그인 정보
-        String userInfoFromNaver = oauthNaverService.callGetUserByAccessToken(authorizationNaverDto.getAccess_token());
+        String userInfoFromNaver = oauthNaverService.callGetUserByAccessToken(authorizationNaverDto.getAccessToken());
 
         // 비회원 체크
-        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
+        var jsonUserInfo = new JSONObject(userInfoFromNaver);
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
-        String userSocialAccountId = jsonResponseInfo.get("id").toString();
+        var userSocialAccountId = jsonResponseInfo.get("id").toString();
 
         log.info(userSocialAccountId);
 
         return socialAccountRepository.findById(userSocialAccountId)
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
                 .map( socialAccount -> {
-                    User user = socialAccount.getUser();
-                    UserDto userDto = new UserDto(user);
+                    var user = socialAccount.getUser();
+                    var userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(TOKEN_USAGE, new JwtDto(user.getId())));
 
@@ -60,7 +60,7 @@ public class UserService {
                 })
                 // socialAccount가 등록되어 있지 않은 경우, userDto(ANONUMOUS) 반환
                 .orElseGet( () -> {
-                    UserDto userDto = new UserDto();
+                    var userDto = new UserDto();
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setRole(UserRole.ANONYMOUS);
 
@@ -71,27 +71,27 @@ public class UserService {
     // 카카오로 인증받기
     public UserDto oauth2AuthorizationKakao(String code) {
 
-        AuthorizationKakaoDto authorizationKakaoDto = oauthKakaoService.callTokenApi(code);
+        var authorizationKakaoDto = oauthKakaoService.callTokenApi(code);
 
         // 소셜로그인 정보
-        String userInfoFromKakao = oauthKakaoService.callGetUserByAccessToken(authorizationKakaoDto.getAccess_token());
+        String userInfoFromKakao = oauthKakaoService.callGetUserByAccessToken(authorizationKakaoDto.getAccessToken());
 
         // 비회원 체크
-        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
-        String userSocialAccountId = jsonUserInfo.get("id").toString();
+        var jsonUserInfo = new JSONObject(userInfoFromKakao);
+        var userSocialAccountId = jsonUserInfo.get("id").toString();
 
         // 회원 로그인, 비회원 로그인 체크
         return socialAccountRepository.findById(userSocialAccountId)
                 .map(socialAccount -> {
-                    User user = socialAccount.getUser();
-                    UserDto userDto = new UserDto(user);
+                    var user = socialAccount.getUser();
+                    var userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(TOKEN_USAGE, new JwtDto(user.getId())));
 
                     return userDto;
                 })
                 .orElseGet(() -> {
-                    UserDto userDto = new UserDto();
+                    var userDto = new UserDto();
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setRole(UserRole.ANONYMOUS);
 
@@ -102,14 +102,14 @@ public class UserService {
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
 
-        SocialAccount socialAccount = socialAccountRepository.save(
+        var socialAccount = socialAccountRepository.save(
                 new SocialAccount(
                         userSignUpRequest.getSocialAccountId(),
                         userSignUpRequest.getSocialAccountType()
                 )
         );
 
-        User user = userRepository.save(
+        var user = userRepository.save(
                 new User(userSignUpRequest.getNickName(),
                         userSignUpRequest.getEmail(),
                         userSignUpRequest.getPhoneNumber())
@@ -118,7 +118,7 @@ public class UserService {
 
         String jwt = jwtService.createJwt(TOKEN_USAGE, new JwtDto(user.getId()));
 
-        UserDto userDto = new UserDto(user);
+        var userDto = new UserDto(user);
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
         userDto.setJwt(jwt);
         return userDto;
@@ -140,12 +140,12 @@ public class UserService {
         }
 
         // 토큰의 만료 기한이 다 된 경우
-        Long userId = Long.valueOf((Integer) payloads.get("userId"));
+        var userId = Long.valueOf((Integer) payloads.get("userId"));
 
         return userRepository.findById(userId)
                 .map(user -> {
                     user.updateLastLoginAt();
-                    UserDto userDto = new UserDto(user);
+                    var userDto = new UserDto(user);
                     userDto.setJwt(jwtService.createJwt(TOKEN_USAGE, new JwtDto(user.getId())));
 
                     return userDto;
@@ -153,8 +153,8 @@ public class UserService {
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
     }
 
-    public Optional<User> find(Long user_id) {
-        return userRepository.findById(user_id);
+    public Optional<User> find(Long userId) {
+        return userRepository.findById(userId);
     }
 
     // 유저 전체 리스트 조회
