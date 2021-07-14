@@ -4,7 +4,6 @@ REPOSITORY=/opt/be-commons_spring-boot
 cd $REPOSITORY
 
 APP_NAME=be-commons_spring-boot
-#JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/
 ENV_PATH=/opt/application_env
 
@@ -30,11 +29,7 @@ TEST_PATH=$(ls $ENV_PATH/application-db.yml)
 
 echo "ENV PATH 인식 > $TEST_PATH"
 
-#nohup java -jar \
-#        -Dspring.config.location=classpath:/application.yml,$ENV_PATH/application-develop.yml,$ENV_PATH/application-oauth2.yml,$ENV_PATH/bootstrap-develop.yml \
-#        -Dspring.profiles.active=develop \
-#        $JAR_NAME > $JAR_PATH/nohup.out 2>&1 &
-
 nohup java -jar \
-        -Dspring.config.location=classpath:/application.yml,/bootstrap.yml,$ENV_PATH/application-develop.yml,$ENV_PATH/bootstrap-develop.yml \
+        -Dspring.config.location=classpath:/application.yml,$ENV_PATH/application-develop.yml \
+#        -Dspring.profiles.active=develop \
         $JAR_NAME > $JAR_PATH/nohup.out 2>&1 &

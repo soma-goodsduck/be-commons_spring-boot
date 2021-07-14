@@ -25,10 +25,7 @@ public class CustomJwtService implements JwtService {
 
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-//    @Value(value = "${spring.security.jwt.expire-time}")
     private final String stringExpireTime = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "10000");
-
-//    @Value(value = "${spring.security.jwt.secret-key}")
     private final String secretKey = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "local");
 
     public Jws<Claims> getClaims(String token) {

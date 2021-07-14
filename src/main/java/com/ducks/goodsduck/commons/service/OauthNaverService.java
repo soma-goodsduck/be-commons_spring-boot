@@ -33,22 +33,11 @@ public class OauthNaverService {
     private final ObjectMapper objectMapper;
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-//    @Value(value = "${spring.security.oauth2.client.registration.naver.client-id}")
     private final String naverOauth2ClientId = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.client-id", "local");
-
-//    @Value(value = "${spring.security.oauth2.client.registration.naver.client-secret}")
     private final String naverOauth2ClientSecret = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.client-secret", "local");
-
-//    @Value(value = "${spring.security.oauth2.client.registration.naver.redirect-uri}")
     private final String frontendRedirectUrl = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.redirect-uri", "local");
-
-//    @Value(value = "${spring.security.oauth2.client.registration.naver.authorization-grant-type}")
     private final String grantType = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.authorization-grant-type", "local");
-
-//    @Value(value = "${spring.security.oauth2.client.provider.naver.token-uri}")
     private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.naver.token-uri", "local");
-
-//    @Value(value = "${spring.security.oauth2.client.provider.naver.user-info-uri}")
     private final String userInfoUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.naver.user-info-uri", "local");
 
     public AuthorizationNaverDto callTokenApi(String code, String state) {
