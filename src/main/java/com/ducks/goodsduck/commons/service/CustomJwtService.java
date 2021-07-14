@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -20,12 +21,15 @@ import java.util.Map;
 @Slf4j
 public class CustomJwtService implements JwtService {
 
-    private final long EXPIRE_TIME = Long.parseLong(String.valueOf(PropertyUtil.getProperty("spring.security.jwt.expire-time")));
-    private final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
+    @Value(value = "spring.security.jwt.expire-time")
+    private long expireTime;
+
+    @Value(value = "spring.security.jwt.secret-key")
+    private String secretKey;
 
     public Jws<Claims> getClaims(String token) {
         return Jwts.parserBuilder()
-                        .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                        .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
                         .build()
                         .parseClaimsJws(token);
     }
@@ -42,20 +46,19 @@ public class CustomJwtService implements JwtService {
         Map<String, Object> payloads = new HashMap<>();
         payloads.put("userId", jwtDto.getUserId());
 
-        byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
+        byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(secretKey);
         Key signingKey = new SecretKeySpec(secretKeyBytes, signatureAlgorithm.getJcaName());
 
         return Jwts.builder()
                 .setSubject(subject)
                 .addClaims(payloads)
                 .signWith(signingKey, signatureAlgorithm)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expireTime))
                 .compact();
     }
 
     @Override
     public Map<String, Object> getPayloads(String token) {
-
         return new HashMap<>(
                 getClaims(token)
                 .getBody()
@@ -68,11 +71,6 @@ public class CustomJwtService implements JwtService {
                 .getHeader();
     }
 
-    //     return new HashMap<>(
-//            Jwts.parserBuilder()
-//            .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
-//            .build()
-//                .parseClaimsJws(token)
     @Override
     public String getSubject(String token) {
         return (String) getPayloads(token).get("sub");

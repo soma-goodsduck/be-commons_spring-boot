@@ -64,7 +64,7 @@ public class User {
 
     public void addSocialAccount(SocialAccount socialAccount) {
         socialAccount.setUser(this);
-        socialAccounts.add(socialAccount);
+        this.socialAccounts.add(socialAccount);
     }
 
     public void updateLastLoginAt() {
