@@ -52,6 +52,13 @@ public class OauthNaverService {
     public AuthorizationNaverDto callTokenApi(String code, String state) {
 //        var grantType = "authorization_code";
 
+        log.debug("naverOauth2ClientId = " + naverOauth2ClientId);
+        log.debug("frontendRedirectUrl = " + frontendRedirectUrl);
+        log.debug("grantType = " + grantType);
+        log.debug("tokenUri = " + tokenUri);
+        log.debug("userInfoUri = " + userInfoUri);
+
+
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
