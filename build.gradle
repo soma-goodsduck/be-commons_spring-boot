@@ -35,7 +35,7 @@ dependencies {
 	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
 	runtime 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-	// build.gradle
+//	compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.355'
 	compile 'io.sentry:sentry-logback:1.7.30'
 	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
 	compileOnly 'org.projectlombok:lombok'

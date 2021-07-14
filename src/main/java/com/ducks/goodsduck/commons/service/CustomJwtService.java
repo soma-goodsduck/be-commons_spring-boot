@@ -21,10 +21,10 @@ import java.util.Map;
 @Slf4j
 public class CustomJwtService implements JwtService {
 
-    @Value(value = "spring.security.jwt.expire-time")
-    private long expireTime;
+    @Value(value = "${spring.security.jwt.expire-time}")
+    private String stringExpireTime;
 
-    @Value(value = "spring.security.jwt.secret-key")
+    @Value(value = "${spring.security.jwt.secret-key}")
     private String secretKey;
 
     public Jws<Claims> getClaims(String token) {
@@ -36,6 +36,8 @@ public class CustomJwtService implements JwtService {
 
     @Override
     public String createJwt(String subject, JwtDto jwtDto) {
+
+        Long expireTime = Long.valueOf(stringExpireTime);
 
         // 토큰을 서명하기 위해 사용할 알고리즘 선택
         var signatureAlgorithm= SignatureAlgorithm.HS256;
