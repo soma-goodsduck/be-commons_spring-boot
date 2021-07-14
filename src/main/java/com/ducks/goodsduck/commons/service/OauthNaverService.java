@@ -31,23 +31,23 @@ public class OauthNaverService {
     private final ObjectMapper objectMapper;
 
 //    private final String naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
-    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
-    private final String naverOauth2ClientId;
+    @Value(value = "${spring.security.oauth2.client.registration.naver.client-id}")
+    private String naverOauth2ClientId;
 //    private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
-    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
-    private final String naverOauth2ClientSecret;
+    @Value(value = "${spring.security.oauth2.client.registration.naver.client-secret}")
+    private String naverOauth2ClientSecret;
 //    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
-    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
-    private final String frontendRedirectUrl;
+    @Value(value = "${spring.security.oauth2.client.registration.naver.redirect-uri}")
+    private String frontendRedirectUrl;
 
-    @Value("${spring.security.oauth2.client.registration.naver.authorization-grant-type}")
-    private final String grantType;
+    @Value(value = "${spring.security.oauth2.client.registration.naver.authorization-grant-type}")
+    private String grantType;
 
-    @Value("${spring.security.oauth2.client.provider.naver.token-uri}")
-    private final String tokenUri;
+    @Value(value = "${spring.security.oauth2.client.provider.naver.token-uri}")
+    private String tokenUri;
 
-    @Value("${spring.security.oauth2.client.provider.naver.user-info-uri}")
-    private final String userInfoUri;
+    @Value(value = "${spring.security.oauth2.client.provider.naver.user-info-uri}")
+    private String userInfoUri;
 
     public AuthorizationNaverDto callTokenApi(String code, String state) {
 //        var grantType = "authorization_code";
