@@ -30,13 +30,12 @@ public class OauthNaverService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-//    private final String naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
     @Value(value = "${spring.security.oauth2.client.registration.naver.client-id}")
     private String naverOauth2ClientId;
-//    private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
+
     @Value(value = "${spring.security.oauth2.client.registration.naver.client-secret}")
     private String naverOauth2ClientSecret;
-//    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
+
     @Value(value = "${spring.security.oauth2.client.registration.naver.redirect-uri}")
     private String frontendRedirectUrl;
 
@@ -50,14 +49,6 @@ public class OauthNaverService {
     private String userInfoUri;
 
     public AuthorizationNaverDto callTokenApi(String code, String state) {
-//        var grantType = "authorization_code";
-
-        log.debug("naverOauth2ClientId = " + naverOauth2ClientId);
-        log.debug("frontendRedirectUrl = " + frontendRedirectUrl);
-        log.debug("grantType = " + grantType);
-        log.debug("tokenUri = " + tokenUri);
-        log.debug("userInfoUri = " + userInfoUri);
-
 
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -72,7 +63,6 @@ public class OauthNaverService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-//        var tokenUri = "https://nid.naver.com/oauth2.0/token";
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
             return objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
@@ -95,7 +85,6 @@ public class OauthNaverService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-//        var userInfoUri = "https://openapi.naver.com/v1/nid/me";
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
 

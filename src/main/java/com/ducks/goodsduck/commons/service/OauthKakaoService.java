@@ -1,11 +1,11 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.AuthorizationKakaoDto;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,26 +24,36 @@ public class OauthKakaoService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    private final String kakaoOauth2ClinetId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.kakao.client-id");
-    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.kakao.redirect-uri");
+    @Value(value = "${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoOauth2ClientId;
+
+    @Value(value = "${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String frontendRedirectUrl;
+
+    @Value(value = "${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
+    private String grantType;
+
+    @Value(value = "${spring.security.oauth2.client.provider.kakao.token-uri}")
+    private String tokenUri;
+
+    @Value(value = "${spring.security.oauth2.client.provider.kakao.user-info-uri}")
+    private String userInfoUri;
 
     public AuthorizationKakaoDto callTokenApi(String code) {
-        var grantType = "authorization_code";
 
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
-        params.add("client_id", kakaoOauth2ClinetId);
-        params.add("redirect_uri", frontendRedirectUrl + "/auth/kakao/callback");
+        params.add("client_id", kakaoOauth2ClientId);
+        params.add("redirect_uri", frontendRedirectUrl);
         params.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        var url = "https://kauth.kakao.com/oauth/token";
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
             return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
 
         } catch (RestClientException | JsonProcessingException ex) {
@@ -64,10 +74,8 @@ public class OauthKakaoService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        var url = "https://kapi.kakao.com/v2/user/me";
-
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
             // 값 리턴
             return response.getBody();
         }catch (RestClientException ex) {
