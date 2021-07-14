@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,12 +14,14 @@ import java.util.Map;
 @RequestMapping(value = "/api/test")
 public class TestController {
 
-    @Value(value = "${secretsmanager}")
+//    @Value(value = "${test}")
     private String dbUsername;
 
     @GetMapping("/v1")
     public Map<String, Object> getProperties(HttpServletRequest request) {
+        dbUsername = "test";
         final Map<String, Object> map = new HashMap<>();
+        map.put("AwsSecrets", AwsSecretsManagerUtil.getSecret());
         map.put("DBUsername", dbUsername);
         return map;
     }
