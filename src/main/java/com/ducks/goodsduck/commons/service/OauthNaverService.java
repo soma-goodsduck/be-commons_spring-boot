@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.URLEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,12 +30,27 @@ public class OauthNaverService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    private final String naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
-    private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
-    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
+//    private final String naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
+    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
+    private final String naverOauth2ClientId;
+//    private final String naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
+    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
+    private final String naverOauth2ClientSecret;
+//    private final String frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
+    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
+    private final String frontendRedirectUrl;
+
+    @Value("${spring.security.oauth2.client.registration.naver.authorization-grant-type}")
+    private final String grantType;
+
+    @Value("${spring.security.oauth2.client.provider.naver.token-uri}")
+    private final String tokenUri;
+
+    @Value("${spring.security.oauth2.client.provider.naver.user-info-uri}")
+    private final String userInfoUri;
 
     public AuthorizationNaverDto callTokenApi(String code, String state) {
-        var grantType = "authorization_code";
+//        var grantType = "authorization_code";
 
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -49,9 +65,9 @@ public class OauthNaverService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        var url = "https://nid.naver.com/oauth2.0/token";
+//        var tokenUri = "https://nid.naver.com/oauth2.0/token";
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
             return objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
 
         } catch (RestClientException | JsonProcessingException ex) {
@@ -72,9 +88,9 @@ public class OauthNaverService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        var url = "https://openapi.naver.com/v1/nid/me";
+//        var userInfoUri = "https://openapi.naver.com/v1/nid/me";
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
 
             return response.getBody();
         }catch (RestClientException ex) {
