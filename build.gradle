@@ -23,7 +23,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation group: 'org.json', name: 'json', version: '20210307'
 	implementation 'org.springframework.cloud:spring-cloud-context:3.0.2'
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:3.0.2'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
 
 	// Swagger 2
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
