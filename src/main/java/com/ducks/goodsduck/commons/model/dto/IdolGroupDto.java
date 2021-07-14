@@ -2,8 +2,10 @@ package com.ducks.goodsduck.commons.model.dto;
 
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class IdolGroupDto {
 
     private Long id;

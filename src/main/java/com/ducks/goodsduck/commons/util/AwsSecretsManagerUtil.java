@@ -3,10 +3,12 @@ package com.ducks.goodsduck.commons.util;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
 import java.util.Base64;
 
+@Slf4j
 public class AwsSecretsManagerUtil {
 
     public static JSONObject getSecret() {
@@ -28,28 +30,43 @@ public class AwsSecretsManagerUtil {
                 .withSecretId(secretName);
         GetSecretValueResult getSecretValueResult = null;
 
+        JSONObject jsonObject = new JSONObject();
+
         try {
             getSecretValueResult = client.getSecretValue(getSecretValueRequest);
         } catch (DecryptionFailureException e) {
             // Secrets Manager can't decrypt the protected secret text using the provided KMS key.
             // Deal with the exception here, and/or rethrow at your discretion.
-            throw e;
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
+//            throw e;
         } catch (InternalServiceErrorException e) {
             // An error occurred on the server side.
             // Deal with the exception here, and/or rethrow at your discretion.
-            throw e;
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
+//            throw e;
         } catch (InvalidParameterException e) {
             // You provided an invalid value for a parameter.
             // Deal with the exception here, and/or rethrow at your discretion.
-            throw e;
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
+//            throw e;
         } catch (InvalidRequestException e) {
             // You provided a parameter value that is not valid for the current state of the resource.
             // Deal with the exception here, and/or rethrow at your discretion.
-            throw e;
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
+//            throw e;
         } catch (ResourceNotFoundException e) {
             // We can't find the resource that you asked for.
             // Deal with the exception here, and/or rethrow at your discretion.
-            throw e;
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
+//            throw e;
+        } catch (Exception e) {
+            log.debug("Aws Credentials not found : ", e.getMessage());
+            return jsonObject;
         }
 
         // Decrypts secret using the associated KMS CMK.
@@ -64,7 +81,7 @@ public class AwsSecretsManagerUtil {
         }
 
         // Your code goes here.
-        JSONObject jsonObject = new JSONObject(jsonStringOfAwsSecrets);
+        jsonObject = new JSONObject(jsonStringOfAwsSecrets);
         return jsonObject;
     }
 }

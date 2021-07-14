@@ -1,6 +1,8 @@
 plugins {
 	id 'org.springframework.boot' version '2.4.8'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	// QueryDSL 추가
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id 'java'
 }
 
@@ -25,6 +27,9 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
 
+	// QueryDSL
+	implementation 'com.querydsl:querydsl-jpa'
+
 	// Swagger 2
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
@@ -35,7 +40,6 @@ dependencies {
 	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
 	runtime 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-//	compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.355'
 	compile 'io.sentry:sentry-logback:1.7.30'
 	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
 	compileOnly 'org.projectlombok:lombok'
@@ -48,4 +52,21 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+// QueryDSL Setting
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+	options.annotationProcessorPath = configurations.querydsl
 }
