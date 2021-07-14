@@ -1,10 +1,12 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.AuthorizationKakaoDto;
+import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,21 +27,22 @@ public class OauthKakaoService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-    @Value(value = "${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String kakaoOauth2ClientId;
+//    @Value(value = "${spring.security.oauth2.client.registration.kakao.client-id}")
+    private final String kakaoOauth2ClientId = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.client-id", "local");
 
-    @Value(value = "${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String frontendRedirectUrl;
+//    @Value(value = "${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private final String frontendRedirectUrl = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.redirect-uri", "local");;
 
-    @Value(value = "${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
-    private String grantType;
+//    @Value(value = "${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
+    private final String grantType = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.authorization-grant-type", "local");;
 
-    @Value(value = "${spring.security.oauth2.client.provider.kakao.token-uri}")
-    private String tokenUri;
+//    @Value(value = "${spring.security.oauth2.client.provider.kakao.token-uri}")
+    private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.token-uri", "local");;
 
-    @Value(value = "${spring.security.oauth2.client.provider.kakao.user-info-uri}")
-    private String userInfoUri;
+//    @Value(value = "${spring.security.oauth2.client.provider.kakao.user-info-uri}")
+    private final String userInfoUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.user-info-uri", "local");;
 
     public AuthorizationKakaoDto callTokenApi(String code) {
 

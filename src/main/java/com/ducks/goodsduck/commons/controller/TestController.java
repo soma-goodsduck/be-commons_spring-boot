@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,9 @@ public class TestController {
     public Map<String, Object> getProperties(HttpServletRequest request) {
         dbUsername = "test";
         final Map<String, Object> map = new HashMap<>();
-        map.put("AwsSecrets", AwsSecretsManagerUtil.getSecret());
+//        map.put("AwsSecrets", AwsSecretsManagerUtil.getSecret());
+        JSONObject jsonObject = new JSONObject("{\"test\":\"hell\"}");
+        map.put("test_please",jsonObject.get("test"));
         map.put("DBUsername", dbUsername);
         return map;
     }

@@ -3,13 +3,14 @@ package com.ducks.goodsduck.commons.util;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
+import org.json.JSONObject;
 
 import java.util.Base64;
 
 public class AwsSecretsManagerUtil {
 
-    public static String getSecret() {
-        String secretName = "backend";
+    public static JSONObject getSecret() {
+        String secretName = "dev/secret/goodsduck/backend";
         String region = "ap-northeast-2";
 
         // Create a Secrets Manager client
@@ -22,6 +23,7 @@ public class AwsSecretsManagerUtil {
         // We rethrow the exception by default.
 
         String secret, decodedBinarySecret;
+        String jsonStringOfAwsSecrets;
         GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
                 .withSecretId(secretName);
         GetSecretValueResult getSecretValueResult = null;
@@ -54,14 +56,15 @@ public class AwsSecretsManagerUtil {
         // Depending on whether the secret is a string or binary, one of these fields will be populated.
         if (getSecretValueResult.getSecretString() != null) {
             secret = getSecretValueResult.getSecretString();
-            return secret;
+            jsonStringOfAwsSecrets = secret;
         }
         else {
             decodedBinarySecret = new String(Base64.getDecoder().decode(getSecretValueResult.getSecretBinary()).array());
-            return decodedBinarySecret;
+            jsonStringOfAwsSecrets = decodedBinarySecret;
         }
 
         // Your code goes here.
-
+        JSONObject jsonObject = new JSONObject(jsonStringOfAwsSecrets);
+        return jsonObject;
     }
 }

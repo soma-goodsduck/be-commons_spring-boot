@@ -1,12 +1,14 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.JwtDto;
+import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +23,13 @@ import java.util.Map;
 @Slf4j
 public class CustomJwtService implements JwtService {
 
-    @Value(value = "${spring.security.jwt.expire-time}")
-    private String stringExpireTime;
+    private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-    @Value(value = "${spring.security.jwt.secret-key}")
-    private String secretKey;
+//    @Value(value = "${spring.security.jwt.expire-time}")
+    private final String stringExpireTime = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "10000");
+
+//    @Value(value = "${spring.security.jwt.secret-key}")
+    private final String secretKey = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "local");
 
     public Jws<Claims> getClaims(String token) {
         return Jwts.parserBuilder()
