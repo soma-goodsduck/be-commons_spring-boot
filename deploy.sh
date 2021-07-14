@@ -37,5 +37,4 @@ echo "ENV PATH 인식 > $TEST_PATH"
 
 nohup java -jar \
         -Dspring.config.location=classpath:/application.yml,$ENV_PATH/application-develop.yml,$ENV_PATH/bootstrap-develop.yml \
-        -Dspring.profiles.active=develop \
         $JAR_NAME > $JAR_PATH/nohup.out 2>&1 &

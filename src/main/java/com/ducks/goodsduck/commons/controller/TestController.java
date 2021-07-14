@@ -13,7 +13,7 @@ import java.util.Map;
 @RequestMapping(value = "/api/test")
 public class TestController {
 
-    @Value(value = "${spring.datasource.username}")
+    @Value(value = "${spring.security.oauth2.client.registration.kakao.client-id}")
     private String dbUsername;
 
     @GetMapping("/v1")
