@@ -9,7 +9,7 @@ import java.util.Map;
 public interface JwtService {
 
     String createJwt(String subject, JwtDto jwtDto);
-    String getSubject(String token);
-    Map<String, Object> getPayloads(String token);
-    Map<String, Object> getHeader(String token);
+    String getSubject(String jwt);
+    Map<String, Object> getPayloads(String jwt);
+    Map<String, Object> getHeader(String jwt);
 }

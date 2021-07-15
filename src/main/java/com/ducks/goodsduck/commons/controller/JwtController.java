@@ -25,15 +25,15 @@ public class JwtController {
     }
 
     @GetMapping("/get/subject")
-    public Map<String, Object> getSubject(@RequestHeader("token") String token) {
-        String subject = jwtService.getSubject(token);
+    public Map<String, Object> getSubject(@RequestHeader("jwt") String jwt) {
+        String subject = jwtService.getSubject(jwt);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("result", subject);
         return map;
     }
 
     @GetMapping("/get/payloads")
-    public Map<String, Object> getPayloads(@RequestHeader("token") String token) {
-        return jwtService.getPayloads(token);
+    public Map<String, Object> getPayloads(@RequestHeader("jwt") String jwt) {
+        return jwtService.getPayloads(jwt);
     }
 }

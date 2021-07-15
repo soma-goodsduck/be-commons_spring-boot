@@ -28,11 +28,11 @@ public class CustomJwtService implements JwtService {
     private final String stringExpireTime = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "10000");
     private final String secretKey = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "local");
 
-    public Jws<Claims> getClaims(String token) {
+    public Jws<Claims> getClaims(String jwt) {
         return Jwts.parserBuilder()
                         .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
                         .build()
-                        .parseClaimsJws(token);
+                        .parseClaimsJws(jwt);
     }
 
     @Override
@@ -61,21 +61,21 @@ public class CustomJwtService implements JwtService {
     }
 
     @Override
-    public Map<String, Object> getPayloads(String token) {
+    public Map<String, Object> getPayloads(String jwt) {
         return new HashMap<>(
-                getClaims(token)
+                getClaims(jwt)
                 .getBody()
         );
     }
 
     @Override
-    public Map<String, Object> getHeader(String token) {
-        return getClaims(token)
+    public Map<String, Object> getHeader(String jwt) {
+        return getClaims(jwt)
                 .getHeader();
     }
 
     @Override
-    public String getSubject(String token) {
-        return (String) getPayloads(token).get("sub");
+    public String getSubject(String jwt) {
+        return (String) getPayloads(jwt).get("sub");
     }
 }

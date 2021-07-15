@@ -36,8 +36,8 @@ public class UserController {
 
     /** JWT를 통한 권한체크 및 JWT 갱신 */
     @GetMapping("/validate/user")
-    public UserDto validateUser(@RequestHeader("token") String token) {
-        return userService.checkLoginStatus(token);
+    public UserDto validateUser(@RequestHeader("jwt") String jwt) {
+        return userService.checkLoginStatus(jwt);
     }
 
     @GetMapping("/user")
