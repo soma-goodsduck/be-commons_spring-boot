@@ -66,4 +66,14 @@ public class Item {
         this.views = 0;
         this.likesItemCount = 0;
     }
+
+    public Item liked() {
+        this.likesItemCount++;
+        return this;
+    }
+
+    public Item unLiked() {
+        this.likesItemCount--;
+        return this;
+    }
 }

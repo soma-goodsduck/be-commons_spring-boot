@@ -1,58 +1,52 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.model.entity.CategoryItem;
+import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.StatusGrade;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.time.LocalDateTime;
 
-/**
- *  아이템 상세 페이지에 넘길 Item에 대한 DTO 클래스
- */
 @Data
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
-public class ItemDetailResponse {
+public class ItemDto {
 
-    //TODO USER 엔티티와의 관계 포함
-
-    //TODO IDOLMEMBER 엔티티와의 관계 포함
-
-    //TODO CATEGORY_ITEM 엔티티와의 관계 포함
-
+    private Long id;
     private String name;
     private int price;
-
-    @Enumerated(EnumType.STRING)
     private TradeType tradeType;
-
-    @Enumerated(EnumType.STRING)
     private TradeStatus tradeStatus;
-
-    @Enumerated(EnumType.STRING)
     private StatusGrade statusGrade;
-
     private String imageUrl;
     private String description;
+    private int views;
+    private int likesItemCount;
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
-    private int likesItemCount;
+    private boolean isLike = false;
+    private IdolMember idolMember;
+    private UserSimpleDto userSimpleDto;
+    private CategoryItem categoryItem;
 
-    public ItemDetailResponse(Item item) {
+    public ItemDto likesOfMe() {
+        this.isLike = true;
+        return this;
+    }
+
+    public ItemDto(Item item) {
+        this.id = item.getId();
         this.name = item.getName();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType();
         this.tradeStatus = item.getTradeStatus();
+        this.statusGrade = item.getStatusGrade();
         this.imageUrl = item.getImageUrl();
         this.description = item.getDescription();
+        this.views = item.getViews();
         this.itemCreatedAt = item.getItemCreatedAt();
         this.updatedAt = item.getUpdatedAt();
         this.likesItemCount = item.getLikesItemCount();
     }
-
 }

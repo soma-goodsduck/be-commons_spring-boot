@@ -1,0 +1,20 @@
+package com.ducks.goodsduck.commons.model.dto;
+
+import com.ducks.goodsduck.commons.model.entity.User;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+public class UserSimpleDto {
+
+    private Long id;
+    private String nickName;
+    private String imageUrl;
+
+    public UserSimpleDto(User user) {
+        this.id = user.getId();
+        this.nickName = user.getNickName();
+        this.imageUrl = user.getImageUrl();
+    }
+}
