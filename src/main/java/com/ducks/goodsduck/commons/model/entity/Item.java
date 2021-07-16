@@ -41,7 +41,7 @@ public class Item {
     private TradeType tradeType;
 
     @Enumerated(EnumType.STRING)
-    private TradeStatus tradetStatus;
+    private TradeStatus tradeStatus;
 
     @Enumerated(EnumType.STRING)
     private StatusGrade statusGrade;
@@ -57,7 +57,7 @@ public class Item {
         this.name = itemUploadRequest.getName();
         this.price = itemUploadRequest.getPrice();
         this.tradeType = itemUploadRequest.getTradeType();
-        this.tradetStatus = itemUploadRequest.getTradeStatus();
+        this.tradeStatus = itemUploadRequest.getTradeStatus();
         this.statusGrade = itemUploadRequest.getStatusGrade();
         this.imageUrl = itemUploadRequest.getImageUrl();
         this.description = itemUploadRequest.getDescription();
