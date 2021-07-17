@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.JwtDto;
+import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 public interface JwtService {
 
     String createJwt(String subject, JwtDto jwtDto);
-    String getSubject(String jwt);
-    Map<String, Object> getPayloads(String jwt);
-    Map<String, Object> getHeader(String jwt);
+    String getSubject(String token);
+    Map<String, Object> getPayloads(String token);
+    Map<String, Object> getHeader(String token);
 }

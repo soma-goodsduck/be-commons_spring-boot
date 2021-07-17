@@ -30,6 +30,12 @@ dependencies {
 	// QueryDSL
 	implementation 'com.querydsl:querydsl-jpa'
 
+	// Image-Resizing
+	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
+
+	// S3
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
+
 	// Swagger 2
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
@@ -44,7 +50,7 @@ dependencies {
 	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'mysql:mysql-connector-java'
+	compile 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -54,7 +60,6 @@ test {
 	useJUnitPlatform()
 }
 
-// QueryDSL Setting
 def querydslDir = "$buildDir/generated/querydsl"
 
 querydsl {

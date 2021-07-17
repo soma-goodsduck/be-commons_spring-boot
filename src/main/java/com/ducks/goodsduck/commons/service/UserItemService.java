@@ -1,9 +1,8 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
-import com.ducks.goodsduck.commons.model.dto.ItemDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.LikeItemResponse;
-import com.ducks.goodsduck.commons.model.dto.UserSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepository;
@@ -83,13 +82,13 @@ public class UserItemService {
 
         var findUser = userRepository.findById(userId)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("User not founded.")
+                        () -> new RuntimeException("User not founded.")
                 );
 
         var findItem = itemRepository.findById(itemId)
                 .map(item1 -> item1.liked())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Item not founded.")
+                        () -> new RuntimeException("Item not founded.")
                 );
 
         var savedUserItem = userItemRepository.save(new UserItem(findUser, findItem));

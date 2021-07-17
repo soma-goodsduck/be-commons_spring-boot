@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.IdolMemberDto;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolMemberDto;
 import com.ducks.goodsduck.commons.service.IdolMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

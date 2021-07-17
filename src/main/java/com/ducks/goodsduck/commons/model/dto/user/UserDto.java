@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.user;
 
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
@@ -22,7 +22,7 @@ public class UserDto {
     private LocalDateTime lastLoginAt;
 
     public static UserDto createUserDto(UserRole role) {
-        var userDto = new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setRole(role);
         return userDto;
     }

@@ -1,11 +1,9 @@
 package com.ducks.goodsduck.commons.util;
 
 import com.ducks.goodsduck.commons.config.ApplicationContextServe;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class PropertyUtil {
 
@@ -23,3 +21,4 @@ public class PropertyUtil {
         return "No Value";
     }
 }
+
