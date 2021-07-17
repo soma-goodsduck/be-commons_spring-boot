@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.idol;
 
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import lombok.Data;

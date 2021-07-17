@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface IdolMemberRepository extends JpaRepository<IdolMember, Long> {
 
-    List<IdolMember> findAllByIdolGroupId(Long IdolGroupId);
+    List<IdolMember> findAllByIdolGroupId(Long idolMemberId);
 }

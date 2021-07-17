@@ -13,10 +13,11 @@ import javax.persistence.*;
 public class IdolGroup {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IDOL_GROUP_ID")
+    @Column(name = "idol_group_id")
     private Long id;
-    private String engName;
+    private String name;
     private String korName;
-    private long votedCount;
+    private String engName;
+    private Long votedCount;
     private String imageUrl;
 }

@@ -1,9 +1,11 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.item;
 
+import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.CategoryItem;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.enums.StatusGrade;
+import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
@@ -15,17 +17,17 @@ public class ItemDto {
 
     private Long id;
     private String name;
-    private int price;
+    private Long price;
     private TradeType tradeType;
     private TradeStatus tradeStatus;
-    private StatusGrade statusGrade;
-    private String imageUrl;
+    private GradeStatus gradeStatus;
     private String description;
-    private int views;
-    private int likesItemCount;
+    private Integer views;
+    private Integer likesItemCount;
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
-    private boolean isLike = false;
+    private Boolean isLike = false;
+    private ImageDto image;
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
     private CategoryItem categoryItem;
@@ -41,12 +43,12 @@ public class ItemDto {
         this.price = item.getPrice();
         this.tradeType = item.getTradeType();
         this.tradeStatus = item.getTradeStatus();
-        this.statusGrade = item.getStatusGrade();
-        this.imageUrl = item.getImageUrl();
+        this.gradeStatus = item.getGradeStatus();
         this.description = item.getDescription();
         this.views = item.getViews();
-        this.itemCreatedAt = item.getItemCreatedAt();
+        this.itemCreatedAt = item.getCreatedAt();
         this.updatedAt = item.getUpdatedAt();
         this.likesItemCount = item.getLikesItemCount();
+        this.image = new ImageDto(item.getThumbNail());
     }
 }

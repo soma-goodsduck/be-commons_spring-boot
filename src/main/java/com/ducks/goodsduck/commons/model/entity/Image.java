@@ -10,15 +10,22 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class IdolMember {
+public class Image {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idol_member_id")
+    @Column(name = "image_id")
     private Long id;
-    private String name;
-    private String imageUrl;
+    private String originName;
+    private String uploadName;
+    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idol_group_id")
-    private IdolGroup idolGroup;
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    public Image(String originName, String uploadName, String url) {
+        this.originName = originName;
+        this.uploadName = uploadName;
+        this.url = url;
+    }
 }

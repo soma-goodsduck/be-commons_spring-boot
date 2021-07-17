@@ -17,7 +17,7 @@ import java.util.List;
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID")
+    @Column(name = "user_id")
     private Long id;
     private String nickName;
     private String email;
@@ -31,7 +31,7 @@ public class User {
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Account> accounts = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<>();
@@ -50,7 +50,7 @@ public class User {
 
     public void addSocialAccount(SocialAccount socialAccount) {
         socialAccount.setUser(this);
-        this.socialAccounts.add(socialAccount);
+        socialAccounts.add(socialAccount);
     }
 
     public void updateLastLoginAt() {
