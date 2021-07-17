@@ -14,14 +14,13 @@ import javax.persistence.*;
 public class SocialAccount {
 
     @Id
-    @Column(name = "SOCIAL_ACCOUNT_ID")
     private String id;
 
     @Enumerated(EnumType.STRING)
     private SocialType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public SocialAccount(String id, SocialType type) {

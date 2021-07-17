@@ -1,7 +1,4 @@
-spring:
-  jpa:
-    open-in-view: false
-    properties:
-      hibernate:
-#        show_sql: true
-        format_sql: true
+#spring:
+#  jackson:
+#    serialization:
+#      FAIL_ON_EMPTY_BEANS: false

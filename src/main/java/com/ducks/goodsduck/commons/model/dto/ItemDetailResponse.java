@@ -1,58 +1,43 @@
 package com.ducks.goodsduck.commons.model.dto;
 
-import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.enums.StatusGrade;
-import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- *  아이템 상세 페이지에 넘길 Item에 대한 DTO 클래스
- */
 @Data
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class ItemDetailResponse {
 
-    //TODO USER 엔티티와의 관계 포함
-
-    //TODO IDOLMEMBER 엔티티와의 관계 포함
-
-    //TODO CATEGORY_ITEM 엔티티와의 관계 포함
-
+    private ItemDetailResponseUser user;
     private String name;
-    private int price;
-
-    @Enumerated(EnumType.STRING)
-    private TradeType tradeType;
-
-    @Enumerated(EnumType.STRING)
-    private TradeStatus tradeStatus;
-
-    @Enumerated(EnumType.STRING)
-    private StatusGrade statusGrade;
-
-    private String imageUrl;
     private String description;
+    private List<ItemDetailResponseImage> images = new ArrayList<>();
+    private Long price;
+    private TradeType tradeType;
+    private GradeStatus gradeStatus;
+    private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
-    private LocalDateTime updatedAt;
-    private int likesItemCount;
+//    private ItemDetailResponseCategory category;
+    private String categoryName;
 
     public ItemDetailResponse(Item item) {
+        this.user = new ItemDetailResponseUser(item.getUser());
         this.name = item.getName();
+        this.description = item.getDescription();
+        this.images = item.getImages().stream()
+                                        .map(image -> new ItemDetailResponseImage(image))
+                                        .collect(Collectors.toList());
         this.price = item.getPrice();
         this.tradeType = item.getTradeType();
-        this.tradeStatus = item.getTradeStatus();
-        this.imageUrl = item.getImageUrl();
-        this.description = item.getDescription();
-        this.itemCreatedAt = item.getItemCreatedAt();
-        this.updatedAt = item.getUpdatedAt();
-        this.likesItemCount = item.getLikesItemCount();
+        this.gradeStatus = item.getGradeStatus();
+        this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
+        this.itemCreatedAt = item.getCreatedAt();
+//        this.category = new ItemDetailResponseCategory(item.getCategory());
+        this.categoryName = item.getCategory().getName();
     }
-
 }

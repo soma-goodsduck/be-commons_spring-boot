@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID")
+    @Id @GeneratedValue
+    @Column(name = "user_id")
     private Long id;
     private String nickName;
     private String email;
@@ -31,10 +31,7 @@ public class User {
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Account> accounts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Address> addresses = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
@@ -50,7 +47,7 @@ public class User {
 
     public void addSocialAccount(SocialAccount socialAccount) {
         socialAccount.setUser(this);
-        this.socialAccounts.add(socialAccount);
+        socialAccounts.add(socialAccount);
     }
 
     public void updateLastLoginAt() {
