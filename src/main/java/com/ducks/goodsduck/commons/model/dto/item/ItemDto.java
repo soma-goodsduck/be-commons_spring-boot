@@ -1,5 +1,7 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.item;
 
+import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.CategoryItem;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -20,11 +22,11 @@ public class ItemDto {
     private TradeStatus tradeStatus;
     private GradeStatus gradeStatus;
     private String description;
-    private int views;
-    private int likesItemCount;
+    private Integer views;
+    private Integer likesItemCount;
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
-    private boolean isLike = false;
+    private Boolean isLike = false;
     private ImageDto image;
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;

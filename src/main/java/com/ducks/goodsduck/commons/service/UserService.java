@@ -1,6 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
+import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
+import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.SocialAccount;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.UserRole;

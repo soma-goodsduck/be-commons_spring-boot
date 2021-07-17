@@ -1,8 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.JwtDto;
+import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
-import com.ducks.goodsduck.commons.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.beans.factory.annotation.Autowired;

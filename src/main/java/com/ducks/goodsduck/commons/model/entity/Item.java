@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
-import com.ducks.goodsduck.commons.model.dto.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
     private Long id;
     private String name;
@@ -68,12 +68,11 @@ public class Item {
         if(tradeType.equals(TradeType.BUY)) {
             this.tradeStatus = TradeStatus.BUYING;
         } else {
-            this.tradeStatus = TradeStatus.FOR_SALE;
+            this.tradeStatus = TradeStatus.SELLING;
         }
     }
 
     public Image getThumbNail() {
-        // TODO : images List가 empty일 경우
         return this.images.get(0);
     }
 

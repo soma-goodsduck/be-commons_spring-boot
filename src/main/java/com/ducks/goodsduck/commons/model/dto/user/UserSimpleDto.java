@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.user;
 
 import com.ducks.goodsduck.commons.model.entity.User;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
-import com.ducks.goodsduck.commons.model.dto.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.ItemDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.LikeItemResponse;
-import com.ducks.goodsduck.commons.model.dto.UserSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepository;
@@ -10,7 +10,6 @@ import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

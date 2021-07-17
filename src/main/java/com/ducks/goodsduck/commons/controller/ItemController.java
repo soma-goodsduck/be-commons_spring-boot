@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.repository.ImageRepository;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.service.CustomJwtService;

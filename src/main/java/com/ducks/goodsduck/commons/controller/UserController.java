@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.UserDto;
-import com.ducks.goodsduck.commons.model.dto.UserSignUpRequest;
+import com.ducks.goodsduck.commons.model.dto.user.UserDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.service.UserService;
 import lombok.RequiredArgsConstructor;

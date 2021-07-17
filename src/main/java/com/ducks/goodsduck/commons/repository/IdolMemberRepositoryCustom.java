@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface IdolMemberRepositoryCustom {
-
     List<IdolMember> findAllByIdolGroupId(Long IdolGroupId);
 }

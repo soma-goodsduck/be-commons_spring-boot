@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.JwtDto;
+import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
