@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserSimpleDto {
 
-    private Long id;
     private String nickName;
     private String imageUrl;
 
     public UserSimpleDto(User user) {
-        this.id = user.getId();
         this.nickName = user.getNickName();
         this.imageUrl = user.getImageUrl();
     }

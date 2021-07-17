@@ -60,14 +60,21 @@ public class Item {
         this.tradeType = itemUploadRequest.getTradeType();
         this.gradeStatus = itemUploadRequest.getGradeStatus();
         this.description = itemUploadRequest.getDescription();
+        this.views = 0;
+        this.likesItemCount = 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 
-        if(tradeType.equals("구매")) {
-            this.tradeStatus = TradeStatus.구매중;
+        if(tradeType.equals(TradeType.BUY)) {
+            this.tradeStatus = TradeStatus.BUYING;
         } else {
-            this.tradeStatus = TradeStatus.판매중;
+            this.tradeStatus = TradeStatus.FOR_SALE;
         }
+    }
+
+    public Image getThumbNail() {
+        // TODO : images List가 empty일 경우
+        return this.images.get(0);
     }
 
     public void addImage(Image image) {

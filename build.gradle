@@ -1,10 +1,9 @@
 plugins {
 	id 'org.springframework.boot' version '2.4.8'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
-
-	// QueryDSL
+	// QueryDSL 추가
 	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+	id 'java'
 }
 
 group = 'com.ducks.goodsduck'
@@ -25,6 +24,17 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation group: 'org.json', name: 'json', version: '20210307'
+	implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
+
+	// QueryDSL
+	implementation 'com.querydsl:querydsl-jpa'
+
+	// Image-Resizing
+	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
+
+	// S3
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
 
 	// Swagger 2
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
@@ -36,23 +46,16 @@ dependencies {
 	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
 	runtime 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
+	compile 'io.sentry:sentry-logback:1.7.30'
+	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
+	compile 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// MySQL
-	compile 'mysql:mysql-connector-java'
 
-	// Image-Resizing
-	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
-
-	// S3
-	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
-
-	// QueryDSL
-	implementation 'com.querydsl:querydsl-jpa'
 }
 
 test {

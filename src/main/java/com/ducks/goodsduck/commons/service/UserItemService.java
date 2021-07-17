@@ -83,15 +83,13 @@ public class UserItemService {
 
         var findUser = userRepository.findById(userId)
                 .orElseThrow(
-//                        () -> new ResourceNotFoundException("User not founded.")
-                        () -> new RuntimeException()
+                        () -> new RuntimeException("User not founded.")
                 );
 
         var findItem = itemRepository.findById(itemId)
                 .map(item1 -> item1.liked())
                 .orElseThrow(
-//                        () -> new ResourceNotFoundException("Item not founded.")
-                        () -> new RuntimeException()
+                        () -> new RuntimeException("Item not founded.")
                 );
 
         var savedUserItem = userItemRepository.save(new UserItem(findUser, findItem));
