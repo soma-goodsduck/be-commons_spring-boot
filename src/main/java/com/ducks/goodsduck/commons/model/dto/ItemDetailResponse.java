@@ -38,6 +38,6 @@ public class ItemDetailResponse {
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
 //        this.category = new ItemDetailResponseCategory(item.getCategory());
-        this.categoryName = item.getCategory().getName();
+        this.categoryName = item.getCategoryItem().getName();
     }
 }

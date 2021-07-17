@@ -27,7 +27,8 @@ public class Item {
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long likesItemCount;
+    private Integer likesItemCount;
+    private Integer views;
 
     @Enumerated(EnumType.STRING)
     private TradeType tradeType;
@@ -50,8 +51,8 @@ public class Item {
     private IdolMember idolMember;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @JoinColumn(name = "category_item_id")
+    private CategoryItem categoryItem;
 
     public Item(ItemUploadRequest itemUploadRequest) {
         this.name = itemUploadRequest.getName();
@@ -72,5 +73,15 @@ public class Item {
     public void addImage(Image image) {
         image.setItem(this);
         this.images.add(image);
+    }
+
+    public Item liked() {
+        this.likesItemCount++;
+        return this;
+    }
+
+    public Item unLiked() {
+        this.likesItemCount--;
+        return this;
     }
 }

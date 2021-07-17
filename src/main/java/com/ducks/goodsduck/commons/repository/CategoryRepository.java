@@ -1,9 +1,9 @@
 package com.ducks.goodsduck.commons.repository;
 
-import com.ducks.goodsduck.commons.model.entity.Category;
+import com.ducks.goodsduck.commons.model.entity.CategoryItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<CategoryItem, Long> {
 
-    Category findByName(String name);
+    CategoryItem findByName(String name);
 }
