@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.LikeItemResponse;
 import com.ducks.goodsduck.commons.service.JwtService;
 import com.ducks.goodsduck.commons.service.UserItemService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,6 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class UserItemController {
 
-    private static final String KEY_OF_USERID_IN_JWT_PAYLOADS = "userId";
     private final UserItemService userItemService;
     private final JwtService jwtService;
 
@@ -22,7 +22,7 @@ public class UserItemController {
     @GetMapping("/like/item/{item_id}")
     public LikeItemResponse doLikeItem(@RequestHeader("jwt") String jwt, @PathVariable("item_id") Long itemId) {
         //TODO 여기서 JWT를 받아와서 로그인한 유저 ID를 파악하는 로직이 필요한지 체크
-        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(KEY_OF_USERID_IN_JWT_PAYLOADS));
+        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
         return userItemService.doLike(userId, itemId);
     }
 
@@ -30,7 +30,7 @@ public class UserItemController {
     @DeleteMapping("/like/item/{item_id}")
     public boolean cancleLikeItem(@RequestHeader("jwt") String jwt, @PathVariable("item_id") Long itemId) {
         //TODO 여기서 JWT를 받아와서 로그인한 유저 ID를 파악하는 로직이 필요한지 체크
-        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(KEY_OF_USERID_IN_JWT_PAYLOADS));
+        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
         return userItemService.cancelLikeItem(userId, itemId);
     }
 
@@ -38,7 +38,7 @@ public class UserItemController {
     @GetMapping("/like/item")
     public List<ItemDto> getLikeItems(@RequestHeader("jwt") String jwt) {
         //TODO 여기서 JWT를 받아와서 로그인한 유저 ID를 파악하는 로직이 필요한지 체크
-        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(KEY_OF_USERID_IN_JWT_PAYLOADS));
+        var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
         return userItemService.getLikeItemsOfUser(userId);
     }
 }

@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -26,5 +27,16 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                         pricePropose.item.id.eq(itemId)
                 ))
                 .fetch();
+    }
+
+    @Override
+    public long updatePrice(Long userId, Long priceProposeId, int price) {
+        return queryFactory.update(pricePropose)
+                .set(pricePropose.price, price)
+                .set(pricePropose.createdAt, LocalDateTime.now())
+                .where(pricePropose.id.eq(priceProposeId).and(
+                        pricePropose.user.id.eq(userId)
+                ))
+                .execute();
     }
 }

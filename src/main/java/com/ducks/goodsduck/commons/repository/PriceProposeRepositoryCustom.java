@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface PriceProposeRepositoryCustom {
     List<PricePropose> findByUserIdAndItemId(Long userId, Long itemId);
+    long updatePrice(Long userId, Long priceProposeId, int price);
 }

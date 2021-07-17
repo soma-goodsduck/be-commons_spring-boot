@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.model.entity.PricePropose;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,14 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PriceProposeResponse {
 
-    private Long userId;
-    private Long itemId;
-    private PriceProposeStatus status = PriceProposeStatus.SUGGERSTED;
-    private boolean price;
+    private Long priceProposeId;
+    private PriceProposeStatus status;
+    private int price;
+    private boolean isSuccess;
 
-    public PriceProposeResponse(Long userId, Long itemId, boolean price) {
-        this.userId = userId;
-        this.itemId = itemId;
-        this.price = price;
+    public PriceProposeResponse (PricePropose pricePropose, boolean isSuccess) {
+        this.priceProposeId = pricePropose.getId();
+        this.status = pricePropose.getStatus();
+        this.price = pricePropose.getPrice();
+        this.isSuccess = isSuccess;
     }
 }

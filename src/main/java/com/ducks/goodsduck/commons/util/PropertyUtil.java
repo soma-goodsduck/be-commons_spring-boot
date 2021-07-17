@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PropertyUtil {
 
+    public static final String KEY_OF_USERID_IN_JWT_PAYLOADS = "userId";
+
     public static String getProperty(String propertyName) {
 
         var applicationContext = ApplicationContextServe.getApplicationContext();
