@@ -15,6 +15,7 @@ public class IdolGroup {
     @Id @GeneratedValue
     @Column(name = "idol_group_id")
     private Long id;
+    private String name;
     private String korName;
     private String engName;
     private Long votedCount;

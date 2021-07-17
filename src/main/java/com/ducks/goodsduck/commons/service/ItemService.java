@@ -38,23 +38,16 @@ public class ItemService {
             Item item = new Item(itemUploadRequest);
 
             /** Item-User 연관관계 삽입 **/
-//            User findUser = userRepository.findById(userId).get();
-//            item.setUser(findUser);
+            User findUser = userRepository.findById(userId).get();
+            item.setUser(findUser);
 
             /** Item-IdolMember 연관관계 삽입 **/
-//            IdolMember idolMember = idolMemberRepository.findById(itemUploadRequest.getIdolMember()).get();
-//            item.setIdolMember(idolMember);
+            IdolMember idolMember = idolMemberRepository.findById(itemUploadRequest.getIdolMember()).get();
+            item.setIdolMember(idolMember);
 
             /** Item-Category 연관관계 삽입 **/
-//            Category category = categoryRepository.findById(itemUploadRequest.getCategory()).get();
-
-//            Category category = categoryRepository.findByName(itemUploadRequest.getCategory());
-//
-//            System.out.println("@@@@@@@@@@@@@@@@@@@@@@");
-//            System.out.println(category.getId());
-//            System.out.println(category.getName());
-//
-//            item.setCategory(category);
+            CategoryItem categoryItem = categoryRepository.findByName(itemUploadRequest.getCategory());
+            item.setCategoryItem(categoryItem);
 
             itemRepository.save(item);
 

@@ -9,7 +9,7 @@ public class ItemDetailResponseCategory {
 
     private String name;
 
-    public ItemDetailResponseCategory(CategoryItem category) {
-        this.name = category.getName();
+    public ItemDetailResponseCategory(CategoryItem categoryItem) {
+        this.name = categoryItem.getName();
     }
 }
