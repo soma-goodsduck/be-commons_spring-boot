@@ -1,12 +1,13 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.JwtDto;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -20,8 +21,10 @@ import java.util.Map;
 @Slf4j
 public class CustomJwtService implements JwtService {
 
-    private final long EXPIRE_TIME = Long.parseLong(String.valueOf(PropertyUtil.getProperty("spring.security.jwt.expire-time")));
-    private final String SECRET_KEY = PropertyUtil.getProperty("spring.security.jwt.secret-key");
+    private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
+
+    private final String STRING_EXPIRE_TIME = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "100000000");
+    private final String SECRET_KEY = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "QW76QWORJOQPWNTHOWQN2QWBLK1QWBTKLQQIHR5W7QHWI6WQWBR7KLQWBK4LRQWRQWKNR48QWTOWQ:ORNQWLQ2NRWQ6K3BRKQWORJQOQ");
 
     public Jws<Claims> getClaims(String jwt) {
         return Jwts.parserBuilder()
@@ -32,6 +35,8 @@ public class CustomJwtService implements JwtService {
 
     @Override
     public String createJwt(String subject, JwtDto jwtDto) {
+
+        final Long EXPIRE_TIME = Long.valueOf(STRING_EXPIRE_TIME);
 
         // 토큰을 서명하기 위해 사용할 알고리즘 선택
         SignatureAlgorithm signatureAlgorithm= SignatureAlgorithm.HS256;

@@ -33,6 +33,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Item> items = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Address> addresses = new ArrayList<>();
+
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
