@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -45,7 +46,7 @@ public class CustomJwtService implements JwtService {
 
         /* Payload 설정 */
         Map<String, Object> payloads = new HashMap<>();
-        payloads.put("userId", jwtDto.getUserId());
+        payloads.put(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, jwtDto.getUserId());
 
         byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
         Key signingKey = new SecretKeySpec(secretKeyBytes, signatureAlgorithm.getJcaName());
