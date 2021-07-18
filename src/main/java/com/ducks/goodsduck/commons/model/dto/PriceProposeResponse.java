@@ -1,6 +1,8 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
+import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
@@ -13,23 +15,23 @@ public class PriceProposeResponse {
 
     private Long priceProposeId;
     private UserSimpleDto proposer;
-    private int price;
+    private ItemSimpleDto item;
+    private int proposedPrice;
     private PriceProposeStatus status;
-    private boolean isSuccess;
 
-    public PriceProposeResponse (PricePropose pricePropose, boolean isSuccess) {
+    public PriceProposeResponse (PricePropose pricePropose) {
         this.priceProposeId = pricePropose.getId();
         this.proposer = new UserSimpleDto();
-        this.price = pricePropose.getPrice();
+        this.item = new ItemSimpleDto();
+        this.proposedPrice = pricePropose.getPrice();
         this.status = pricePropose.getStatus();
-        this.isSuccess = isSuccess;
     }
 
-    public PriceProposeResponse (User user, PricePropose pricePropose, boolean isSuccess) {
+    public PriceProposeResponse (User user, Item item, PricePropose pricePropose) {
         this.priceProposeId = pricePropose.getId();
         this.proposer = new UserSimpleDto(user);
-        this.price = pricePropose.getPrice();
+        this.item = new ItemSimpleDto(item);
+        this.proposedPrice = pricePropose.getPrice();
         this.status = pricePropose.getStatus();
-        this.isSuccess = isSuccess;
     }
 }
