@@ -4,9 +4,11 @@ import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -18,7 +20,9 @@ public class UserController {
 
     /** 소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API */
     @GetMapping("/login/naver")
-    public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
+    public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state, HttpServletRequest request) {
+        System.out.println("request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS) = " + request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
+
         return userService.oauth2AuthorizationNaver(code, state);
     }
 
