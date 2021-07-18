@@ -20,9 +20,7 @@ public class UserController {
 
     /** 소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API */
     @GetMapping("/login/naver")
-    public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state, HttpServletRequest request) {
-        System.out.println("request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS) = " + request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
-
+    public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
         return userService.oauth2AuthorizationNaver(code, state);
     }
 
@@ -40,9 +38,7 @@ public class UserController {
 
     /** JWT를 통한 권한체크 및 JWT 갱신 */
     @GetMapping("/validate/user")
-    public UserDto validateUser(@RequestHeader("jwt") String jwt, HttpServletRequest request) {
-        System.out.println("request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS) = " + request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
-
+    public UserDto validateUser(@RequestHeader("jwt") String jwt) {
         return userService.checkLoginStatus(jwt);
     }
 

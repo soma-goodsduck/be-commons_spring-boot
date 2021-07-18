@@ -22,11 +22,9 @@ public class UserItemController {
 
     /** 특정 아이템 좋아요 요청 API */
     @GetMapping("/like/item/{item_id}")
-    public LikeItemResponse doLikeItem(@RequestHeader("jwt") String jwt, @PathVariable("item_id") Long itemId, HttpServletRequest request) {
+    public LikeItemResponse doLikeItem(@RequestHeader("jwt") String jwt, @PathVariable("item_id") Long itemId) {
         //TODO 여기서 JWT를 받아와서 로그인한 유저 ID를 파악하는 로직이 필요한지 체크
         var userId = Long.valueOf((Integer) jwtService.getPayloads(jwt).get(KEY_OF_USERID_IN_JWT_PAYLOADS));
-        System.out.println("request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS) = " + request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
-
         return userItemService.doLike(userId, itemId);
     }
 

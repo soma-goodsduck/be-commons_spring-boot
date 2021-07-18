@@ -25,7 +25,6 @@ public class CheckJwtAspect {
     public void checkUserIdFromJwt(JoinPoint jp) throws IOException {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String jwt = request.getHeader("jwt");
-        System.out.println("*******AOP : jwt = " + jwt + "***********");
 
         if (jwt != null && !jwt.isBlank()) {
             request.setAttribute("userId", Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS)));

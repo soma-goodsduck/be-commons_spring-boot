@@ -43,8 +43,6 @@ public class JwtController {
     @GetMapping("/get/claims")
     public Jws<Claims> getClaims(@RequestHeader("jwt") String token) {
         Jws<Claims> claims = jwtService.getClaims(token);
-
-        Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
         return claims;
     }
 }
