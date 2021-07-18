@@ -26,6 +26,9 @@ public class CheckJwtAspect {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String jwt = request.getHeader("jwt");
 
-        request.setAttribute("userId", Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS)));
+        if (!jwt.isBlank()) {
+            request.setAttribute("userId", Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS)));
+        }
+
     }
 }
