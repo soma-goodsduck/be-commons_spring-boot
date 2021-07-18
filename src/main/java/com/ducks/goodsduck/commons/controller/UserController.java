@@ -35,13 +35,6 @@ public class UserController {
         return userService.signUp(userSignUpRequest);
     }
 
-    /** JWT를 통한 권한체크 및 JWT 갱신 */
-    @NoCheckJwt
-    @GetMapping("/validate/user")
-    public UserDto validateUser(@RequestHeader("jwt") String jwt) {
-        return userService.checkLoginStatus(jwt);
-    }
-
     @GetMapping("/user")
     public List<UserDto> getUserList() {
         return userService.findAll();
