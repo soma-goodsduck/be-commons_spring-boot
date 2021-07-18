@@ -40,7 +40,11 @@ public class UserController {
 
     /** JWT를 통한 권한체크 및 JWT 갱신 */
     @GetMapping("/validate/user")
-    public UserDto validateUser(@RequestHeader("jwt") String jwt) { return userService.checkLoginStatus(jwt); }
+    public UserDto validateUser(@RequestHeader("jwt") String jwt, HttpServletRequest request) {
+        System.out.println("request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS) = " + request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
+
+        return userService.checkLoginStatus(jwt);
+    }
 
     @GetMapping("/user")
     public List<UserDto> getUserList() {
