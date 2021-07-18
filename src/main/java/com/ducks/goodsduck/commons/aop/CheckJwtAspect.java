@@ -7,10 +7,10 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -25,8 +25,9 @@ public class CheckJwtAspect {
     public void checkUserIdFromJwt(JoinPoint jp) throws IOException {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String jwt = request.getHeader("jwt");
+        System.out.println("*******AOP : jwt = " + jwt + "***********");
 
-        if (!jwt.isBlank()) {
+        if (jwt != null && !jwt.isBlank()) {
             request.setAttribute("userId", Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS)));
         }
 
