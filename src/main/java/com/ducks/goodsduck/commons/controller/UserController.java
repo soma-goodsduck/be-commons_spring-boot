@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
@@ -35,9 +36,12 @@ public class UserController {
         return userService.signUp(userSignUpRequest);
     }
 
+    @NoCheckJwt
     @GetMapping("/validate/user")
     @ApiOperation("JWT를 통한 권한체크 및 JWT 갱신 API")
-    public UserDto validateUser(@RequestHeader("jwt") String jwt) { return userService.checkLoginStatus(jwt); }
+    public UserDto validateUser(@RequestHeader("jwt") String jwt) {
+        return userService.checkLoginStatus(jwt);
+    }
 
     @GetMapping("/user")
     @ApiOperation("(개발용) 모든 유저 정보 조회 API")

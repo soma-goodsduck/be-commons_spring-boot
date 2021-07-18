@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +43,6 @@ public class JwtController {
     @GetMapping("/get/claims")
     public Jws<Claims> getClaims(@RequestHeader("jwt") String token) {
         Jws<Claims> claims = jwtService.getClaims(token);
-
-        Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
-
         return claims;
     }
 }
