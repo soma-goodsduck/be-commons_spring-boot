@@ -11,8 +11,9 @@ import java.util.List;
 @Repository
 public interface PriceProposeRepositoryCustom {
     List<PricePropose> findByUserIdAndItemId(Long userId, Long itemId);
-    List<PricePropose> findByItems(List<Item> items);
+    List<Tuple> findByItems(List<Item> items);
     List<Tuple> findByItemId(Long itemId);
+    List<Tuple> findByUserId(Long userId);
     long updatePrice(Long userId, Long priceProposeId, int price);
     long updateStatus(Long priceProposeId, PriceProposeStatus status);
 }

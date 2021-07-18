@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
@@ -11,7 +10,7 @@ import com.querydsl.core.Tuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,45 +33,49 @@ public class PriceProposeService {
         this.priceProposeRepositoryCustom = priceProposeRepositoryCustomImpl;
     }
 
-    public PriceProposeResponse proposePrice(Long userId, Long itemId, int price) {
+    public Optional<PriceProposeResponse> proposePrice(Long userId, Long itemId, int price) throws IllegalAccessException {
 
         // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인
         List<PricePropose> priceProposeList = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
         if (!priceProposeList.isEmpty()) {
-            return new PriceProposeResponse(priceProposeList.get(0), false);
+            throw new IllegalAccessException("Propose of price already exists.");
         }
 
         var findUser = userRepository.findById(userId)
             .orElseThrow(
-                    () -> new RuntimeException("User not founded."));
+                    () -> new NoResultException("User not founded."));
 
         var findItem = itemRepository.findById(itemId)
-                .orElseThrow(
-                        () -> new RuntimeException("Item not founded."));
+            .orElseThrow(
+                    () -> new NoResultException("Item not founded."));
+
+        if (findItem.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Cannot propose yourself to yourself.");
+        }
 
         var newPricePropose = new PricePropose(findUser, findItem, price);
 
-        // TODO : .save() 예외 처리 필요 여부 체크
         PricePropose savedPricePropose = priceProposeRepository.save(newPricePropose);
+        PriceProposeResponse priceProposeResponse = new PriceProposeResponse(findUser, findItem, savedPricePropose);
 
-        return new PriceProposeResponse(savedPricePropose, true);
+        return Optional.ofNullable(priceProposeResponse);
 
     }
 
-    public PriceProposeResponse cancelPropose(Long userId, Long priceProposeId) {
+    public Optional<PriceProposeResponse> cancelPropose(Long userId, Long priceProposeId) {
         PricePropose findPricePropose = priceProposeRepository.findById(priceProposeId)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("PricePropose not founded.")
-                );
+                        () -> new NoResultException("PricePropose not founded."));
 
-        // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우
-        if (!findPricePropose.getUser().getId().equals(userId)) {
-            return new PriceProposeResponse(findPricePropose, false);
+        // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우, SUGGESTED 상태가 아닌 경우는 처리하지 않는다.
+        if (!findPricePropose.getUser().getId().equals(userId) ||
+            !findPricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED)) {
+            return Optional.empty();
         }
 
         priceProposeRepository.delete(findPricePropose);
 
-        return new PriceProposeResponse(findPricePropose, true);
+        return Optional.ofNullable(new PriceProposeResponse(findPricePropose));
 
     }
 
@@ -87,18 +90,16 @@ public class PriceProposeService {
 
     public List<PriceProposeResponse> findAllReceiveProposeByUser(Long userId) {
         List<Item> myItemList = itemRepository.findByUserId(userId);
-        for (Item item: myItemList) {
-            System.out.println("item = " + item);
-        }
-        List<PricePropose> priceProposesByItems = priceProposeRepositoryCustom.findByItems(myItemList);
         User findUser = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User is not founded.")
-        );
+                () -> new NoResultException("User is not founded."));
 
-        return priceProposesByItems
+        return priceProposeRepositoryCustom.findByItems(myItemList)
                 .stream()
-                .map(pricePropose ->
-                        new PriceProposeResponse(findUser, pricePropose, true))
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    PricePropose pricePropose = tuple.get(1, PricePropose.class);
+                    return new PriceProposeResponse(findUser, item, pricePropose);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -110,8 +111,9 @@ public class PriceProposeService {
                 .stream()
                 .map(tuple ->{
                         User user = tuple.get(0, User.class);
-                        PricePropose pricePropose = tuple.get(1, PricePropose.class);
-                        return new PriceProposeResponse(user, pricePropose, true);
+                        Item item = tuple.get(1, Item.class);
+                        PricePropose pricePropose = tuple.get(2, PricePropose.class);
+                        return new PriceProposeResponse(user, item, pricePropose);
                     })
                 .collect(Collectors.toList());
     }
@@ -119,11 +121,15 @@ public class PriceProposeService {
     public List<PriceProposeResponse> findAllGiveProposeByUser(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User is not founded."));
+                .orElseThrow(() -> new NoResultException("User is not founded."));
 
-        return priceProposeRepository.findByUserId(userId)
+        return priceProposeRepositoryCustom.findByUserId(userId)
                 .stream()
-                .map(pricePropose -> new PriceProposeResponse(user, pricePropose, true))
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    PricePropose pricePropose = tuple.get(1, PricePropose.class);
+                    return new PriceProposeResponse(user, item, pricePropose);
+                })
                 .collect(Collectors.toList());
     }
 
