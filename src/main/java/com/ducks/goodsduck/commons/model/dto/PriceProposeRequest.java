@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class PriceProposeRequest {
 
-    private int price;
+    private Integer price;
 }

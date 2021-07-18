@@ -20,7 +20,7 @@ public class JwtController {
     // 개발 테스트용 (토큰 발급)
     @GetMapping("/gen/token")
     public Map<String, Object> genToken(@RequestParam(value="subject") String subject) {
-        String token = jwtService.createJwt(subject, new JwtDto(10L));
+        String token = jwtService.createJwt(subject, new JwtDto(1L));
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("result", token);
         return map;
@@ -43,10 +43,7 @@ public class JwtController {
     public Jws<Claims> getClaims(@RequestHeader("jwt") String token) {
         Jws<Claims> claims = jwtService.getClaims(token);
 
-        System.out.println(claims);
-
         Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
-        System.out.println(userId);
 
         return claims;
     }
