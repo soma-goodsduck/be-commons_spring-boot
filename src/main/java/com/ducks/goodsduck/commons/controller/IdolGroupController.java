@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +19,8 @@ public class IdolGroupController {
 
     private final IdolGroupService idolGroupService;
 
-    /** 아이돌 그룹 리스트 가져오기 API */
     @GetMapping("/idol")
+    @ApiOperation("아이돌 그룹 리스트 가져오기 API")
     public List<IdolGroupDto> getIdolGroups() {
         return idolGroupService.getIdolGroups()
                 .stream()
@@ -27,8 +28,8 @@ public class IdolGroupController {
                 .collect(Collectors.toList());
     }
 
-    /** 아이돌 그룹 가져오기 API */
     @GetMapping("/idol/{idol_group_id}")
+    @ApiOperation("아이돌 그룹 가져오기 API")
     public IdolGroupDto getIdolGroup(@PathVariable("idol_group_id") Long idolGroupId) {
         return idolGroupService.getIdolGroup(idolGroupId)
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
