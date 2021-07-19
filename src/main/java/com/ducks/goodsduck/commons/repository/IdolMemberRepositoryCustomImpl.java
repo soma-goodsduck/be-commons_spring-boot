@@ -1,8 +1,8 @@
 package com.ducks.goodsduck.commons.repository;
 
-import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.model.entity.QIdolGroup;
 import com.ducks.goodsduck.commons.model.entity.QIdolMember;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
@@ -18,15 +18,23 @@ public class IdolMemberRepositoryCustomImpl implements IdolMemberRepositoryCusto
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    @Override
-    public List<IdolMember> findAllByIdolGroupId(Long idolGroupId) {
+    QIdolMember idolMember = QIdolMember.idolMember;
+    QIdolGroup idolGroup = QIdolGroup.idolGroup;
 
-        QIdolMember idolMember = QIdolMember.idolMember;
-        QIdolGroup idolGroup = QIdolGroup.idolGroup;
+    @Override
+    public List<Tuple> findAllByIdolGroupId(Long idolGroupId) {
 
         return queryFactory
-                .selectFrom(idolMember)
+                .select(idolMember, idolMember.idolGroup)
+                .from(idolMember)
                 .where(idolGroup.id.eq(idolGroupId))
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAll() {
+        return queryFactory.select(idolMember, idolMember.idolGroup)
+                .from(idolMember)
                 .fetch();
     }
 }
