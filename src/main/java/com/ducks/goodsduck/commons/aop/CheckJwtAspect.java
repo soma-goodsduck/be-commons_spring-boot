@@ -30,7 +30,6 @@ public class CheckJwtAspect {
 
         // HINT: 메서드 실행 전
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getResponse();
 
         String jwt = request.getHeader("jwt");
 
@@ -41,12 +40,14 @@ public class CheckJwtAspect {
             return ApiResult.ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
         }
 
-        response.setHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
         request.setAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, userId);
 
         Object result = joinPoint.proceed();
 
         // HINT: 본 메서드 실행 후
+        HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getResponse();
+        response.setHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
+//        response.addHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
 
         return result;
 

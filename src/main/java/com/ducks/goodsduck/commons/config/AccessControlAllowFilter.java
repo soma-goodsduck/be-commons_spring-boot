@@ -18,6 +18,7 @@ public class AccessControlAllowFilter implements Filter {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Origin-Allow-Headers", "jwt");
 
         if(request.getMethod().equals(HttpMethod.OPTIONS.name())){
             response.setStatus(HttpStatus.OK.value());
