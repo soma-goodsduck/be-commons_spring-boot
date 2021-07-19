@@ -62,7 +62,7 @@ public class PriceProposeService {
 
     }
 
-    public Optional<PriceProposeResponse> cancelPropose(Long userId, Long priceProposeId) {
+    public Optional<PriceProposeResponse> cancelPropose(Long userId, Long priceProposeId) throws IllegalAccessException {
         PricePropose findPricePropose = priceProposeRepository.findById(priceProposeId)
                 .orElseThrow(
                         () -> new NoResultException("PricePropose not founded."));
@@ -70,10 +70,12 @@ public class PriceProposeService {
         // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우, SUGGESTED 상태가 아닌 경우는 처리하지 않는다.
         if (!findPricePropose.getUser().getId().equals(userId) ||
             !findPricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED)) {
-            return Optional.empty();
+            throw new IllegalAccessException("Propose of price is not given by this user.");
         }
 
         priceProposeRepository.delete(findPricePropose);
+
+        findPricePropose.setStatus(PriceProposeStatus.CANCELED);
 
         return Optional.ofNullable(new PriceProposeResponse(findPricePropose));
 

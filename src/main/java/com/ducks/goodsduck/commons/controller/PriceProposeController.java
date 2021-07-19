@@ -48,8 +48,13 @@ public class PriceProposeController {
                                               @PathVariable("priceProposeId") Long priceProposeId,
                                               HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(priceProposeService.cancelPropose(userId, priceProposeId)
-                .orElseThrow(() -> new RuntimeException("Cannot cancel the propose of price.")));
+        try {
+            return OK(priceProposeService.cancelPropose(userId, priceProposeId)
+                    .orElseThrow(() -> new RuntimeException("Cannot cancel the propose of price.")));
+        } catch (IllegalAccessException e) {
+            log.debug("Cancel propose API error: {}", e.getMessage(), e);
+            return (ApiResult<PriceProposeResponse>) ERROR(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @PatchMapping("/item/{item_id}/propose/{priceProposeId}")
