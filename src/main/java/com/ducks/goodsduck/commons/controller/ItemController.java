@@ -11,6 +11,7 @@ import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
 import com.ducks.goodsduck.commons.service.ImageUploadService;
 import com.ducks.goodsduck.commons.service.ItemService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -93,8 +94,10 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 (Srot 최신순 적용 O, 좋아하는 아이돌 필터링 적용 X)")
     @GetMapping("/items")
     @Transactional
-    public ApiResult<Page<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
+    public ApiResult<List<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Jws<Claims> claims = jwtService.getClaims(jwt);
+        Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
+        return OK(itemService.getItemList(userId, pageable));
     }
 
     // TODO : 좋아하는 아이돌 필터 추가

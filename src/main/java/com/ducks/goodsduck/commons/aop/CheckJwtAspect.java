@@ -47,9 +47,7 @@ public class CheckJwtAspect {
         // HINT: 본 메서드 실행 후
         HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getResponse();
         response.setHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
-//        response.addHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
 
         return result;
-
     }
 }

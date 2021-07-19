@@ -6,8 +6,10 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
+import com.querydsl.jpa.JPAExpressions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRepositoryCustom itemRepositoryCustom;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final IdolMemberRepository idolMemberRepository;
@@ -115,5 +119,21 @@ public class ItemService {
 
     public Item upload(ItemUploadRequest itemUploadRequest) {
         return itemRepository.save(new Item(itemUploadRequest));
+    }
+
+    public List<ItemDetailResponse> getItemList(Long userId, Pageable pageable) {
+        return itemRepositoryCustom.findAllWithUserItem(userId, pageable)
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    long count = tuple.get(1, long.class);
+
+                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    if (count > 0L) {
+                        itemDetailResponse.likesOfMe();
+                    }
+                    return itemDetailResponse;
+                })
+                .collect(Collectors.toList());
     }
 }
