@@ -33,27 +33,21 @@ public class PriceProposeController {
                                   @RequestBody PriceProposeRequest priceProposeRequest,
                                   HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        try {
-            return OK(priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
-                    .orElseThrow(() -> new RuntimeException("Cannot propose the price.")));
-        } catch (IllegalAccessException e) {
-            log.debug("Propose of Price API error : {}", e.getMessage(), e);
-            return (ApiResult<PriceProposeResponse>) ERROR(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return OK(priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
+                .orElseThrow(() -> new RuntimeException("Cannot propose the price.")));
     }
 
     @DeleteMapping("/item/{item_id}/propose/{priceProposeId}")
     @ApiOperation(value = "요청했던 가격 제안에 대한 취소 요청 API", notes = "SUGGEST 상태인 가격 제안에 대해서만 취소 가능")
     public ApiResult<PriceProposeResponse> cancelPropose(@PathVariable("item_id") Long itemId,
                                               @PathVariable("priceProposeId") Long priceProposeId,
-                                              HttpServletRequest request) {
+                                              HttpServletRequest request) throws IllegalAccessException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         try {
             return OK(priceProposeService.cancelPropose(userId, priceProposeId)
                     .orElseThrow(() -> new RuntimeException("Cannot cancel the propose of price.")));
         } catch (IllegalAccessException e) {
-            log.debug("Cancel propose API error: {}", e.getMessage(), e);
-            return (ApiResult<PriceProposeResponse>) ERROR(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            throw e;
         }
     }
 

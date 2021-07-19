@@ -2,7 +2,6 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
-import com.ducks.goodsduck.commons.model.dto.LikeItemResponse;
 import com.ducks.goodsduck.commons.service.UserItemService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
