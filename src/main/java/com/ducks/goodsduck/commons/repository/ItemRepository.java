@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByUserId(Long userId);
-
+  
     @Override
     @EntityGraph(attributePaths = {"user", "idolMember", "categoryItem"})
     Optional<Item> findById(Long itemId);

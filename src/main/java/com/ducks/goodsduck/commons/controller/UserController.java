@@ -23,7 +23,7 @@ public class UserController {
     public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
         return userService.oauth2AuthorizationNaver(code, state);
     }
-
+  
     @GetMapping("/login/kakao")
     @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 API")
     public UserDto authorizeKakao(@RequestParam("code") String code) {
