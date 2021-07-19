@@ -1,8 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.TestDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -17,7 +15,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
