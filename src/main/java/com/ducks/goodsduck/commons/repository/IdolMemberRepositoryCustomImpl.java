@@ -27,7 +27,7 @@ public class IdolMemberRepositoryCustomImpl implements IdolMemberRepositoryCusto
         return queryFactory
                 .select(idolMember, idolMember.idolGroup)
                 .from(idolMember)
-                .where(idolGroup.id.eq(idolGroupId))
+                .where(idolMember.idolGroup.id.eq(idolGroupId))
                 .fetch();
     }
 
