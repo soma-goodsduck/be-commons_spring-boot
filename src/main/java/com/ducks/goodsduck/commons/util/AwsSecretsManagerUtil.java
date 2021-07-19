@@ -80,6 +80,8 @@ public class AwsSecretsManagerUtil {
             jsonStringOfAwsSecrets = decodedBinarySecret;
         }
 
+
+
         // Your code goes here.
         jsonObject = new JSONObject(jsonStringOfAwsSecrets);
         return jsonObject;

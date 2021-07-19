@@ -22,8 +22,9 @@ public class ItemDetailResponse {
     private GradeStatus gradeStatus;
     private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
-//    private ItemDetailResponseCategory category;
     private String categoryName;
+    private Integer views;
+    private Integer likesItemCount;
 
     public ItemDetailResponse(Item item) {
         this.user = new ItemDetailResponseUser(item.getUser());
@@ -37,7 +38,8 @@ public class ItemDetailResponse {
         this.gradeStatus = item.getGradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
-//        this.category = new ItemDetailResponseCategory(item.getCategory());
         this.categoryName = item.getCategoryItem().getName();
+        this.views = item.getViews();
+        this.likesItemCount = item.getLikesItemCount();
     }
 }

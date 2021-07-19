@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
@@ -25,11 +26,11 @@ public class ItemService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final IdolMemberRepository idolMemberRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryItemRepository categoryItemRepository;
 
     private final ImageUploadService imageUploadService;
 
-    public Long uploadItem(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
+    public Long upload(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
 
         try {
             /** 이미지 업로드 처리 **/
@@ -46,7 +47,7 @@ public class ItemService {
             item.setIdolMember(idolMember);
 
             /** Item-Category 연관관계 삽입 **/
-            CategoryItem categoryItem = categoryRepository.findByName(itemUploadRequest.getCategory());
+            CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
             item.setCategoryItem(categoryItem);
 
             itemRepository.save(item);
@@ -70,22 +71,42 @@ public class ItemService {
         }
     }
 
-    public ItemDetailResponse showItemDetail(Long itemId) {
+    public ItemDetailResponse showDetail(Long itemId) {
 
         Item item = itemRepository.findById(itemId).get();
-        ItemDetailResponse itemDetailResponse =  new ItemDetailResponse(item);
+        item.increaseView();
 
-        System.out.println(itemDetailResponse);
-
-        return itemDetailResponse;
+        return new ItemDetailResponse(item);
     }
 
-    public String updateItem(Long itemId) {
+    public Long edit(Long itemId, ItemUpdateRequest itemUpdateRequest) {
 
-        Item item = itemRepository.findById(itemId).get();
+        try {
+            Item item = itemRepository.findById(itemId).get();
+            item.setName(itemUpdateRequest.getName());
+            item.setDescription(itemUpdateRequest.getDescription());
+            item.setPrice(itemUpdateRequest.getPrice());
+            item.setTradeType(itemUpdateRequest.getTradeType());
+            item.setGradeStatus(itemUpdateRequest.getGradeStatus());
 
+            IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
+            item.setIdolMember(idolMember);
 
-        return "ok";
+            return item.getId();
+        } catch (Exception e) {
+            return Long.valueOf(-1);
+        }
+    }
+
+    public Long isWriter(Long userId, Long itemId) {
+
+        Long findUserId = itemRepository.findById(itemId).get().getUser().getId();
+
+        if(userId.equals(findUserId)) {
+            return Long.valueOf(1);
+        } else {
+            return Long.valueOf(-1);
+        }
     }
 
     public Optional<Item> getDetails(Long itemId) {

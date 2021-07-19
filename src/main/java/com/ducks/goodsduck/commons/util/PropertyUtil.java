@@ -7,6 +7,9 @@ import org.springframework.context.ApplicationContext;
 @Slf4j
 public class PropertyUtil {
 
+    public static final String SUBJECT_OF_JWT = "For Member-Checking";
+    public static final String KEY_OF_USERID_IN_JWT_PAYLOADS = "userId";
+
     public static String getProperty(String propertyName) {
 
         var applicationContext = ApplicationContextServe.getApplicationContext();

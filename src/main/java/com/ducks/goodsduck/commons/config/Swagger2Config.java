@@ -33,7 +33,7 @@ public class Swagger2Config {
                 .apis(RequestHandlerSelectors.basePackage("com.ducks.goodsduck.commons"))
                 .paths(PathSelectors.ant("/api/v1/**"))
                 .build()
-                .apiInfo(apiInfo());
+                .apiInfo(this.apiInfo());
     }
 
     private ApiInfo apiInfo() {
