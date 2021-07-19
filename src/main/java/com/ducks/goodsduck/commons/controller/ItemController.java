@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
@@ -15,12 +16,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,27 +90,24 @@ public class ItemController {
         return Long.valueOf(1);
     }
 
-//    // TODO : 좋아하는 아이돌 필터 추가
-//    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
-//    @GetMapping("/items")
-//    public Page<ItemDetailResponse> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-//        return itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item));
-//    }
+    // TODO : 좋아하는 아이돌 필터 추가
+    @ApiOperation(value = "아이템 리스트 가져오기 (Srot 최신순 적용 O, 좋아하는 아이돌 필터링 적용 X)")
+    @GetMapping("/items")
+    @Transactional
+    public Page<ItemDetailResponse> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item));
+    }
 
     // TODO : 좋아하는 아이돌 필터 추가
-    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
-    @GetMapping("/items")
-    public Integer getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        List<Item> all = itemRepository.findAll();
-
-        List<ItemDetailResponse> collect = all.stream().map(item -> new ItemDetailResponse(item)).collect(Collectors.toList());
-
-        for (ItemDetailResponse itemDetailResponse : collect) {
-            System.out.println(itemDetailResponse.getUser().getNickName());
-        }
-
-        return 1;
-    }
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 (Sort 적용 X)")
+//    @GetMapping("/items")
+//    @Transactional
+//    public List<ItemDetailResponse> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+//        List<Item> all = itemRepository.findAll();
+//        List<ItemDetailResponse> items = all.stream().map(item -> new ItemDetailResponse(item)).collect(Collectors.toList());
+//        return items;
+//    }
 
 //    @PostMapping("/item")
 //    public testDto test() {
