@@ -41,9 +41,9 @@ public class ItemController {
     private final ImageRepository imageRepository;
 
     @PostMapping("/item/new")
-    public Long uploadItem(@RequestParam String stringItemDto,
-                           @RequestParam List<MultipartFile> multipartFiles,
-                           @RequestHeader("jwt") String jwt) throws IOException {
+    public Long uploadItem(@RequestHeader("jwt") String jwt,
+                           @RequestParam String stringItemDto,
+                           @RequestParam List<MultipartFile> multipartFiles) throws IOException {
 
         /** String -> 클래스 객체 변환 **/
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);

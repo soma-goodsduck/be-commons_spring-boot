@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class ItemDetailResponse {
 
     private ItemDetailResponseUser user;
+    private Long itemId;
     private String name;
     private String description;
     private List<ItemDetailResponseImage> images = new ArrayList<>();
@@ -27,6 +28,7 @@ public class ItemDetailResponse {
     private Integer likesItemCount;
 
     public ItemDetailResponse(Item item) {
+        this.itemId = item.getId();
         this.user = new ItemDetailResponseUser(item.getUser());
         this.name = item.getName();
         this.description = item.getDescription();
