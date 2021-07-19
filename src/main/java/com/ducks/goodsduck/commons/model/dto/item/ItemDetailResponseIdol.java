@@ -6,11 +6,14 @@ import lombok.Data;
 @Data
 public class ItemDetailResponseIdol {
 
+    private Long groupId;
     private String groupName;
+    private Long memberId;
     private String memberName;
 
     public ItemDetailResponseIdol(IdolMember idolMember) {
+        this.groupId = idolMember.getId();
         this.memberName = idolMember.getName();
-        this.groupName = idolMember.getIdolGroup().getKorName();
+        this.groupName = idolMember.getIdolGroup().getName();
     }
 }

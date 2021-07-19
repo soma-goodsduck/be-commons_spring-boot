@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class OauthNaverService {
 
     public AuthorizationNaverDto callTokenApi(String code, String state) {
 
-        var headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -68,7 +69,8 @@ public class OauthNaverService {
      * @return Json Data(String)
      */
     public String callGetUserByAccessToken(String accessToken) {
-        var headers = new HttpHeaders();
+
+        HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -77,9 +79,8 @@ public class OauthNaverService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
-
             return response.getBody();
-        }catch (RestClientException ex) {
+        } catch (RestClientException ex) {
             log.debug("exception occured in getting access token with Naver : {}", ex.getMessage(), ex);
             return "request not available"; //
         }

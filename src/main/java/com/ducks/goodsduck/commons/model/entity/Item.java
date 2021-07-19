@@ -25,10 +25,10 @@ public class Item {
     private String name;
     private Long price;
     private String description;
+    private Integer views;
+    private Integer likesItemCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Integer likesItemCount;
-    private Integer views;
 
     @Enumerated(EnumType.STRING)
     private TradeType tradeType;
@@ -89,5 +89,9 @@ public class Item {
     public Item unLiked() {
         this.likesItemCount--;
         return this;
+    }
+
+    public void increaseView() {
+        this.views++;
     }
 }

@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class ItemDetailResponseUser {
 
-    private String nickname;
+    private String nickName;
 
     public ItemDetailResponseUser(User user) {
-        this.nickname = user.getNickName();
+        this.nickName = user.getNickName();
     }
 }

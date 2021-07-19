@@ -50,5 +50,4 @@ public class IdolMemberController {
                 .map(idolMember -> new IdolMemberDto(idolMember))
                 .orElseGet(() -> new IdolMemberDto());
     }
-
 }
