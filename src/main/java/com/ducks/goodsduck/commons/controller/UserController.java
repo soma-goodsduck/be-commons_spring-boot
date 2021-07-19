@@ -18,24 +18,28 @@ public class UserController {
 
     private final UserService userService;
 
+    @NoCheckJwt
     @GetMapping("/login/naver")
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API")
     public UserDto authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
         return userService.oauth2AuthorizationNaver(code, state);
     }
-  
+
+    @NoCheckJwt
     @GetMapping("/login/kakao")
     @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 API")
     public UserDto authorizeKakao(@RequestParam("code") String code) {
         return userService.oauth2AuthorizationKakao(code);
     }
 
+    @NoCheckJwt
     @PostMapping("/signup")
     @ApiOperation("회원가입 API")
     public UserDto signUpUser(@RequestBody UserSignUpRequest userSignUpRequest) {
         return userService.signUp(userSignUpRequest);
     }
 
+    @NoCheckJwt
     @GetMapping("/user")
     @ApiOperation("(개발용) 모든 유저 정보 조회 API")
     public List<UserDto> getUserList() {
