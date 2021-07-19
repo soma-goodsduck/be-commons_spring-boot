@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolMemberDto;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ public class IdolGroupController {
         return idolGroupService.getIdolGroups()
                 .stream()
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
+                .sorted(Comparator.comparing(IdolGroupDto::getName))
                 .collect(Collectors.toList());
     }
 

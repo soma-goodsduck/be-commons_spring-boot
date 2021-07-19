@@ -29,14 +29,14 @@ public class OauthKakaoService {
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
     private final String kakaoOauth2ClientId = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.client-id", "local");
-    private final String frontendRedirectUrl = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.redirect-uri", "local");;
-    private final String grantType = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.authorization-grant-type", "local");;
-    private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.token-uri", "local");;
-    private final String userInfoUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.user-info-uri", "local");;
+    private final String frontendRedirectUrl = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.redirect-uri", "local");
+    private final String grantType = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.authorization-grant-type", "local");
+    private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.token-uri", "local");
+    private final String userInfoUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.user-info-uri", "local");
 
     public AuthorizationKakaoDto callTokenApi(String code) {
 
-        var headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -50,7 +50,6 @@ public class OauthKakaoService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
             return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
-
         } catch (RestClientException | JsonProcessingException ex) {
             log.debug("exception occured in request to authorize with Kakao : {}", ex.getMessage(), ex);
             throw new IllegalStateException();
@@ -62,7 +61,8 @@ public class OauthKakaoService {
      * @return Json Data(String)
      */
     public String callGetUserByAccessToken(String accessToken) {
-        var headers = new HttpHeaders();
+
+        HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -71,9 +71,8 @@ public class OauthKakaoService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
-            // 값 리턴
             return response.getBody();
-        }catch (RestClientException ex) {
+        } catch (RestClientException ex) {
             log.debug("exception occured in getting access token with Kakao : {}", ex.getMessage(), ex);
             throw new IllegalStateException();
         }

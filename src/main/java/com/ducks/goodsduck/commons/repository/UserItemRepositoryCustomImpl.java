@@ -48,7 +48,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
     public Tuple findTupleByUserIdAndItemId(Long userId, Long itemId) {
         return queryFactory.select(userItem, item)
                 .from(userItem)
-                .join(userItem.item, item).fetchJoin()
+                .join(userItem.item, item)
                 .where(userItem.user.id.eq(userId).and(
                         item.id.eq(itemId)
                 )).fetchOne();

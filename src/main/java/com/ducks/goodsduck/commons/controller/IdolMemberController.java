@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class IdolMemberController {
         return idolMemberService.findIdolMembersOfGroup(idolGroupId)
                 .stream()
                 .map(idolMember -> new IdolMemberDto(idolMember))
+                .sorted(Comparator.comparing(IdolMemberDto::getName))
                 .collect(Collectors.toList());
     }
 
@@ -39,6 +41,7 @@ public class IdolMemberController {
         return idolMemberService.findAllIdolMembers()
                 .stream()
                 .map(idolMember -> new IdolMemberDto(idolMember))
+                .sorted(Comparator.comparing(IdolMemberDto::getName))
                 .collect(Collectors.toList());
     }
 
@@ -50,5 +53,4 @@ public class IdolMemberController {
                 .map(idolMember -> new IdolMemberDto(idolMember))
                 .orElseGet(() -> new IdolMemberDto());
     }
-
 }
