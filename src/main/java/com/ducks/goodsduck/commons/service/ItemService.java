@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPAExpressions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,18 @@ public class ItemService {
         item.increaseView();
 
         return new ItemDetailResponse(item);
+    }
+
+    public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
+        Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
+        Item item = itemTupleWithUserItem.get(0, Item.class);
+        item.increaseView();
+        ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+
+        if (itemTupleWithUserItem.get(1, long.class) > 0L) {
+            itemDetailResponse.likesOfMe();
+        };
+        return itemDetailResponse;
     }
 
     public Long edit(Long itemId, ItemUpdateRequest itemUpdateRequest) {

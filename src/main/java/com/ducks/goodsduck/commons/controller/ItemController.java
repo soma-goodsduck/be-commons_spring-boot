@@ -60,8 +60,10 @@ public class ItemController {
     }
 
     @GetMapping("/item/{itemId}")
-    public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId) {
-        return OK(itemService.showDetail(itemId));
+    public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+        Jws<Claims> claims = jwtService.getClaims(jwt);
+        Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
+        return OK(itemService.showDetailWithLike(userId, itemId));
     }
 
     @ApiOperation(value = "아이템 글쓴이인지 여부 확인")
