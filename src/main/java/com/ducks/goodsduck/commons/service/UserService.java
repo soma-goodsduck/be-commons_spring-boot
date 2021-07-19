@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
 
-    private static final String JWT_TOKEN = "For Member-Checking";
-
     private final CustomJwtService jwtService;
     private final OauthKakaoService oauthKakaoService;
     private final OauthNaverService oauthNaverService;
@@ -59,7 +57,7 @@ public class UserService {
                     User user = socialAccount.getUser();
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
+                    userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
 
                     return userDto;
                 })
@@ -91,7 +89,7 @@ public class UserService {
                     User user = socialAccount.getUser();
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
+                    userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
 
                     return userDto;
                 })
@@ -107,16 +105,12 @@ public class UserService {
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
 
-        System.out.println(userSignUpRequest);
-
         SocialAccount socialAccount = socialAccountRepository.save(
                 new SocialAccount(
                         userSignUpRequest.getSocialAccountId(),
                         userSignUpRequest.getSocialAccountType()
                 )
         );
-
-        System.out.println(userSignUpRequest);
 
         User user = userRepository.save(
                 new User(userSignUpRequest.getNickName(),
@@ -125,7 +119,7 @@ public class UserService {
         );
         user.addSocialAccount(socialAccount);
 
-        String jwt = jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId()));
+        String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId());
 
         UserDto userDto = new UserDto(user);
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
@@ -134,32 +128,24 @@ public class UserService {
     }
 
     // jwt 검증을 통한 유저 정보 반환 및 토큰 재발급 로직
-    public UserDto checkLoginStatus(String jwt) {
+    public Long checkLoginStatus(String jwt) {
 
         Map<String, Object> payloads = new HashMap<>();
         try {
             payloads = jwtService.getPayloads(jwt);
         } catch (JwtException e) {
             // 비밀키 상이(SignatureException), 토큰 정보 위조(MalformedJwtException) , 만료된 경우(ExpiredJwtException)
-            log.debug("Cannot  ", e.getMessage());
-            return UserDto.createUserDto(UserRole.ANONYMOUS);
+            log.debug("There is a problem of getting payloads from jwt.", e.getMessage());
+            return -1L;
         } catch (Exception e) {
-            log.debug("", e.getMessage());
-            return UserDto.createUserDto(UserRole.ANONYMOUS);
+            log.debug("Unexpected error getting payloads from jwt", e.getMessage());
+            return -1L;
         }
 
-        // 토큰의 만료 기한이 다 된 경우
         Long userId = Long.valueOf((Integer) payloads.get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
 
-        return userRepository.findById(userId)
-                .map(user -> {
-                    user.updateLastLoginAt();
-                    UserDto userDto = new UserDto(user);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
-
-                    return userDto;
-                })
-                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
+        if (userRepository.existsById(userId)) return userId;
+        else return -1L;
     }
 
     public Optional<User> find(Long user_id) {

@@ -35,7 +35,7 @@ public class CustomJwtService implements JwtService {
     }
 
     @Override
-    public String createJwt(String subject, JwtDto jwtDto) {
+    public String createJwt(String subject, Long userId) {
 
         final Long EXPIRE_TIME = Long.valueOf(STRING_EXPIRE_TIME);
 
@@ -46,7 +46,7 @@ public class CustomJwtService implements JwtService {
 
         /* Payload 설정 */
         Map<String, Object> payloads = new HashMap<>();
-        payloads.put(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, jwtDto.getUserId());
+        payloads.put(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, userId);
 
         byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
         Key signingKey = new SecretKeySpec(secretKeyBytes, signatureAlgorithm.getJcaName());

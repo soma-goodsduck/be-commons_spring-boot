@@ -36,7 +36,7 @@ public class PricePropose {
     public PricePropose(User user, Item item, int price) {
         this.user = user;
         this.item = item;
-        this.status = PriceProposeStatus.SUGGERSTED;
+        this.status = PriceProposeStatus.SUGGESTED;
         this.price = price;
         this.createdAt = LocalDateTime.now();
     }

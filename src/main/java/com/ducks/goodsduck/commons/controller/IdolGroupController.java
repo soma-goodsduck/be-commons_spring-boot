@@ -24,7 +24,6 @@ public class IdolGroupController {
 
     private final IdolGroupService idolGroupService;
 
-    /** 아이돌 그룹 리스트 가져오기 API */
     @NoCheckJwt
     @GetMapping("/idol")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
@@ -36,7 +35,6 @@ public class IdolGroupController {
                 .collect(Collectors.toList());
     }
 
-    /** 아이돌 그룹 가져오기 API */
     @NoCheckJwt
     @GetMapping("/idol/{idol_group_id}")
     @ApiOperation("아이돌 그룹 가져오기 API")
