@@ -4,9 +4,11 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.LikeItemResponse;
 import com.ducks.goodsduck.commons.service.JwtService;
 import com.ducks.goodsduck.commons.service.UserItemService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController

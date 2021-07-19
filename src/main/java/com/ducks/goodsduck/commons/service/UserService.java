@@ -10,6 +10,7 @@ import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,7 +149,7 @@ public class UserService {
         }
 
         // 토큰의 만료 기한이 다 된 경우
-        Long userId = Long.valueOf((Integer) payloads.get("userId"));
+        Long userId = Long.valueOf((Integer) payloads.get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
 
         return userRepository.findById(userId)
                 .map(user -> {

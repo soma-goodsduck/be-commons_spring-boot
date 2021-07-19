@@ -1,15 +1,15 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.repository.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.IdolMemberRepositoryCustom;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -17,20 +17,32 @@ public class IdolMemberService {
 
     private final IdolMemberRepository idolMemberRepository;
     private final IdolMemberRepositoryCustom idolMemberRepositoryCustom;
-    private final JPAQueryFactory queryFactory;
 
-    public IdolMemberService(IdolMemberRepository idolMemberRepository, IdolMemberRepositoryCustom idolMemberRepositoryCustom, EntityManager em) {
+    public IdolMemberService(IdolMemberRepository idolMemberRepository, IdolMemberRepositoryCustom idolMemberRepositoryCustom) {
         this.idolMemberRepository = idolMemberRepository;
         this.idolMemberRepositoryCustom = idolMemberRepositoryCustom;
-        queryFactory = new JPAQueryFactory(em);
     }
 
-    public List<IdolMember> findIdolMembersOfGroup(Long idolMemerId) {
-        return idolMemberRepository.findAllByIdolGroupId(idolMemerId);
+    public List<IdolMember> findIdolMembersOfGroup(Long idolGroupId) {
+        return idolMemberRepositoryCustom.findAllByIdolGroupId(idolGroupId)
+                .stream()
+                .map(tuple -> {
+                    IdolMember idolMember = tuple.get(0, IdolMember.class);
+                    IdolGroup idolGroup = tuple.get(1, IdolGroup.class);
+                    return idolMember;
+                })
+                .collect(Collectors.toList());
     }
 
     public List<IdolMember> findAllIdolMembers() {
-        return idolMemberRepository.findAll();
+        return idolMemberRepositoryCustom.findAll()
+                .stream()
+                .map(tuple -> {
+                    IdolMember idolMember = tuple.get(0, IdolMember.class);
+                    IdolGroup idolGroup = tuple.get(1, IdolGroup.class);
+                    return idolMember;
+                })
+                .collect(Collectors.toList());
     }
 
     public Optional<IdolMember> findIdolMemberById(Long idolMemberId) {
