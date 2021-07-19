@@ -56,7 +56,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     public Tuple findByIdWithUserItem(Long userId, Long itemId) {
         return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L))
                 .from(item)
-                .join(userItem).on(userItem.item.eq(item))
+                .leftJoin(userItem).on(userItem.item.eq(item))
                 .where(item.id.eq(itemId))
                 .fetchOne();
 
