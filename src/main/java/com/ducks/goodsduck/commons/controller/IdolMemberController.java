@@ -31,7 +31,7 @@ public class IdolMemberController {
         return idolMemberService.findIdolMembersOfGroup(idolGroupId)
                 .stream()
                 .map(idolMember -> new IdolMemberDto(idolMember))
-                .sorted(Comparator.comparing(IdolMemberDto::getName))
+//                .sorted(Comparator.comparing(IdolMemberDto::getName))
                 .collect(Collectors.toList());
     }
 
