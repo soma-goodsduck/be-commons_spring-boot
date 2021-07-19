@@ -51,5 +51,4 @@ public class IdolMemberController {
                 .orElseGet(() -> new IdolMemberDto());
     }
 
-
 }
