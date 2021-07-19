@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
@@ -28,6 +29,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -41,9 +44,9 @@ public class ItemController {
     private final ImageRepository imageRepository;
 
     @PostMapping("/item/new")
-    public Long uploadItem(@RequestHeader("jwt") String jwt,
-                           @RequestParam String stringItemDto,
-                           @RequestParam List<MultipartFile> multipartFiles) throws IOException {
+    public ApiResult<Long> uploadItem(@RequestHeader("jwt") String jwt,
+                                     @RequestParam String stringItemDto,
+                                     @RequestParam List<MultipartFile> multipartFiles) throws IOException {
 
         /** String -> 클래스 객체 변환 **/
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
@@ -52,46 +55,46 @@ public class ItemController {
         Jws<Claims> claims = jwtService.getClaims(jwt);
         Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
 
-        return itemService.upload(itemUploadRequest, multipartFiles, userId);
+        return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
 
     @GetMapping("/item/{itemId}")
-    public ItemDetailResponse showItemDetail(@PathVariable("itemId") Long itemId) {
-        return itemService.showDetail(itemId);
+    public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId) {
+        return OK(itemService.showDetail(itemId));
     }
 
     @ApiOperation(value = "아이템 글쓴이인지 여부 확인")
     @GetMapping("/item/edit/{itemId}")
-    public Long confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+    public ApiResult<Long> confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
 
         /** Jwt에서 UserId 추출 **/
         Jws<Claims> claims = jwtService.getClaims(jwt);
         Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
 
-        return itemService.isWriter(userId, itemId);
+        return OK(itemService.isWriter(userId, itemId));
     }
     
     @PutMapping("/item/edit/{itemId}")
-    public Long editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
+    public ApiResult<Long> editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
 
         /** String -> 클래스 객체 변환 **/
         ItemUpdateRequest itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequest.class);
-        return itemService.edit(itemId, itemUpdateRequest);
+        return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
     // TODO : 아이템 삭제 구현
     @DeleteMapping("/item/{itemId}")
-    public Long deleteItem(@PathVariable("itemId") Long itemId) {
+    public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {
 
-        return Long.valueOf(1);
+        return OK(Long.valueOf(1));
     }
 
     // TODO : 좋아하는 아이돌 필터 추가
     @ApiOperation(value = "아이템 리스트 가져오기 (Srot 최신순 적용 O, 좋아하는 아이돌 필터링 적용 X)")
     @GetMapping("/items")
     @Transactional
-    public Page<ItemDetailResponse> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item));
+    public ApiResult<Page<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
     }
 
     // TODO : 좋아하는 아이돌 필터 추가
