@@ -29,6 +29,5 @@ public class CheckJwtAspect {
         if (jwt != null && !jwt.isBlank()) {
             request.setAttribute("userId", Long.valueOf((Integer) jwtService.getPayloads(jwt).get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS)));
         }
-
     }
 }

@@ -9,13 +9,15 @@ import lombok.NoArgsConstructor;
 public class IdolGroupDto {
 
     private Long id;
+    private String name;
     private String engName;
     private String korName;
-    private long votedCount;
+    private Long votedCount;
     private String imageUrl;
 
     public IdolGroupDto(IdolGroup idolGroup) {
         this.id = idolGroup.getId();
+        this.name = idolGroup.getName();
         this.engName = idolGroup.getEngName();
         this.korName = idolGroup.getKorName();
         this.votedCount = idolGroup.getVotedCount();
