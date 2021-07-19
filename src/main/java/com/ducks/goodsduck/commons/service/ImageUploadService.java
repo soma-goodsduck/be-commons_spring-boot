@@ -32,17 +32,17 @@ public class ImageUploadService {
 
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
     
-//    private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", "local");
-//    private final String s3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", "local");
-//    private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", "local");
-//    private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", "local");
-//    private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", "local");
+    private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", "local");
+    private final String s3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", "local");
+    private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", "local");
+    private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", "local");
+    private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", "local");
 
-    private final String localFilePath = PropertyUtil.getProperty("spring.file.path.local");
-    private final String s3Bucket = PropertyUtil.getProperty("cloud.aws.s3.bucket");
-    private final String accessKey = PropertyUtil.getProperty("cloud.aws.credentials.accessKey");
-    private final String secretKey = PropertyUtil.getProperty("cloud.aws.credentials.secretKey");
-    private final String region = PropertyUtil.getProperty("cloud.aws.region.static");
+//    private final String localFilePath = PropertyUtil.getProperty("spring.file.path.local");
+//    private final String s3Bucket = PropertyUtil.getProperty("cloud.aws.s3.bucket");
+//    private final String accessKey = PropertyUtil.getProperty("cloud.aws.credentials.accessKey");
+//    private final String secretKey = PropertyUtil.getProperty("cloud.aws.credentials.secretKey");
+//    private final String region = PropertyUtil.getProperty("cloud.aws.region.static");
 
     public String getFilePath(String fileName) {
         return localFilePath + fileName;

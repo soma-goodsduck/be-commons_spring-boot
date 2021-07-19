@@ -52,9 +52,6 @@ public class ItemController {
         Jws<Claims> claims = jwtService.getClaims(jwt);
         Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
 
-        System.out.println(multipartFiles.get(0));
-        System.out.println(multipartFiles.get(1));
-
         return itemService.upload(itemUploadRequest, multipartFiles, userId);
     }
 
@@ -79,7 +76,6 @@ public class ItemController {
 
         /** String -> 클래스 객체 변환 **/
         ItemUpdateRequest itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequest.class);
-
         return itemService.edit(itemId, itemUpdateRequest);
     }
 
