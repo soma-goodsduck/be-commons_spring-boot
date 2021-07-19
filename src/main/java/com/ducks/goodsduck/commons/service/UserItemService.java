@@ -65,13 +65,13 @@ public class UserItemService {
 
         var findUser = userRepository.findById(userId)
                 .orElseThrow(
-                        () -> new NoResultException("User not founded.")
+                        () -> new IllegalArgumentException("User not founded.")
                 );
 
         var findItem = itemRepository.findById(itemId)
                 .map(i -> i.liked())
                 .orElseThrow(
-                        () -> new NoResultException("Item not founded.")
+                        () -> new IllegalArgumentException("Item not founded.")
                 );
 
         userItemRepository.save(new UserItem(findUser, findItem));
@@ -83,7 +83,7 @@ public class UserItemService {
 
         Tuple tuple = userItemRepositoryCustom.findTupleByUserIdAndItemId(userId, itemId);
         if (tuple.equals(null)) {
-            throw new NoResultException("Can't find record like item by user.");
+            throw new IllegalArgumentException("Can't find record like item by user.");
         }
 
         var findUserItem = tuple.get(0, UserItem.class);

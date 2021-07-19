@@ -7,6 +7,7 @@ import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
+import com.sun.jdi.request.DuplicateRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,12 +34,12 @@ public class PriceProposeService {
         this.priceProposeRepositoryCustom = priceProposeRepositoryCustomImpl;
     }
 
-    public Optional<PriceProposeResponse> proposePrice(Long userId, Long itemId, int price) throws IllegalAccessException {
+    public Optional<PriceProposeResponse> proposePrice(Long userId, Long itemId, int price) {
 
         // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인
         List<PricePropose> priceProposeList = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
         if (!priceProposeList.isEmpty()) {
-            throw new IllegalAccessException("Propose of price already exists.");
+            throw new DuplicateRequestException("Propose of price already exists.");
         }
 
         var findUser = userRepository.findById(userId)
@@ -68,9 +69,10 @@ public class PriceProposeService {
                         () -> new NoResultException("PricePropose not founded."));
 
         // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우, SUGGESTED 상태가 아닌 경우는 처리하지 않는다.
-        if (!findPricePropose.getUser().getId().equals(userId) ||
-            !findPricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED)) {
+        if (!findPricePropose.getUser().getId().equals(userId)) {
             throw new IllegalAccessException("Propose of price is not given by this user.");
+        } else if (!findPricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED)) {
+            throw new IllegalArgumentException();
         }
 
         priceProposeRepository.delete(findPricePropose);
