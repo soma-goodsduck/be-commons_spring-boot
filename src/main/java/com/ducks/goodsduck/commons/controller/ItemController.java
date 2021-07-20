@@ -2,10 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-<<<<<<< HEAD
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-=======
->>>>>>> develop
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
@@ -21,10 +18,7 @@ import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
 import com.ducks.goodsduck.commons.service.ImageUploadService;
 import com.ducks.goodsduck.commons.service.ItemService;
-<<<<<<< HEAD
 import com.ducks.goodsduck.commons.service.UserService;
-=======
->>>>>>> develop
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +54,7 @@ public class ItemController {
 
     private final ItemService itemService;
     private final UserService userService;
+    private final CustomJwtService jwtService;
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -105,37 +100,42 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 삭제")
     @DeleteMapping("/item/{itemId}")
-    public ApiResult<Boolean> deleteItem(@PathVariable("itemId") Long itemId) {
+    public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {
         return OK(itemService.delete(itemId));
     }
 
     // TODO : 좋아하는 아이돌 필터 추가
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
+//    @GetMapping("/items")
+//    @Transactional
+//    public ApiResult<Page<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
+//                                                        @RequestParam("pageNumber") Integer pageNumber,
+//                                                        @RequestParam("pageSize") Integer pageSize) {
+//        Jws<Claims> claims = jwtService.getClaims(jwt);
+//        Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
+//        return OK(itemService.getItemList(userId, pageNumber, pageSize));
+//    }
+
+
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 in Home")
     @GetMapping("/items")
     @Transactional
-    public ApiResult<Page<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
-                                                        @RequestParam("pageNumber") Integer pageNumber,
-                                                        @RequestParam("pageSize") Integer pageSize) {
-        Jws<Claims> claims = jwtService.getClaims(jwt);
-        Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
-        return OK(itemService.getItemList(userId, pageNumber, pageSize));
-    }
-
-//        public ApiResult<Slice<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-//        /**, @RequestHeader("jwt") String jwt**/) {
+    public ApiResult<Slice<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+                                                    /**, @RequestHeader("jwt") String jwt**/) {
 
 //        Long userId = userService.checkLoginStatus(jwt);
         // 비회원에게 보여줄 홈페이지
 //        if(userId.equals(-1)) {
-//            return ApiResult.OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
+            return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
 //        }
         // TODO : querydsl where 적용 + userService.updateLastLoginAt(userId) 적용;
 //        else {
 //            User user = userRepository.findById(userId).get();
 //            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 //        }
-//    }
+    }
 
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
     @GetMapping("/item/category")

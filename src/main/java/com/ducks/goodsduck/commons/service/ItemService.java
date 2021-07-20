@@ -116,28 +116,32 @@ public class ItemService {
         }
     }
 
-    public Boolean delete(Long itemId) {
+    public Long delete(Long itemId) {
 
-        Item deleteItem = itemRepository.findById(itemId).get();
-        List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
+        try {
+            Item deleteItem = itemRepository.findById(itemId).get();
+            List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
 
-        User user = deleteItem.getUser();
-        List<Item> userItems = user.getItems();
+            User user = deleteItem.getUser();
+            List<Item> userItems = user.getItems();
 
-        for (Image deleteImage : deleteImages) {
-            imageRepository.delete(deleteImage);
-        }
-
-        for (Item userItem : userItems) {
-            if(userItem.getId().equals(deleteItem.getId())) {
-                userItems.remove(userItem);
-                break;
+            for (Image deleteImage : deleteImages) {
+                imageRepository.delete(deleteImage);
             }
+
+            for (Item userItem : userItems) {
+                if(userItem.getId().equals(deleteItem.getId())) {
+                    userItems.remove(userItem);
+                    break;
+                }
+            }
+
+            itemRepository.delete(deleteItem);
+            
+            return 1L;
+        } catch (Exception e) {
+            return -1L;
         }
-
-        itemRepository.delete(deleteItem);
-
-        return true;
     }
 
     public Long isWriter(Long userId, Long itemId) {
