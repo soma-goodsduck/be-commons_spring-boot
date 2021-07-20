@@ -47,10 +47,17 @@ public class OauthKakaoService {
         params.add("redirect_uri", frontendRedirectUrl);
         params.add("code", code);
 
+        log.info("******kakao login test : " + grantType,
+                kakaoOauth2ClientId,
+                kakaoOauth2ClientSecret,
+                frontendRedirectUrl,
+                code + "*********");
+
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
+            log.info("******kakao login test : " + response.toString() + "*********");
             return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
         } catch (RestClientException | JsonProcessingException ex) {
             log.debug("exception occured in request to authorize with Kakao : {}", ex.getMessage(), ex);
