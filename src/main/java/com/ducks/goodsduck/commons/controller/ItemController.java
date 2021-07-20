@@ -14,11 +14,13 @@ import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.querydsl.core.Tuple;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -96,7 +98,7 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 (Srot 최신순 적용 O, 좋아하는 아이돌 필터링 적용 X)")
     @GetMapping("/items")
     @Transactional
-    public ApiResult<List<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ApiResult<Page<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
         Jws<Claims> claims = jwtService.getClaims(jwt);
         Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
         return OK(itemService.getItemList(userId, pageable));

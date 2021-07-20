@@ -7,9 +7,10 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
-import com.querydsl.jpa.JPAExpressions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,8 +135,11 @@ public class ItemService {
         return itemRepository.save(new Item(itemUploadRequest));
     }
 
-    public List<ItemDetailResponse> getItemList(Long userId, Pageable pageable) {
-        return itemRepositoryCustom.findAllWithUserItem(userId, pageable)
+    public Page<ItemDetailResponse> getItemList(Long userId, Pageable pageable) {
+
+        Page<Tuple> tuplePage = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
+
+        List<ItemDetailResponse> tupleToList =  tuplePage
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
@@ -148,5 +152,7 @@ public class ItemService {
                     return itemDetailResponse;
                 })
                 .collect(Collectors.toList());
+
+        return new PageImpl<ItemDetailResponse>(tupleToList);
     }
 }

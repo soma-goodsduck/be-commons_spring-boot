@@ -2,16 +2,15 @@ package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -41,15 +40,34 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllWithUserItem(Long userId, Pageable pageable) {
+    public Page<Tuple> findAllWithUserItem(Long userId, Pageable pageable) {
 
-        return queryFactory.select(item, new CaseBuilder()
-                                            .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
+        JPAQuery<Tuple> query = queryFactory.select(item, new CaseBuilder()
+                .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
                 .from(item)
                 .groupBy(item)
-                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-                .fetch();
+                .leftJoin(userItem).on(userItem.item.id.eq(item.id));
 
+        Sort sort = pageable.getSort();
+
+        sort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+            String property = order.getProperty();
+
+            PathBuilder orderByExpression = new PathBuilder(Item.class, "item");
+            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(property)));
+        });
+
+        long count = query.fetchCount();
+
+        query.offset(pageable.getOffset());
+        query.limit(pageable.getPageSize());
+
+        List<Tuple> resultListOfTuple = query.fetch();
+
+        Page<Tuple> pages = new PageImpl<>(resultListOfTuple, pageable, count);
+
+        return pages;
     }
 
     @Override
