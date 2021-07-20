@@ -29,6 +29,7 @@ public class OauthKakaoService {
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
     private final String kakaoOauth2ClientId = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.client-id", "local");
+    private final String kakaoOauth2ClientSecret = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.client-secret", "local");
     private final String frontendRedirectUrl = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.redirect-uri", "local");
     private final String grantType = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.kakao.authorization-grant-type", "local");
     private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.kakao.token-uri", "local");
@@ -36,17 +37,13 @@ public class OauthKakaoService {
 
     public AuthorizationKakaoDto callTokenApi(String code) {
 
-        log.info("social login of kakao debugging: {}, {}, {}, {}, {}", kakaoOauth2ClientId,
-                frontendRedirectUrl,
-                grantType,
-                tokenUri,
-                userInfoUri);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
         params.add("client_id", kakaoOauth2ClientId);
+        params.add("client_secret", kakaoOauth2ClientSecret);
         params.add("redirect_uri", frontendRedirectUrl);
         params.add("code", code);
 
