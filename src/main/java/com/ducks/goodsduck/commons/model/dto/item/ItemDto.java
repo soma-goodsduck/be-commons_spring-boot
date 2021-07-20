@@ -29,7 +29,7 @@ public class ItemDto {
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
     private Boolean isLike = false;
-    private List<ImageDto> image;
+    private List<ImageDto> images;
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
     private CategoryItem categoryItem;
