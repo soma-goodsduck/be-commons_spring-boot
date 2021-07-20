@@ -29,4 +29,10 @@ public class UserIdolGroup {
         userIdolGroup.setIdolGroup(idolGroup);
         return userIdolGroup;
     }
+
+    // TODO : 사용처 확인
+    public UserIdolGroup(User user, IdolGroup idolGroup) {
+        this.user = user;
+        this.idolGroup = idolGroup;
+    }
 }

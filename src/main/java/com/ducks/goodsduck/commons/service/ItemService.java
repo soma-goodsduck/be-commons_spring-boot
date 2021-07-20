@@ -6,8 +6,12 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.dsl.PathBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ import java.util.Optional;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRepositoryCustom itemRepositoryCustom;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final IdolMemberRepository idolMemberRepository;
@@ -77,6 +83,18 @@ public class ItemService {
         item.increaseView();
 
         return new ItemDetailResponse(item);
+    }
+
+    public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
+        Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
+        Item item = itemTupleWithUserItem.get(0, Item.class);
+        item.increaseView();
+        ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+
+        if (itemTupleWithUserItem.get(1, long.class) > 0L) {
+            itemDetailResponse.likesOfMe();
+        };
+        return itemDetailResponse;
     }
 
     public Long edit(Long itemId, ItemUpdateRequest itemUpdateRequest) {
@@ -139,5 +157,36 @@ public class ItemService {
 
     public Item upload(ItemUploadRequest itemUploadRequest) {
         return itemRepository.save(new Item(itemUploadRequest));
+    }
+
+    public Page<ItemDetailResponse> getItemList(Long userId, Integer pageNumber, Integer pageSize) {
+
+        String property = "createdAt";
+
+        Sort.Order createdAtDesc = Sort.Order.desc(property);
+        Sort sort = Sort.sort(Item.class).by(createdAtDesc);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
+        List<ItemDetailResponse> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    long count = tuple.get(1, long.class);
+
+                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    if (count > 0L) {
+                        itemDetailResponse.likesOfMe();
+                    }
+                    return itemDetailResponse;
+                })
+                .collect(Collectors.toList());
+
+        long count = tupleToList.size();
+        int start = pageNumber * pageSize;
+        int maxCount = (pageNumber+1) * pageSize;
+        int end = maxCount > count ? (int) count : maxCount;
+
+        return new PageImpl(tupleToList.subList(start, end), pageable, count);
     }
 }

@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
-import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
+import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolMemberDto;
 import com.ducks.goodsduck.commons.service.IdolMemberService;
 import io.swagger.annotations.Api;
@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -27,31 +29,31 @@ public class IdolMemberController {
     @NoCheckJwt
     @GetMapping("/idol/{idol_group_id}/member")
     @ApiOperation("특정 아이돌 그룹에 해당하는 아이돌 멤버 리스트 가져오기 API")
-    public List<IdolMemberDto> getIdolMembersOfGroup(@PathVariable("idol_group_id") Long idolGroupId) {
-        return idolMemberService.findIdolMembersOfGroup(idolGroupId)
+    public ApiResult<List<IdolMemberDto>> getIdolMembersOfGroup(@PathVariable("idol_group_id") Long idolGroupId) {
+        return OK(idolMemberService.findIdolMembersOfGroup(idolGroupId)
                 .stream()
                 .map(idolMember -> new IdolMemberDto(idolMember))
-//                .sorted(Comparator.comparing(IdolMemberDto::getName))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(IdolMemberDto::getName))
+                .collect(Collectors.toList()));
     }
 
     @NoCheckJwt
     @GetMapping("/idol/member")
     @ApiOperation("아이돌 멤버 리스트 가져오기 API")
-    public List<IdolMemberDto> getIdolMemberList() {
-        return idolMemberService.findAllIdolMembers()
+    public ApiResult<List<IdolMemberDto>> getIdolMemberList() {
+        return OK(idolMemberService.findAllIdolMembers()
                 .stream()
                 .map(idolMember -> new IdolMemberDto(idolMember))
                 .sorted(Comparator.comparing(IdolMemberDto::getName))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @NoCheckJwt
     @GetMapping("/idol/member/{idol_member_id}")
     @ApiOperation("특정 아이돌 멤버 가져오기 API")
-    public IdolMemberDto getIdolMember(@PathVariable("idol_member_id") Long idolMemberId) {
-        return idolMemberService.findIdolMemberById(idolMemberId)
+    public ApiResult<IdolMemberDto> getIdolMember(@PathVariable("idol_member_id") Long idolMemberId) {
+        return OK(idolMemberService.findIdolMemberById(idolMemberId)
                 .map(idolMember -> new IdolMemberDto(idolMember))
-                .orElseGet(() -> new IdolMemberDto());
+                .orElseGet(() -> new IdolMemberDto()));
     }
 }

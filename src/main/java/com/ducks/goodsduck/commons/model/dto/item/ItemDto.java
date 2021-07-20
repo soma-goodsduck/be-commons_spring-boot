@@ -11,11 +11,13 @@ import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class ItemDto {
 
-    private Long id;
+    private Long itemId;
     private String name;
     private Long price;
     private TradeType tradeType;
@@ -27,7 +29,7 @@ public class ItemDto {
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
     private Boolean isLike = false;
-    private ImageDto image;
+    private List<ImageDto> image;
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
     private CategoryItem categoryItem;
@@ -38,7 +40,7 @@ public class ItemDto {
     }
 
     public ItemDto(Item item) {
-        this.id = item.getId();
+        this.itemId = item.getId();
         this.name = item.getName();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType();
@@ -49,6 +51,9 @@ public class ItemDto {
         this.itemCreatedAt = item.getCreatedAt();
         this.updatedAt = item.getUpdatedAt();
         this.likesItemCount = item.getLikesItemCount();
-        this.image = new ImageDto(item.getThumbNail());
+        this.image = item.getImages()
+                        .stream()
+                        .map(itemImage -> new ImageDto(itemImage))
+                        .collect(Collectors.toList());
     }
 }

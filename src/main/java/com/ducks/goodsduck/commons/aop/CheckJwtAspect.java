@@ -30,22 +30,23 @@ public class CheckJwtAspect {
 
         // HINT: 메서드 실행 전
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
 
         String jwt = request.getHeader("jwt");
         Long userId = userService.checkLoginStatus(jwt);
 
-        // HINT: jwt의 payloads를 통해 읽은 userId가 일치하지 않을 경우, UnAuthorized 에러 반환
-//        if (userId.equals(-1L)) {
-//            return ApiResult.ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
-//        }
+        // HINT: jwt의 payloads를 통해 userId를 읽었을 경우 UnAuthorized 에러 반환
+        if (userId.equals(-1L)) {
+            return ApiResult.ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+        }
 
-        response.setHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
         request.setAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, userId);
 
         Object result = joinPoint.proceed();
 
         // HINT: 본 메서드 실행 후
+        HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getResponse();
+        response.setHeader("jwt", jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId));
+
         return result;
     }
 }

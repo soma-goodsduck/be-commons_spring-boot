@@ -26,6 +26,11 @@ public class ItemDetailResponse {
     private String categoryName;
     private Integer views;
     private Integer likesItemCount;
+    private boolean isLike;
+
+    public void likesOfMe() {
+        isLike = true;
+    }
 
     public ItemDetailResponse(Item item) {
         this.itemId = item.getId();
@@ -44,5 +49,6 @@ public class ItemDetailResponse {
         this.categoryName = item.getCategoryItem().getName();
         this.views = item.getViews();
         this.likesItemCount = item.getLikesItemCount();
+        this.isLike = false;
     }
 }

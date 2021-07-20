@@ -109,8 +109,6 @@ public class UserService {
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
 
-        System.out.println(userSignUpRequest);
-
         SocialAccount socialAccount = socialAccountRepository.save(
                 new SocialAccount(userSignUpRequest.getSocialAccountId(),
                                   userSignUpRequest.getSocialAccountType())
@@ -131,7 +129,7 @@ public class UserService {
             user.addUserIdolGroup(userIdolGroup);
         }
 
-        String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT,user.getId());
+        String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId());
 
         UserDto userDto = new UserDto(user);
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
@@ -155,7 +153,6 @@ public class UserService {
             return -1L;
         }
 
-        // 토큰의 만료 기한이 다 된 경우
         Long userId = Long.valueOf((Integer) payloads.get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
 
         if (userRepository.existsById(userId)) return userId;

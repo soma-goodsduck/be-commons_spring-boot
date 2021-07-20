@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolMemberDto;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
@@ -16,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -24,25 +27,23 @@ public class IdolGroupController {
 
     private final IdolGroupService idolGroupService;
 
-    /** 아이돌 그룹 리스트 가져오기 API */
     @NoCheckJwt
     @GetMapping("/idol")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
-    public List<IdolGroupDto> getIdolGroups() {
-        return idolGroupService.getIdolGroups()
+    public ApiResult<List<IdolGroupDto>> getIdolGroups() {
+        return OK(idolGroupService.getIdolGroups()
                 .stream()
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
                 .sorted(Comparator.comparing(IdolGroupDto::getName))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
-    /** 아이돌 그룹 가져오기 API */
     @NoCheckJwt
     @GetMapping("/idol/{idol_group_id}")
     @ApiOperation("아이돌 그룹 가져오기 API")
-    public IdolGroupDto getIdolGroup(@PathVariable("idol_group_id") Long idolGroupId) {
-        return idolGroupService.getIdolGroup(idolGroupId)
+    public ApiResult<IdolGroupDto> getIdolGroup(@PathVariable("idol_group_id") Long idolGroupId) {
+        return OK(idolGroupService.getIdolGroup(idolGroupId)
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
-                .orElseGet(() -> new IdolGroupDto());
+                .orElseGet(() -> new IdolGroupDto()));
     }
 }
