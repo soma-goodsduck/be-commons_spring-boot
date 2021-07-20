@@ -73,7 +73,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
-            return Long.valueOf(-1);
+            return -1L;
         }
     }
 
@@ -112,7 +112,35 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
-            return Long.valueOf(-1);
+            return -1L;
+        }
+    }
+
+    public Long delete(Long itemId) {
+
+        try {
+            Item deleteItem = itemRepository.findById(itemId).get();
+            List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
+
+            User user = deleteItem.getUser();
+            List<Item> userItems = user.getItems();
+
+            for (Image deleteImage : deleteImages) {
+                imageRepository.delete(deleteImage);
+            }
+
+            for (Item userItem : userItems) {
+                if(userItem.getId().equals(deleteItem.getId())) {
+                    userItems.remove(userItem);
+                    break;
+                }
+            }
+
+            itemRepository.delete(deleteItem);
+            
+            return 1L;
+        } catch (Exception e) {
+            return -1L;
         }
     }
 

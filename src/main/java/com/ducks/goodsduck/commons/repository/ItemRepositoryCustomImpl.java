@@ -30,7 +30,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-
     @Override
     public Tuple findByItemId(Long itemId) {
 

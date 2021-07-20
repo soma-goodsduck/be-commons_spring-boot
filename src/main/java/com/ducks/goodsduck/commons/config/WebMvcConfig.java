@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
     @Bean
     public FilterRegistrationBean<AccessControlAllowFilter> getFilterRegistrationBean() {
         FilterRegistrationBean<AccessControlAllowFilter> registrationBean = new FilterRegistrationBean<>(new AccessControlAllowFilter());

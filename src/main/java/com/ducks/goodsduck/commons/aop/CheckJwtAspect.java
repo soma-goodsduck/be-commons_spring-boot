@@ -32,13 +32,12 @@ public class CheckJwtAspect {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
         String jwt = request.getHeader("jwt");
-
         Long userId = userService.checkLoginStatus(jwt);
 
         // HINT: jwt의 payloads를 통해 userId를 읽었을 경우 UnAuthorized 에러 반환
-        if (userId.equals(-1L)) {
-            return ApiResult.ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
-        }
+//        if (userId.equals(-1L)) {
+//            return ApiResult.ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+//        }
 
         request.setAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, userId);
 

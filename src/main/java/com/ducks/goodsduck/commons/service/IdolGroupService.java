@@ -16,9 +16,7 @@ public class IdolGroupService {
 
     private final IdolGroupRepository idolGroupRepository;
 
-    public List<IdolGroup> getIdolGroups() {
-        return idolGroupRepository.findAll();
-    }
+    public List<IdolGroup> getIdolGroups() { return idolGroupRepository.findAll(); }
 
     public Optional<IdolGroup> getIdolGroup(Long idolGroupId) {
         return idolGroupRepository.findById(idolGroupId);
