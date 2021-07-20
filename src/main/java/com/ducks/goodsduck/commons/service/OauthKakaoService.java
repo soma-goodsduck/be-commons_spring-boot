@@ -36,6 +36,11 @@ public class OauthKakaoService {
 
     public AuthorizationKakaoDto callTokenApi(String code) {
 
+        log.info("social login of kakao debugging: {}, {}, {}, {}, {}", kakaoOauth2ClientId,
+                frontendRedirectUrl,
+                grantType,
+                tokenUri,
+                userInfoUri);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
