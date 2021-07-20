@@ -13,9 +13,10 @@ public class ItemDetailResponseIdol {
     private String memberName;
 
     public ItemDetailResponseIdol(IdolMember idolMember) {
-        this.groupId = idolMember.getId();
+
+        this.groupId = idolMember.getIdolGroup().getId();
         this.groupName = idolMember.getIdolGroup().getName();
-        this.memberId = idolMember.getIdolGroup().getId();
+        this.memberId = idolMember.getId();
         this.memberName = idolMember.getName();
     }
 }

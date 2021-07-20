@@ -28,6 +28,7 @@ public class ItemDetailResponse {
     private Integer likesItemCount;
 
     public ItemDetailResponse(Item item) {
+        this.itemId = item.getId();
         this.user = new ItemDetailResponseUser(item.getUser());
         this.itemId = item.getId();
         this.name = item.getName();
