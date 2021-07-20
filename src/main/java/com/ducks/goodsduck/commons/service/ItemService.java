@@ -7,11 +7,11 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.dsl.PathBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -135,11 +135,16 @@ public class ItemService {
         return itemRepository.save(new Item(itemUploadRequest));
     }
 
-    public Page<ItemDetailResponse> getItemList(Long userId, Pageable pageable) {
+    public Page<ItemDetailResponse> getItemList(Long userId, Integer pageNumber, Integer pageSize) {
 
-        Page<Tuple> tuplePage = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
+        String property = "createdAt";
 
-        List<ItemDetailResponse> tupleToList =  tuplePage
+        Sort.Order createdAtDesc = Sort.Order.desc(property);
+        Sort sort = Sort.sort(Item.class).by(createdAtDesc);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
+        List<ItemDetailResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
@@ -153,6 +158,11 @@ public class ItemService {
                 })
                 .collect(Collectors.toList());
 
-        return new PageImpl<ItemDetailResponse>(tupleToList);
+        long count = tupleToList.size();
+        int start = pageNumber * pageSize;
+        int maxCount = (pageNumber+1) * pageSize;
+        int end = maxCount > count ? (int) count : maxCount;
+
+        return new PageImpl(tupleToList.subList(start, end), pageable, count);
     }
 }
