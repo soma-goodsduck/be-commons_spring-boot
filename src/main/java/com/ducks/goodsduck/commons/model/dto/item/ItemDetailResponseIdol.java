@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class ItemDetailResponseIdol {
 
+    // TODO : groupId -> idolGroupId;
     private Long groupId;
     private String groupName;
     private Long memberId;
@@ -13,7 +14,8 @@ public class ItemDetailResponseIdol {
 
     public ItemDetailResponseIdol(IdolMember idolMember) {
         this.groupId = idolMember.getId();
-        this.memberName = idolMember.getName();
         this.groupName = idolMember.getIdolGroup().getName();
+        this.memberId = idolMember.getIdolGroup().getId();
+        this.memberName = idolMember.getName();
     }
 }

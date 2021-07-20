@@ -10,22 +10,23 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserItem {
+public class UserIdolGroup {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ITEM_ID")
+    @Column(name = "user_idol_group_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ITEM_ID")
-    private Item item;
+    @JoinColumn(name = "idol_group_id")
+    private IdolGroup idolGroup;
 
-    public UserItem(User user, Item item) {
-        this.user = user;
-        this.item = item;
+    public static UserIdolGroup createUserIdolGroup(IdolGroup idolGroup) {
+        UserIdolGroup userIdolGroup = new UserIdolGroup();
+        userIdolGroup.setIdolGroup(idolGroup);
+        return userIdolGroup;
     }
 }

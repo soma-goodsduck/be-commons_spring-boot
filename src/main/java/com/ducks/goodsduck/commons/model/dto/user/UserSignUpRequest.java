@@ -1,7 +1,11 @@
 package com.ducks.goodsduck.commons.model.dto.user;
 
+import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 회원 가입 시
@@ -16,4 +20,5 @@ public class UserSignUpRequest {
     private String nickName;
     private String email;
     private String phoneNumber;
+    private List<Long> likeIdolGroupsId = new ArrayList<>();
 }

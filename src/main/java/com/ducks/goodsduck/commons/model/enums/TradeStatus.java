@@ -1,5 +1,18 @@
 package com.ducks.goodsduck.commons.model.enums;
 
 public enum TradeStatus {
-    BUYING, SELLING, TRADING, COMPLETE
+    BUYING("구매중"),
+    SELLING("판매중"),
+    RESERVING("예약중"),
+    COMPLETE("판매완료");
+
+    private String korName;
+
+    TradeStatus(String korName) {
+        this.korName = korName;
+    }
+
+    public String getKorName() {
+        return korName;
+    }
 }

@@ -1,10 +1,10 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.ducks.goodsduck.commons.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,16 +12,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/jwt")
 public class JwtController {
 
-    @Autowired
-    private CustomJwtService jwtService;
+    private final CustomJwtService jwtService;
+    private final UserService userService;
 
     // 개발 테스트용 (토큰 발급)
     @GetMapping("/gen/token")
     public Map<String, Object> genToken(@RequestParam(value="subject") String subject) {
-        String token = jwtService.createJwt(subject, new JwtDto(10L));
+
+        String token = jwtService.createJwt(subject, 1L);
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("result", token);
         return map;

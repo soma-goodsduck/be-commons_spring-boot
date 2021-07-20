@@ -2,12 +2,14 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
-import com.ducks.goodsduck.commons.model.dto.user.JwtDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
+import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.SocialAccount;
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
+import com.ducks.goodsduck.commons.repository.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -30,17 +32,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
 
-    private static final String JWT_TOKEN = "For Member-Checking";
-
     private final CustomJwtService jwtService;
     private final OauthKakaoService oauthKakaoService;
     private final OauthNaverService oauthNaverService;
 
     private final UserRepository userRepository;
     private final SocialAccountRepository socialAccountRepository;
+    private final IdolGroupRepository idolGroupRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
+
         AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callTokenApi(code, state);
 
         // 소셜로그인 정보
@@ -59,7 +61,7 @@ public class UserService {
                     User user = socialAccount.getUser();
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
+                    userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
 
                     return userDto;
                 })
@@ -91,7 +93,7 @@ public class UserService {
                     User user = socialAccount.getUser();
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
+                    userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
 
                     return userDto;
                 })
@@ -110,22 +112,26 @@ public class UserService {
         System.out.println(userSignUpRequest);
 
         SocialAccount socialAccount = socialAccountRepository.save(
-                new SocialAccount(
-                        userSignUpRequest.getSocialAccountId(),
-                        userSignUpRequest.getSocialAccountType()
-                )
+                new SocialAccount(userSignUpRequest.getSocialAccountId(),
+                                  userSignUpRequest.getSocialAccountType())
         );
-
-        System.out.println(userSignUpRequest);
 
         User user = userRepository.save(
                 new User(userSignUpRequest.getNickName(),
-                        userSignUpRequest.getEmail(),
-                        userSignUpRequest.getPhoneNumber())
+                         userSignUpRequest.getEmail(),
+                         userSignUpRequest.getPhoneNumber())
         );
         user.addSocialAccount(socialAccount);
 
-        String jwt = jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId()));
+        List<Long> likeIdolGroupsId = userSignUpRequest.getLikeIdolGroupsId();
+        for (Long likeIdolGroupId : likeIdolGroupsId) {
+
+            IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+            UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+            user.addUserIdolGroup(userIdolGroup);
+        }
+
+        String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT,user.getId());
 
         UserDto userDto = new UserDto(user);
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
@@ -134,35 +140,35 @@ public class UserService {
     }
 
     // jwt 검증을 통한 유저 정보 반환 및 토큰 재발급 로직
-    public UserDto checkLoginStatus(String jwt) {
+    public Long checkLoginStatus(String jwt) {
 
         Map<String, Object> payloads = new HashMap<>();
+
         try {
             payloads = jwtService.getPayloads(jwt);
         } catch (JwtException e) {
             // 비밀키 상이(SignatureException), 토큰 정보 위조(MalformedJwtException) , 만료된 경우(ExpiredJwtException)
-            log.debug("Cannot  ", e.getMessage());
-            return UserDto.createUserDto(UserRole.ANONYMOUS);
+            log.debug("There is a problem of getting payloads from jwt.", e.getMessage());
+            return -1L;
         } catch (Exception e) {
-            log.debug("", e.getMessage());
-            return UserDto.createUserDto(UserRole.ANONYMOUS);
+            log.debug("Unexpected error getting payloads from jwt", e.getMessage());
+            return -1L;
         }
 
         // 토큰의 만료 기한이 다 된 경우
         Long userId = Long.valueOf((Integer) payloads.get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
 
-        return userRepository.findById(userId)
-                .map(user -> {
-                    user.updateLastLoginAt();
-                    UserDto userDto = new UserDto(user);
-                    userDto.setJwt(jwtService.createJwt(JWT_TOKEN, new JwtDto(user.getId())));
-
-                    return userDto;
-                })
-                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS));
+        if (userRepository.existsById(userId)) return userId;
+        else return -1L;
     }
 
-    public Optional<User> find(Long user_id) {
+    public void updateLastLoginAt(Long userId) {
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+    }
+
+    public Optional<User> find(java.lang.Long user_id) {
         return userRepository.findById(user_id);
     }
 

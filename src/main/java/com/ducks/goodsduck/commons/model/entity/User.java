@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.lang.reflect.Member;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,9 @@ public class User {
     private UserRole role;
 
     @OneToMany(mappedBy = "user")
+    private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -43,8 +49,8 @@ public class User {
         this.nickName = nickName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.createdAt = LocalDateTime.now();
-        this.lastLoginAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.role = UserRole.USER;
     }
 
@@ -53,7 +59,18 @@ public class User {
         socialAccounts.add(socialAccount);
     }
 
-    public void updateLastLoginAt() {
-        this.lastLoginAt = LocalDateTime.now();
+    public void addUserIdolGroup(UserIdolGroup userIdolGroup) {
+        userIdolGroup.setUser(this);
+        userIdolGroups.add(userIdolGroup);
     }
+
+    // TODO : updateLastLoginAt 추가
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+    }
+
+//    public static User createUser(UserIdolGroup... userIdolGroups) {
+//
+//        User user = new
+//    }
 }

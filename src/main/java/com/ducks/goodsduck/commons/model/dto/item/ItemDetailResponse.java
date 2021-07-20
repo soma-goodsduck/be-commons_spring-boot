@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
 public class ItemDetailResponse {
 
     private ItemDetailResponseUser user;
+    private Long itemId;
     private String name;
     private String description;
     private List<ItemDetailResponseImage> images = new ArrayList<>();
     private Long price;
-    private TradeType tradeType;
+    private String tradeType;
     private GradeStatus gradeStatus;
     private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
@@ -28,13 +29,14 @@ public class ItemDetailResponse {
 
     public ItemDetailResponse(Item item) {
         this.user = new ItemDetailResponseUser(item.getUser());
+        this.itemId = item.getId();
         this.name = item.getName();
         this.description = item.getDescription();
         this.images = item.getImages().stream()
                         .map(image -> new ItemDetailResponseImage(image))
                         .collect(Collectors.toList());
         this.price = item.getPrice();
-        this.tradeType = item.getTradeType();
+        this.tradeType = item.getTradeType().getKorName();
         this.gradeStatus = item.getGradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
