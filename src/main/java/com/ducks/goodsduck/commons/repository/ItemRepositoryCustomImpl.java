@@ -78,13 +78,13 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         JPAQuery<Tuple> query = queryFactory.select(item, new CaseBuilder()
                     .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum(), idolMember, idolGroup, categoryItem, user)
-                .from(item)
-                .groupBy(item, idolMember, idolGroup, categoryItem, user)
-                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-                .join(idolMember).on(item.idolMember.eq(idolMember))
-                .join(idolGroup).on(idolMember.idolGroup.eq(idolGroup))
-                .join(categoryItem).on(item.categoryItem.eq(categoryItem))
-                .join(user).on(item.user.eq(user));
+                    .from(item)
+                    .groupBy(item, idolMember, idolGroup, categoryItem, user)
+                    .leftJoin(userItem).on(userItem.item.id.eq(item.id))
+                    .join(idolMember).on(item.idolMember.eq(idolMember))
+                    .join(idolGroup).on(idolMember.idolGroup.eq(idolGroup))
+                    .join(categoryItem).on(item.categoryItem.eq(categoryItem))
+                    .join(user).on(item.user.eq(user));
 
         pageable.getSort().stream().forEach(order -> {
             Order direction = order.isAscending() ? Order.ASC : Order.DESC;

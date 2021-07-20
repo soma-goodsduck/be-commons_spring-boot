@@ -18,13 +18,12 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-@Api(tags = "회원 가입 API")
+@Api(tags = "회원 가입 APIs")
 public class UserController {
 
     private final UserService userService;
 
     // TODO : url 변경
-    /** 소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API **/
     @NoCheckJwt
     @GetMapping("/login/naver")
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API")
