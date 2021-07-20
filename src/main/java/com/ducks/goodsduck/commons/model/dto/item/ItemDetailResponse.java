@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 
@@ -20,6 +21,7 @@ public class ItemDetailResponse {
     private List<ItemDetailResponseImage> images = new ArrayList<>();
     private Long price;
     private String tradeType;
+    private TradeStatus tradeStatus;
     private GradeStatus gradeStatus;
     private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
@@ -43,6 +45,7 @@ public class ItemDetailResponse {
                         .collect(Collectors.toList());
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
+        this.tradeStatus = item.getTradeStatus();
         this.gradeStatus = item.getGradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
