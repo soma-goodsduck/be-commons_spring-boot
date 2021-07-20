@@ -51,7 +51,7 @@ public class ItemDto {
         this.itemCreatedAt = item.getCreatedAt();
         this.updatedAt = item.getUpdatedAt();
         this.likesItemCount = item.getLikesItemCount();
-        this.image = item.getImages()
+        this.images = item.getImages()
                         .stream()
                         .map(itemImage -> new ImageDto(itemImage))
                         .collect(Collectors.toList());
