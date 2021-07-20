@@ -98,11 +98,11 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
     @Override
     public Tuple findByIdWithUserItem(Long userId, Long itemId) {
-        return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L))
+        return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
                 .from(item)
                 .leftJoin(userItem).on(userItem.item.eq(item))
                 .where(item.id.eq(itemId))
-                .groupby(item)
+                .groupBy(item)
                 .fetchOne();
 
     }
