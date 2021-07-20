@@ -94,6 +94,7 @@ public class ItemService {
         if (itemTupleWithUserItem.get(1, long.class) > 0L) {
             itemDetailResponse.likesOfMe();
         };
+
         return itemDetailResponse;
     }
 

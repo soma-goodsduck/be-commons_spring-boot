@@ -49,7 +49,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-@Api(tags = "아이템 CRUD API")
+@Api(tags = "아이템 CRUD APIs")
 public class ItemController {
 
     private final ItemService itemService;
@@ -84,9 +84,11 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인")
     @GetMapping("/item/edit/{itemId}")
-    public ApiResult<Long> confirmWriter(@PathVariable("itemId") Long itemId, HttpServletRequest request) {
+    public ApiResult<Long> confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
 
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        // TODO : jwt userid값 추출 수정
+        Jws<Claims> claims = jwtService.getClaims(jwt);
+        Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
         return OK(itemService.isWriter(userId, itemId));
     }
 
@@ -122,18 +124,20 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 in Home")
     @GetMapping("/items")
     @Transactional
-    public ApiResult<Slice<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-                                                    /**, @RequestHeader("jwt") String jwt**/) {
+    public ApiResult<Slice<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                         @RequestHeader("jwt") String jwt) {
 
 //        Long userId = userService.checkLoginStatus(jwt);
-        // 비회원에게 보여줄 홈페이지
+//        // 비회원에게 보여줄 홈페이지
 //        if(userId.equals(-1)) {
             return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
 //        }
-        // TODO : querydsl where 적용 + userService.updateLastLoginAt(userId) 적용;
+//        // TODO : querydsl where 적용 + userService.updateLastLoginAt(userId) 적용;
 //        else {
 //            User user = userRepository.findById(userId).get();
 //            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+//
+//
 //        }
     }
 
