@@ -47,10 +47,10 @@ public class OauthKakaoService {
         params.add("redirect_uri", frontendRedirectUrl);
         params.add("code", code);
 
-        log.info("******kakao login test : " + grantType,
-                kakaoOauth2ClientId,
-                kakaoOauth2ClientSecret,
-                frontendRedirectUrl,
+        log.info("******kakao login test : " + grantType +
+                kakaoOauth2ClientId +
+                kakaoOauth2ClientSecret +
+                frontendRedirectUrl +
                 code + "*********");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
