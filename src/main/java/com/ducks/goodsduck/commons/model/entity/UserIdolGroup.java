@@ -13,19 +13,20 @@ import javax.persistence.*;
 public class UserIdolGroup {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_IDOL_GROUP_ID")
+    @Column(name = "user_idol_group_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IDOL_GROUP_ID")
+    @JoinColumn(name = "idol_group_id")
     private IdolGroup idolGroup;
 
-    public UserIdolGroup(User user, IdolGroup idolGroup) {
-        this.user = user;
-        this.idolGroup = idolGroup;
+    public static UserIdolGroup createUserIdolGroup(IdolGroup idolGroup) {
+        UserIdolGroup userIdolGroup = new UserIdolGroup();
+        userIdolGroup.setIdolGroup(idolGroup);
+        return userIdolGroup;
     }
 }

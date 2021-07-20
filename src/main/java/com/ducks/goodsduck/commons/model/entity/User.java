@@ -30,6 +30,9 @@ public class User {
     private UserRole role;
 
     @OneToMany(mappedBy = "user")
+    private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -55,7 +58,18 @@ public class User {
         socialAccounts.add(socialAccount);
     }
 
+    public void addUserIdolGroup(UserIdolGroup userIdolGroup) {
+        userIdolGroup.setUser(this);
+        userIdolGroups.add(userIdolGroup);
+    }
+
+    // TODO : updateLastLoginAt 추가
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
+
+//    public static User createUser(UserIdolGroup... userIdolGroups) {
+//
+//        User user = new
+//    }
 }

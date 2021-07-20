@@ -1,11 +1,12 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.service.CustomJwtService;
+import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.service.CustomJwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,11 +15,12 @@ import java.util.Map;
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/jwt")
 public class JwtController {
 
-    @Autowired
-    private CustomJwtService jwtService;
+    private final CustomJwtService jwtService;
+    private final UserService userService;
 
     // 개발 테스트용 (토큰 발급)
     @NoCheckJwt
