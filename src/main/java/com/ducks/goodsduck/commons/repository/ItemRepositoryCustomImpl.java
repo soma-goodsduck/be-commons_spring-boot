@@ -102,6 +102,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.item.eq(item))
                 .where(item.id.eq(itemId))
+                .groupby(item)
                 .fetchOne();
 
     }
