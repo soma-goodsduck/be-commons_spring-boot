@@ -4,30 +4,28 @@ import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
-import com.ducks.goodsduck.commons.repository.ImageRepository;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
-import com.ducks.goodsduck.commons.service.ImageUploadService;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.querydsl.core.Tuple;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +40,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -49,6 +48,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 @Api(tags = "아이템 CRUD APIs")
 public class ItemController {
 
@@ -153,4 +153,29 @@ public class ItemController {
     @ApiOperation(value = "제품상태 리스트 불러오기 in 아이템 등록")
     @GetMapping("/item/gradestatus")
     public EnumSet<GradeStatus> getGradeStatusItem() { return EnumSet.allOf(GradeStatus.class); }
+
+    @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
+    @GetMapping("/mypage/item")
+    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        try {
+            TradeStatus status = TradeStatus.valueOf(tradeStatus.toUpperCase());
+            System.out.println("status = " + status);
+            return OK(itemService.findMyItem(userId, status)
+                    .stream()
+                    .map(tuple -> {
+                        Item item = tuple.get(0, Item.class);
+                        Image image = tuple.get(1, Image.class);
+                        return ItemSummaryDto.of(item, image);
+                    })
+                    .collect(Collectors.toList()));
+
+        } catch (IllegalArgumentException e) {
+            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("There is no tradeStatus inserted");
+        }
+
+    }
+
 }
