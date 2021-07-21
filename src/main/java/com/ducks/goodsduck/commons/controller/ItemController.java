@@ -161,7 +161,6 @@ public class ItemController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         try {
             TradeStatus status = TradeStatus.valueOf(tradeStatus.toUpperCase());
-            System.out.println("status = " + status);
             return OK(itemService.findMyItem(userId, status)
                     .stream()
                     .map(tuple -> {
