@@ -1,9 +1,7 @@
 package com.ducks.goodsduck.commons.repository;
 
-import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +13,5 @@ public interface ItemRepositoryCustom {
     List<Tuple> findAllWithUserItem(Long userId, Pageable pageable);
     Tuple findByIdWithUserItem(Long userId, Long itemId);
     List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
+    long updateTradeStatus(Long itemId, TradeStatus status);
 }

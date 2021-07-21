@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -196,5 +199,31 @@ public class ItemService {
 
     public List<Tuple> findMyItem(Long userId, TradeStatus status) {
         return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
+    }
+
+    public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+
+        Item findItem = findItemOpt.orElseThrow(() -> {
+            throw new IllegalArgumentException("Not founded item.");
+        });
+
+        if (findItem.getTradeStatus().equals(COMPLETE)) {
+            throw new IllegalArgumentException("Already completed trade item.");
+        }
+
+        TradeType tradeType = findItem.getTradeType();
+
+        switch (status) {
+            case BUYING:
+                if (tradeType.equals(TradeType.SELL)) throw new IllegalArgumentException("This item's tradeType is SELLING");
+                break;
+
+            case SELLING:
+                if (tradeType.equals(TradeType.BUY)) throw new IllegalArgumentException("This item's tradeType is BUYING");
+                break;
+        }
+
+        return itemRepositoryCustom.updateTradeStatus(itemId, status) > 0 ? true : false;
     }
 }
