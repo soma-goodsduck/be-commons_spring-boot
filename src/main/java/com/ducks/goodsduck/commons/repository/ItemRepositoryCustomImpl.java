@@ -3,12 +3,8 @@ package com.ducks.goodsduck.commons.repository;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.alias.Alias;
 import com.querydsl.core.types.*;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
-import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -32,6 +28,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private QIdolGroup idolGroup = QIdolGroup.idolGroup;
     private QCategoryItem categoryItem = QCategoryItem.categoryItem;
     private QImage image = QImage.image;
+    private QPricePropose pricePropose = QPricePropose.pricePropose;
 
     public ItemRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -103,6 +100,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         return query.fetch();
     }
+
     @Override
     public Tuple findByIdWithUserItem(Long userId, Long itemId) {
         return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
@@ -114,11 +112,18 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
+    public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, List<TradeStatus> status) {
 
         QImage subImage = new QImage("subImage");
 
-        JPQLQuery<Long> rankSubquery = JPAExpressions.select(subImage.count().add(1))
+        NumberExpression<Integer> tradeStatusCompareExpression = new CaseBuilder()
+                .when(item.tradeStatus.eq(TradeStatus.BUYING)).then(20)
+                .when(item.tradeStatus.eq(TradeStatus.SELLING)).then(20)
+                .when(item.tradeStatus.eq(TradeStatus.RESERVING)).then(30)
+                .when(item.tradeStatus.eq(TradeStatus.COMPLETE)).then(10)
+                .otherwise(0);
+
+        JPQLQuery<Long> rankOfImageSubquery = JPAExpressions.select(subImage.count().add(1))
                 .from(subImage)
                 .where(subImage.id.lt(image.id).and(
                         subImage.item.eq(image.item)
@@ -127,11 +132,13 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory.select(item, image)
                 .from(item)
                 .join(image).on(item.eq(image.item))
-                .where(item.user.id.eq(userId).and(
-                        item.tradeStatus.eq(status).and(
-                                rankSubquery.eq(1L)
+                .where(item.tradeStatus.in(status)
+                        .and(item.user.id.eq(userId).and(
+                            rankOfImageSubquery.eq(1L))
                         )
-                ))
+                )
+                .orderBy(tradeStatusCompareExpression.desc())
+                .orderBy(item.createdAt.desc())
                 .fetch();
     }
 

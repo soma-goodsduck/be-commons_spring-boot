@@ -156,19 +156,21 @@ public class ItemController {
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
     @GetMapping("/mypage/item")
-    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
+    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") List<String> tradeStatusList) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        TradeStatus status;
-
+        List<TradeStatus> statusList;
         try {
-            status = TradeStatus.valueOf(tradeStatus.toUpperCase());
+            statusList = tradeStatusList
+                            .stream()
+                            .map(tradeStatus -> TradeStatus.valueOf(tradeStatus.toUpperCase()))
+                            .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
             throw new IllegalArgumentException("There is no tradeStatus inserted");
         }
 
-        return OK(itemService.findMyItem(userId, status)
+        return OK(itemService.findMyItem(userId, statusList)
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);

@@ -197,8 +197,8 @@ public class ItemService {
         return new PageImpl(tupleToList.subList(start, end), pageable, count);
     }
 
-    public List<Tuple> findMyItem(Long userId, TradeStatus status) {
-        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
+    public List<Tuple> findMyItem(Long userId, List<TradeStatus> statusList) {
+        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, statusList);
     }
 
     public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {
