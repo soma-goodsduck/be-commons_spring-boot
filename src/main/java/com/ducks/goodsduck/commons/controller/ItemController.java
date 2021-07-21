@@ -159,22 +159,38 @@ public class ItemController {
     public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        try {
-            TradeStatus status = TradeStatus.valueOf(tradeStatus.toUpperCase());
-            return OK(itemService.findMyItem(userId, status)
-                    .stream()
-                    .map(tuple -> {
-                        Item item = tuple.get(0, Item.class);
-                        Image image = tuple.get(1, Image.class);
-                        return ItemSummaryDto.of(item, image);
-                    })
-                    .collect(Collectors.toList()));
+        TradeStatus status;
 
+        try {
+            status = TradeStatus.valueOf(tradeStatus.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
             throw new IllegalArgumentException("There is no tradeStatus inserted");
         }
 
+        return OK(itemService.findMyItem(userId, status)
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    Image image = tuple.get(1, Image.class);
+                    return ItemSummaryDto.of(item, image);
+                })
+                .collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "아이템 거래 상태 변경 API")
+    @PatchMapping("/item/{item_id}/tradeStatus")
+    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, @RequestParam("tradeStatus") String tradeStatus) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        TradeStatus status;
+
+        try {
+            status = TradeStatus.valueOf(tradeStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("There is no tradeStatus inserted");
+        }
+
+        return OK(itemService.updateTradeStatus(userId, item_id, status));
+    }
 }

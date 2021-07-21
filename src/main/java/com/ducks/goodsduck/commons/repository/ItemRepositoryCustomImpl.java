@@ -134,4 +134,12 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 ))
                 .fetch();
     }
+
+    @Override
+    public long updateTradeStatus(Long itemId, TradeStatus status) {
+        return queryFactory.update(item)
+                .set(item.tradeStatus, status)
+                .where(item.id.eq(itemId))
+                .execute();
+    }
 }
