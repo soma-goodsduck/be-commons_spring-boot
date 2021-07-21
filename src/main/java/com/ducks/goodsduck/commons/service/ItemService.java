@@ -5,10 +5,9 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.dsl.PathBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -193,5 +192,9 @@ public class ItemService {
         int end = maxCount > count ? (int) count : maxCount;
 
         return new PageImpl(tupleToList.subList(start, end), pageable, count);
+    }
+
+    public List<Tuple> findMyItem(Long userId, TradeStatus status) {
+        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
     }
 }
