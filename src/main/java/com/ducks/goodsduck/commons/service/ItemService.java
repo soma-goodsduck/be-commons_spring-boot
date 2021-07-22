@@ -252,6 +252,7 @@ public class ItemService {
 
     private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
         return content.subList(0, pageable.getPageSize());
+    }
 
     public List<Tuple> findMyItem(Long userId, List<TradeStatus> statusList) {
         return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, statusList);
