@@ -3,44 +3,31 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.GradeStatusDto;
+import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
-import com.ducks.goodsduck.commons.model.enums.TradeStatus;
-import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
-import com.ducks.goodsduck.commons.repository.ImageRepository;
-import com.ducks.goodsduck.commons.repository.ItemRepository;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
-import com.ducks.goodsduck.commons.service.ImageUploadService;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.querydsl.core.Tuple;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +93,7 @@ public class ItemController {
         return OK(itemService.delete(itemId));
     }
 
-    // TODO : 좋아하는 아이돌 필터 추가
+    // 태호
 //    @NoCheckJwt
 //    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
 //    @GetMapping("/items")
@@ -119,38 +106,66 @@ public class ItemController {
 //        return OK(itemService.getItemList(userId, pageNumber, pageSize));
 //    }
 
-
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 in Home")
     @GetMapping("/items")
     @Transactional
-    public ApiResult<Slice<ItemDetailResponse>> getItems(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-                                                         @RequestHeader("jwt") String jwt) {
+    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
+                                                                       @RequestParam("pageNumber") Integer pageNumber) {
 
-//        Long userId = userService.checkLoginStatus(jwt);
-//        // 비회원에게 보여줄 홈페이지
-//        if(userId.equals(-1)) {
-            return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
-//        }
-//        // TODO : querydsl where 적용 + userService.updateLastLoginAt(userId) 적용;
-//        else {
-//            User user = userRepository.findById(userId).get();
-//            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
-//
-//
-//        }
+        Long userId = userService.checkLoginStatus(jwt);
+        userId = -1L;
+
+        // HINT : 비회원에게 보여줄 홈
+        if(userId.equals(-1L)) {
+            Slice<ItemDetailResponse> itemList = itemService.getItemList(pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈
+        else {
+            User user = userRepository.findById(userId).get();
+            Slice<ItemDetailResponse> itemList = itemService.getItemListUser(userId, pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+        }
     }
 
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
     @GetMapping("/item/category")
     @Transactional
-    public List<CategoryItemDto> getCategoryItem() {
-        return categoryItemRepository.findAll().stream()
+    public ApiResult<List<CategoryItemDto>> getCategoryItem() {
+        return OK(categoryItemRepository.findAll().stream()
                 .map(categoryItem -> new CategoryItemDto(categoryItem))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @ApiOperation(value = "제품상태 리스트 불러오기 in 아이템 등록")
     @GetMapping("/item/gradestatus")
-    public EnumSet<GradeStatus> getGradeStatusItem() { return EnumSet.allOf(GradeStatus.class); }
+    public ApiResult<List<GradeStatusDto>> getGradeStatusItem() {
+        return OK(Arrays.asList(GradeStatus.values())
+                .stream()
+                .map(gradeStatus -> new GradeStatusDto(gradeStatus))
+                .collect(Collectors.toList()));
+    }
+
+    // 경원 (보류)
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
+//    @GetMapping("/items")
+//    @Transactional
+//    public ApiResult<slice<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
+//                                                         @RequestParam("pageNumber") Integer pageNumber) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//        userId = -1L;
+//
+//        // HINT : 비회원에게 보여줄 홈
+////        if(userId.equals(-1L)) {
+//            Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE, Sort.by("createdAt").descending());
+//            return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
+////        }
+////        // HINT : 회원에게 보여줄 홈
+////        else {
+////            return OK(itemService.getItemListUser(userId, pageNumber));
+////        }
+//    }
 }

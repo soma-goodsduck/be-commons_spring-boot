@@ -11,6 +11,7 @@ import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
+import com.ducks.goodsduck.commons.repository.UserIdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
@@ -39,6 +40,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
+    private final UserIdolGroupRepository userIdolGroupRepository;
+
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
@@ -127,6 +130,7 @@ public class UserService {
             IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
             UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
             user.addUserIdolGroup(userIdolGroup);
+            userIdolGroupRepository.save(userIdolGroup);
         }
 
         String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId());

@@ -4,7 +4,7 @@ public enum TradeStatus {
     BUYING("구매중"),
     SELLING("판매중"),
     RESERVING("예약중"),
-    COMPLETE("판매완료");
+    COMPLETE("거래완료");
 
     private String korName;
 
