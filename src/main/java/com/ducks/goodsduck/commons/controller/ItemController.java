@@ -3,10 +3,7 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
@@ -182,12 +179,12 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
     @PatchMapping("/item/{item_id}/tradeStatus")
-    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, @RequestParam("tradeStatus") String tradeStatus) {
+    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
 
         try {
-            status = TradeStatus.valueOf(tradeStatus.toUpperCase());
+            status = TradeStatus.valueOf(tradeStatus.getTradeStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
             log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
             throw new IllegalArgumentException("There is no tradeStatus inserted");
