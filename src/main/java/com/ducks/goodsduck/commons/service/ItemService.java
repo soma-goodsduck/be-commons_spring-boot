@@ -223,10 +223,12 @@ public class ItemService {
                     Item item = tuple.get(0,Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
 
+                    // HINT : 경원
                     ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
                     if(userItem != null && userItem.getUser().getId().equals(userId)) {
                         itemDetailResponse.likesOfMe();
                     }
+                    // HINT : 태호
 //                    long count = tuple.get(1, long.class);
 //
 //                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);

@@ -58,7 +58,6 @@ public class UserController {
         return OK(userService.find(userId)
                 .map(user -> new UserDto(user))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
-                // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
     }
 
 //    @NoCheckJwt

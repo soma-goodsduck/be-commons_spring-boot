@@ -69,8 +69,6 @@ public class ItemController {
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/item/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
-//        Jws<Claims> claims = jwtService.getClaims(jwt);
-//        Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.showDetailWithLike(userId, itemId));
     }
@@ -79,12 +77,7 @@ public class ItemController {
     @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인")
     @GetMapping("/item/edit/{itemId}")
     public ApiResult<Long> confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
-
-        // TODO : jwt userid값 추출 수정
-//        Jws<Claims> claims = jwtService.getClaims(jwt);
-//        Long userId = Long.valueOf(String.valueOf((claims.getBody().get("userId"))));
         Long userId = userService.checkLoginStatus(jwt);
-
         return OK(itemService.isWriter(userId, itemId));
     }
 

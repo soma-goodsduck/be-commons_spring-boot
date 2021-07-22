@@ -116,6 +116,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             }
         }
 
+        // HINT : 경원
         return queryFactory
                 .select(item, userItem, idolGroup, idolMember, categoryItem)
                 .from(item)
@@ -130,6 +131,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .limit(pageable.getPageSize()+1)
                 .fetch();
 
+        // HINT : 태호
 //        return queryFactory.select(item, new CaseBuilder()
 //                .when(userItem.user.id.eq(userId)).then(1L)
 //                .otherwise(0L)
