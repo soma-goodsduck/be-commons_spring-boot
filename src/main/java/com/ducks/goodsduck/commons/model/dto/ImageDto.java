@@ -17,11 +17,6 @@ public class ImageDto {
         this.url = image.getUrl();
     }
 
-    public ImageDto(String originName, String uploadName) {
-        this.originName = originName;
-        this.uploadName = uploadName;
-    }
-
     public ImageDto(String originName, String uploadName, String url) {
         this.originName = originName;
         this.uploadName = uploadName;

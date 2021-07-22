@@ -63,13 +63,7 @@ public class User {
         userIdolGroups.add(userIdolGroup);
     }
 
-    // TODO : updateLastLoginAt 추가
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
-
-//    public static User createUser(UserIdolGroup... userIdolGroups) {
-//
-//        User user = new
-//    }
 }
