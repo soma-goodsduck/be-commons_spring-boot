@@ -6,11 +6,14 @@ import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -47,9 +50,10 @@ public class UserController {
 
     @GetMapping("/user/lookup")
     @ApiOperation("특정 유저 정보 조회 API")
-    public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt) {
+    @Transactional
+    public ApiResult<UserDto> getUser(HttpServletRequest request) {
 
-        Long userId = userService.checkLoginStatus(jwt);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
         return OK(userService.find(userId)
                 .map(user -> new UserDto(user))
@@ -57,10 +61,10 @@ public class UserController {
                 // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
     }
 
-    @NoCheckJwt
-    @GetMapping("/user")
-    @ApiOperation("(개발용) 모든 유저 정보 조회 API")
-    public ApiResult<List<UserDto>> getUserList() {
-        return OK(userService.findAll());
-    }
+//    @NoCheckJwt
+//    @GetMapping("/user")
+//    @ApiOperation("(개발용) 모든 유저 정보 조회 API")
+//    public ApiResult<List<UserDto>> getUserList() {
+//        return OK(userService.findAll());
+//    }
 }
