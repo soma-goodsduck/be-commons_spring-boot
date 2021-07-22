@@ -29,7 +29,7 @@ public class ItemDto {
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
     private Boolean isLike = false;
-    private List<ImageDto> image;
+    private List<ImageDto> images;
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
     private CategoryItem categoryItem;
@@ -51,7 +51,7 @@ public class ItemDto {
         this.itemCreatedAt = item.getCreatedAt();
         this.updatedAt = item.getUpdatedAt();
         this.likesItemCount = item.getLikesItemCount();
-        this.image = item.getImages()
+        this.images = item.getImages()
                         .stream()
                         .map(itemImage -> new ImageDto(itemImage))
                         .collect(Collectors.toList());

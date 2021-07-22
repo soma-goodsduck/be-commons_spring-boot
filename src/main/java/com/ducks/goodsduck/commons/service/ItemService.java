@@ -3,11 +3,11 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.dsl.PathBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -250,5 +252,34 @@ public class ItemService {
 
     private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
         return content.subList(0, pageable.getPageSize());
+
+    public List<Tuple> findMyItem(Long userId, List<TradeStatus> statusList) {
+        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, statusList);
+    }
+
+    public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+
+        Item findItem = findItemOpt.orElseThrow(() -> {
+            throw new IllegalArgumentException("Not founded item.");
+        });
+
+        if (findItem.getTradeStatus().equals(COMPLETE)) {
+            throw new IllegalArgumentException("Already completed trade item.");
+        }
+
+        TradeType tradeType = findItem.getTradeType();
+
+        switch (status) {
+            case BUYING:
+                if (tradeType.equals(TradeType.SELL)) throw new IllegalArgumentException("This item's tradeType is SELLING");
+                break;
+
+            case SELLING:
+                if (tradeType.equals(TradeType.BUY)) throw new IllegalArgumentException("This item's tradeType is BUYING");
+                break;
+        }
+
+        return itemRepositoryCustom.updateTradeStatus(itemId, status) > 0 ? true : false;
     }
 }

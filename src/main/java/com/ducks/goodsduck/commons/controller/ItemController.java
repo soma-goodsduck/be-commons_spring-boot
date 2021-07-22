@@ -8,7 +8,11 @@ import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
-import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.model.entity.Image;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
+import com.ducks.goodsduck.commons.repository.ItemRepository;
+import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.CustomJwtService;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.UserService;
@@ -20,7 +24,8 @@ import io.jsonwebtoken.Jws;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +41,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 @Api(tags = "아이템 CRUD APIs")
 public class ItemController {
 
@@ -138,6 +144,7 @@ public class ItemController {
                 .collect(Collectors.toList()));
     }
 
+    @NoCheckJwt
     @ApiOperation(value = "제품상태 리스트 불러오기 in 아이템 등록")
     @GetMapping("/item/gradestatus")
     public ApiResult<List<GradeStatusDto>> getGradeStatusItem() {
@@ -145,6 +152,48 @@ public class ItemController {
                 .stream()
                 .map(gradeStatus -> new GradeStatusDto(gradeStatus))
                 .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
+    @GetMapping("/mypage/item")
+    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") List<String> tradeStatusList) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        List<TradeStatus> statusList;
+        try {
+            statusList = tradeStatusList
+                            .stream()
+                            .map(tradeStatus -> TradeStatus.valueOf(tradeStatus.toUpperCase()))
+                            .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("There is no tradeStatus inserted");
+        }
+
+        return OK(itemService.findMyItem(userId, statusList)
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    Image image = tuple.get(1, Image.class);
+                    return ItemSummaryDto.of(item, image);
+                })
+                .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "아이템 거래 상태 변경 API")
+    @PatchMapping("/item/{item_id}/tradeStatus")
+    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        TradeStatus status;
+
+        try {
+            status = TradeStatus.valueOf(tradeStatus.getTradeStatus().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("There is no tradeStatus inserted");
+        }
+
+        return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
 
     // 경원 (보류)
