@@ -169,8 +169,8 @@ public class UserService {
         user.updateLastLoginAt();
     }
 
-    public Optional<User> find(java.lang.Long user_id) {
-        return userRepository.findById(user_id);
+    public Optional<User> find(Long userId) {
+        return userRepository.findById(userId);
     }
 
     // 유저 전체 리스트 조회

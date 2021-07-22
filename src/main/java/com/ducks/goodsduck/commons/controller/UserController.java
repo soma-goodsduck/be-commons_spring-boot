@@ -45,19 +45,22 @@ public class UserController {
         return OK(userService.signUp(userSignUpRequest));
     }
 
+    @GetMapping("/user/lookup")
+    @ApiOperation("특정 유저 정보 조회 API")
+    public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt) {
+
+        Long userId = userService.checkLoginStatus(jwt);
+
+        return OK(userService.find(userId)
+                .map(user -> new UserDto(user))
+                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
+                // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
+    }
+
     @NoCheckJwt
     @GetMapping("/user")
     @ApiOperation("(개발용) 모든 유저 정보 조회 API")
     public ApiResult<List<UserDto>> getUserList() {
         return OK(userService.findAll());
-    }
-
-    @GetMapping("/user/{user_id}")
-    @ApiOperation("(개발용) 특정 유저 정보 조회 API")
-    public ApiResult<UserDto> getUser(@RequestParam Long user_id) {
-        return OK(userService.find(user_id)
-                .map(user -> new UserDto(user))
-                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
-                // user를 못찾으면 빈 UserDto(UserRole.ANONYMOUS) 반환
     }
 }
