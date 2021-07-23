@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.querydsl.core.BooleanBuilder;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
@@ -13,7 +14,10 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Repository
 @Slf4j
@@ -98,36 +102,40 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, List<TradeStatus> status) {
+    public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
 
         QImage subImage = new QImage("subImage");
+        List<TradeStatus> statusList = new ArrayList<>();
+        statusList.add(status);
+        BooleanExpression conditionOfTradeStatus;
 
-        NumberExpression<Integer> tradeStatusCompareExpression = new CaseBuilder()
-                .when(item.tradeStatus.eq(TradeStatus.BUYING)).then(20)
-                .when(item.tradeStatus.eq(TradeStatus.SELLING)).then(20)
-                .when(item.tradeStatus.eq(TradeStatus.RESERVING)).then(30)
-                .when(item.tradeStatus.eq(TradeStatus.COMPLETE)).then(10)
-                .otherwise(0);
+        switch (status) {
+            case BUYING:
+                statusList.add(RESERVING);
+                conditionOfTradeStatus = item.tradeStatus.in(statusList).and(item.tradeType.eq(TradeType.BUY));
+                break;
+            case SELLING:
+                statusList.add(RESERVING);
+                conditionOfTradeStatus = item.tradeStatus.in(statusList).and(item.tradeType.eq(TradeType.SELL));
+                break;
+            default:
+                conditionOfTradeStatus = item.tradeStatus.in(statusList);
+                break;
 
-        JPQLQuery<Long> rankOfImageSubquery = JPAExpressions.select(subImage.count().add(1))
-                .from(subImage)
-                .where(subImage.id.lt(image.id).and(
-                        subImage.item.eq(image.item)
-                ));
+        }
 
+        // TODO: 페이징 기능 적용
         return queryFactory.select(item, image)
                 .from(item)
-                .join(image).on(item.eq(image.item))
-                .where(item.tradeStatus.in(status)
-                        .and(item.user.id.eq(userId).and(
-                            rankOfImageSubquery.eq(1L))
-                        )
-                )
-                .orderBy(tradeStatusCompareExpression.desc())
+                .leftJoin(image).on(image.item.id.eq(item.id))
+                .where(item.user.id.eq(userId).and(
+                        conditionOfTradeStatus
+                                .and(isHaveImage(subImage).in(1L, null))
+                ))
+                .orderBy(getStatusCompareExpression().desc())
                 .orderBy(item.createdAt.desc())
                 .fetch();
     }
-
     @Override
     public long updateTradeStatus(Long itemId, TradeStatus status) {
         return queryFactory.update(item)
@@ -135,4 +143,22 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .where(item.id.eq(itemId))
                 .execute();
     }
+
+    private NumberExpression<Integer> getStatusCompareExpression() {
+        return new CaseBuilder()
+                .when(item.tradeStatus.eq(BUYING)).then(20)
+                .when(item.tradeStatus.eq(SELLING)).then(20)
+                .when(item.tradeStatus.eq(RESERVING)).then(30)
+                .when(item.tradeStatus.eq(COMPLETE)).then(10)
+                .otherwise(0);
+    }
+
+    private JPQLQuery<Long> isHaveImage(QImage subImage) {
+        return JPAExpressions.select(subImage.count().add(1))
+                .from(subImage)
+                .where(subImage.id.lt(image.id).and(
+                        subImage.item.eq(image.item)
+                ));
+    }
+
 }

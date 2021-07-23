@@ -227,8 +227,8 @@ public class ItemService {
         return content.subList(0, pageable.getPageSize());
     }
 
-    public List<Tuple> findMyItem(Long userId, List<TradeStatus> statusList) {
-        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, statusList);
+    public List<Tuple> findMyItem(Long userId, TradeStatus status) {
+        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
     }
 
     public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {
