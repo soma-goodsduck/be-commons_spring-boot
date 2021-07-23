@@ -1,7 +1,9 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.dto.user.UserIdolGroupDto;
+import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -9,17 +11,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ItemDetailResponseUser {
+public class ItemDetailResponseItemOwner {
 
     private Long userId;
     private String nickName;
-    private List<UserIdolGroupDto> likeIdolGroups = new ArrayList<>();
+    private String imageUrl;
 
-    public ItemDetailResponseUser(User user) {
+    public ItemDetailResponseItemOwner(User user) {
         this.userId = user.getId();
         this.nickName = user.getNickName();
-        this.likeIdolGroups = user.getUserIdolGroups().stream()
-                    .map(userIdolGroup -> new UserIdolGroupDto(userIdolGroup))
-                    .collect(Collectors.toList());
     }
 }

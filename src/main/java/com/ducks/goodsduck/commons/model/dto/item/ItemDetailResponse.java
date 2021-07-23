@@ -3,7 +3,6 @@ package com.ducks.goodsduck.commons.model.dto.item;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
-import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,11 @@ import java.util.stream.Collectors;
 @Data
 public class ItemDetailResponse {
 
-    private ItemDetailResponseUser user;
+    // HINT : 보류
+//    private ItemDetailResponseUser user;
+//    private Boolean hasNext;
+    // HINT : user -> itemOwner 로 변경
+    private ItemDetailResponseItemOwner itemOwner;
     private Long itemId;
     private String name;
     private String description;
@@ -28,7 +31,7 @@ public class ItemDetailResponse {
     private String categoryName;
     private Integer views;
     private Integer likesItemCount;
-    private boolean isLike;
+    private Boolean isLike;
 
     public void likesOfMe() {
         isLike = true;
@@ -36,7 +39,7 @@ public class ItemDetailResponse {
 
     public ItemDetailResponse(Item item) {
         this.itemId = item.getId();
-        this.user = new ItemDetailResponseUser(item.getUser());
+        this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());
         this.itemId = item.getId();
         this.name = item.getName();
         this.description = item.getDescription();
