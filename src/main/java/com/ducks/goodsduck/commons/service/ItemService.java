@@ -1,13 +1,12 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +67,6 @@ public class ItemService {
             }
 
             List<Image> images = item.getImages();
-
-            for (Image image : images) {
-                System.out.println(image.getUrl());
-            }
 
             return item.getId();
         } catch (Exception e) {
@@ -166,35 +161,70 @@ public class ItemService {
         return itemRepository.save(new Item(itemUploadRequest));
     }
 
-    public Page<ItemDetailResponse> getItemList(Long userId, Integer pageNumber, Integer pageSize) {
+    // HINT : 비회원용
+    public Slice<ItemDetailResponse> getItemList(Integer pageNumber) {
 
-        String property = "createdAt";
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        Sort.Order createdAtDesc = Sort.Order.desc(property);
-        Sort sort = Sort.sort(Item.class).by(createdAtDesc);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        List<Item> items = itemRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<ItemDetailResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemDetailResponse(item))
+                .collect(Collectors.toList());
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
+        return toSlice(itemToList, pageable);
+    }
+
+    // HINT : 회원용
+    public Slice<ItemDetailResponse> getItemListUser(Long userId, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItemIdolGroup(userId, userIdolGroups, pageable);
+
         List<ItemDetailResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
-                    long count = tuple.get(1, long.class);
+
+                    // HINT : 경원
+                    UserItem userItem = tuple.get(1, UserItem.class);
 
                     ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-                    if (count > 0L) {
+                    if(userItem != null) {
                         itemDetailResponse.likesOfMe();
                     }
+
+                    // HINT : 태호
+//                    long count = tuple.get(1, long.class);
+//
+//                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+//                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
+//                        itemDetailResponse.likesOfMe();
+//                    }
+
                     return itemDetailResponse;
                 })
                 .collect(Collectors.toList());
 
-        long count = tupleToList.size();
-        int start = pageNumber * pageSize;
-        int maxCount = (pageNumber+1) * pageSize;
-        int end = maxCount > count ? (int) count : maxCount;
+        return toSlice(tupleToList, pageable);
+    }
 
-        return new PageImpl(tupleToList.subList(start, end), pageable, count);
+    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
+        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
+        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
+    }
+
+    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
+        return pageable.isPaged() && content.size() > pageable.getPageSize();
+    }
+
+    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
+        return content.subList(0, pageable.getPageSize());
     }
 
     public List<Tuple> findMyItem(Long userId, TradeStatus status) {

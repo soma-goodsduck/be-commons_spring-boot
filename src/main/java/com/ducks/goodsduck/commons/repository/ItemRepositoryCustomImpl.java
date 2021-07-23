@@ -1,24 +1,23 @@
 package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
+import com.querydsl.core.BooleanBuilder;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.alias.Alias;
-import com.querydsl.core.types.*;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
-import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Repository
 @Slf4j
@@ -32,6 +31,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private QIdolGroup idolGroup = QIdolGroup.idolGroup;
     private QCategoryItem categoryItem = QCategoryItem.categoryItem;
     private QImage image = QImage.image;
+    private QPricePropose pricePropose = QPricePropose.pricePropose;
 
     public ItemRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -47,62 +47,50 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .fetchOne();
     }
 
-//    @Override
-//    public Page<Tuple> findAllWithUserItem(Long userId, Pageable pageable, Integer pageNumber) {
-//
-//        JPAQuery<Tuple> query = queryFactory.select(item, new CaseBuilder()
-//                .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
-//                .from(item)
-//                .groupBy(item)
-//                .leftJoin(userItem).on(userItem.item.id.eq(item.id));
-//
-//        Sort sort = pageable.getSort();
-//
-//        sort.stream().forEach(order -> {
-//            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
-//            String property = order.getProperty();
-//
-//            PathBuilder orderByExpression = new PathBuilder(Item.class, "item");
-//            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(property)));
-//        });
-//
-//        long count = query.fetchCount();
-//
-//        query.offset(pageNumber);
-//        query.
-//        query.limit(pageable.getPageSize());
-//
-//        List<Tuple> resultListOfTuple = query.fetch();
-//
-//        Page<Tuple> pages = new PageImpl<>(resultListOfTuple, pageable, count);
-//
-//        return pages;
-//    }
-
-
+    // FEAT : 좋아요, 회원별 좋아하는 아이돌 필터링 기능 적용
     @Override
-    public List<Tuple> findAllWithUserItem(Long userId, Pageable pageable) {
+    public List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
 
-        JPAQuery<Tuple> query = queryFactory.select(item, new CaseBuilder()
-                    .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum(), idolMember, idolGroup, categoryItem, user)
-                    .from(item)
-                    .groupBy(item, idolMember, idolGroup, categoryItem, user)
-                    .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-                    .join(idolMember).on(item.idolMember.eq(idolMember))
-                    .join(idolGroup).on(idolMember.idolGroup.eq(idolGroup))
-                    .join(categoryItem).on(item.categoryItem.eq(categoryItem))
-                    .join(user).on(item.user.eq(user));
+        BooleanBuilder builder = new BooleanBuilder();
+        if(userIdolGroups.size() != 0) {
+            for (UserIdolGroup userIdolGroup : userIdolGroups) {
+                builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
+            }
+        }
 
-        pageable.getSort().stream().forEach(order -> {
-            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+        // HINT : 경원
+        return queryFactory
+                .select(item, userItem, idolGroup)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .join(item.idolMember, idolMember)
+                .join(item.idolMember.idolGroup, idolGroup)
+                .join(item.categoryItem, categoryItem)
+                .join(item.user, user)
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1)
+                .fetch();
 
-            PathBuilder orderByExpression = new PathBuilder(Item.class, "item");
-            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(order.getProperty())));
-
-        });
-
-        return query.fetch();
+        // HINT : 태호
+//        return queryFactory.select(item, new CaseBuilder()
+//                .when(userItem.user.id.eq(userId)).then(1L)
+//                .otherwise(0L)
+//                .sum(), idolMember, idolGroup, categoryItem, user)
+//                .from(item)
+//                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
+//                .join(item.idolMember, idolMember)
+//                .join(item.idolMember.idolGroup, idolGroup)
+//                .join(item.categoryItem, categoryItem)
+//                .join(item.user, user)
+//                .where(builder)
+//                .orderBy(item.createdAt.desc())
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize()+1)
+//                .fetch();
     }
+
     @Override
     public Tuple findByIdWithUserItem(Long userId, Long itemId) {
         return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
@@ -117,25 +105,37 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
 
         QImage subImage = new QImage("subImage");
+        List<TradeStatus> statusList = new ArrayList<>();
+        statusList.add(status);
+        BooleanExpression conditionOfTradeStatus;
 
-        JPQLQuery<Long> rankSubquery = JPAExpressions.select(subImage.count().add(1))
-                .from(subImage)
-                .where(subImage.id.lt(image.id).and(
-                        subImage.item.eq(image.item)
-                ));
+        switch (status) {
+            case BUYING:
+                statusList.add(RESERVING);
+                conditionOfTradeStatus = item.tradeStatus.in(statusList).and(item.tradeType.eq(TradeType.BUY));
+                break;
+            case SELLING:
+                statusList.add(RESERVING);
+                conditionOfTradeStatus = item.tradeStatus.in(statusList).and(item.tradeType.eq(TradeType.SELL));
+                break;
+            default:
+                conditionOfTradeStatus = item.tradeStatus.in(statusList);
+                break;
 
+        }
+
+        // TODO: 페이징 기능 적용
         return queryFactory.select(item, image)
                 .from(item)
                 .leftJoin(image).on(image.item.id.eq(item.id))
                 .where(item.user.id.eq(userId).and(
-                        item.tradeStatus.eq(status)
-                                .and(
-                                rankSubquery.in(1L, null)
-                        )
+                        conditionOfTradeStatus
+                                .and(isHaveImage(subImage).in(1L, null))
                 ))
+                .orderBy(getStatusCompareExpression().desc())
+                .orderBy(item.createdAt.desc())
                 .fetch();
     }
-
     @Override
     public long updateTradeStatus(Long itemId, TradeStatus status) {
         return queryFactory.update(item)
@@ -143,4 +143,22 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .where(item.id.eq(itemId))
                 .execute();
     }
+
+    private NumberExpression<Integer> getStatusCompareExpression() {
+        return new CaseBuilder()
+                .when(item.tradeStatus.eq(BUYING)).then(20)
+                .when(item.tradeStatus.eq(SELLING)).then(20)
+                .when(item.tradeStatus.eq(RESERVING)).then(30)
+                .when(item.tradeStatus.eq(COMPLETE)).then(10)
+                .otherwise(0);
+    }
+
+    private JPQLQuery<Long> isHaveImage(QImage subImage) {
+        return JPAExpressions.select(subImage.count().add(1))
+                .from(subImage)
+                .where(subImage.id.lt(image.id).and(
+                        subImage.item.eq(image.item)
+                ));
+    }
+
 }
