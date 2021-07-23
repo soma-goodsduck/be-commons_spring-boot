@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
+import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +43,7 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -156,7 +159,7 @@ public class ItemController {
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
     @GetMapping("/mypage/item")
-    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
+    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) throws Exception {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
@@ -168,14 +171,23 @@ public class ItemController {
             throw new IllegalArgumentException("There is no tradeStatus inserted");
         }
 
-        return OK(itemService.findMyItem(userId, status)
-                .stream()
-                .map(tuple -> {
-                    Item item = tuple.get(0, Item.class);
-                    Image image = tuple.get(1, Image.class);
-                    return ItemSummaryDto.of(item, image);
-                })
-                .collect(Collectors.toList()));
+        try {
+            return OK(itemService.findMyItem(userId, status)
+                    .stream()
+                    .map(tuple -> {
+                            Item item = tuple.get(0, Item.class);
+                            ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
+                                .map(image -> new ImageDto(image))
+                                .orElseGet(() -> new ImageDto());
+                            return ItemSummaryDto.of(item, imageDto);
+                    })
+                    .collect(Collectors.toList()));
+        } catch (NullPointerException e) {
+            log.debug("Exception during parsing from tuple: {}", e.getMessage(), e);
+            throw new NullPointerException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Unexpected exception occurred.");
+        }
     }
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")

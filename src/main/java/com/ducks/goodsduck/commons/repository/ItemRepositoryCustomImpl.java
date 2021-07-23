@@ -126,10 +126,11 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         return queryFactory.select(item, image)
                 .from(item)
-                .join(image).on(item.eq(image.item))
+                .leftJoin(image).on(image.item.id.eq(item.id))
                 .where(item.user.id.eq(userId).and(
-                        item.tradeStatus.eq(status).and(
-                                rankSubquery.eq(1L)
+                        item.tradeStatus.eq(status)
+                                .and(
+                                rankSubquery.in(1L, null)
                         )
                 ))
                 .fetch();
