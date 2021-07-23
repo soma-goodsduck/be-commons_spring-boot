@@ -116,7 +116,6 @@ public class ItemController {
                                                                        @RequestParam("pageNumber") Integer pageNumber) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        userId = 8L;
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
