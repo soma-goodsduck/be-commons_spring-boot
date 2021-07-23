@@ -221,20 +221,20 @@ public class ItemService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
-                    UserItem userItem = tuple.get(1, UserItem.class);
 
                     // HINT : 경원
-                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
-                        itemDetailResponse.likesOfMe();
-                    }
-                    // HINT : 태호
-//                    long count = tuple.get(1, long.class);
-//
+//                    UserItem userItem = tuple.get(1, UserItem.class);
 //                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-//                    if (count > 0L) {
+//                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
 //                        itemDetailResponse.likesOfMe();
 //                    }
+                    // HINT : 태호
+                    long count = tuple.get(1, long.class);
+
+                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    if (count > 0L) {
+                        itemDetailResponse.likesOfMe();
+                    }
 
                     return itemDetailResponse;
                 })

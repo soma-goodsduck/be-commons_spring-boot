@@ -117,37 +117,37 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         }
 
         // HINT : 경원
-        return queryFactory
-                .select(item, userItem, idolGroup, idolMember, categoryItem)
-                .from(item)
-                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-                .join(item.idolMember, idolMember)
-                .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
-                .join(item.user, user)
-                .where(builder)
-                .orderBy(item.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize()+1)
-                .fetch();
-
-        // HINT : 태호
-//        return queryFactory.select(item, new CaseBuilder()
-//                .when(userItem.user.id.eq(userId)).then(1L)
-//                .otherwise(0L)
-//                .sum(), idolMember, idolGroup, categoryItem, user)
+//        return queryFactory
+//                .select(item, userItem, idolGroup, idolMember, categoryItem)
 //                .from(item)
-//                .groupBy(item, idolMember, idolGroup, categoryItem, user)
 //                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-//                .join(idolMember).on(item.idolMember.eq(idolMember))
-//                .join(idolGroup).on(idolMember.idolGroup.eq(idolGroup))
-//                .join(categoryItem).on(item.categoryItem.eq(categoryItem))
-//                .join(user).on(item.user.eq(user))
+//                .join(item.idolMember, idolMember)
+//                .join(item.idolMember.idolGroup, idolGroup)
+//                .join(item.categoryItem, categoryItem)
+//                .join(item.user, user)
 //                .where(builder)
 //                .orderBy(item.createdAt.desc())
 //                .offset(pageable.getOffset())
 //                .limit(pageable.getPageSize()+1)
 //                .fetch();
+
+        // HINT : 태호
+        return queryFactory.select(item, new CaseBuilder()
+                .when(userItem.user.id.eq(userId)).then(1L)
+                .otherwise(0L)
+                .sum(), idolMember, idolGroup, categoryItem, user)
+                .from(item)
+                .groupBy(item, idolMember, idolGroup, categoryItem, user)
+                .leftJoin(userItem).on(userItem.item.id.eq(item.id)).fetchJoin()
+                .join(idolMember).on(item.idolMember.eq(idolMember)).fetchJoin()
+                .join(idolGroup).on(idolMember.idolGroup.eq(idolGroup)).fetchJoin()
+                .join(categoryItem).on(item.categoryItem.eq(categoryItem)).fetchJoin()
+                .join(user).on(item.user.eq(user)).fetchJoin()
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1)
+                .fetch();
     }
 
     @Override
