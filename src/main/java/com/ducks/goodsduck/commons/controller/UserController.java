@@ -54,16 +54,17 @@ public class UserController {
     public ApiResult<UserDto> getUser(HttpServletRequest request) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 8L;
 
         return OK(userService.find(userId)
                 .map(user -> new UserDto(user))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
     }
 
-//    @NoCheckJwt
-//    @GetMapping("/user")
-//    @ApiOperation("(개발용) 모든 유저 정보 조회 API")
-//    public ApiResult<List<UserDto>> getUserList() {
-//        return OK(userService.findAll());
-//    }
+    @NoCheckJwt
+    @GetMapping("/user")
+    @ApiOperation("(개발용) 모든 유저 정보 조회 API")
+    public ApiResult<List<UserDto>> getUserList() {
+        return OK(userService.findAll());
+    }
 }

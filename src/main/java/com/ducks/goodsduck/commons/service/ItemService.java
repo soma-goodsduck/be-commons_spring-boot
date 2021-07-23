@@ -161,39 +161,7 @@ public class ItemService {
         return itemRepository.save(new Item(itemUploadRequest));
     }
 
-    // HINT : 태호
-    public Page<ItemDetailResponse> getItemListUser(Long userId, Integer pageNumber, Integer pageSize) {
-
-        String property = "createdAt";
-
-        Sort.Order createdAtDesc = Sort.Order.desc(property);
-        Sort sort = Sort.sort(Item.class).by(createdAtDesc);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItem(userId, pageable);
-        List<ItemDetailResponse> tupleToList =  listOfTuple
-                .stream()
-                .map(tuple -> {
-                    Item item = tuple.get(0,Item.class);
-                    long count = tuple.get(1, long.class);
-
-                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-                    if (count > 0L) {
-                        itemDetailResponse.likesOfMe();
-                    }
-                    return itemDetailResponse;
-                })
-                .collect(Collectors.toList());
-
-        long count = tupleToList.size();
-        int start = pageNumber * pageSize;
-        int maxCount = (pageNumber+1) * pageSize;
-        int end = maxCount > count ? (int) count : maxCount;
-
-        return new PageImpl(tupleToList.subList(start, end), pageable, count);
-    }
-
-    // HINT : 비회원용 (경원)
+    // HINT : 비회원용
     public Slice<ItemDetailResponse> getItemList(Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
@@ -207,7 +175,7 @@ public class ItemService {
         return toSlice(itemToList, pageable);
     }
 
-    // HINT : 회원용 (경원)
+    // HINT : 회원용
     public Slice<ItemDetailResponse> getItemListUser(Long userId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
@@ -217,15 +185,16 @@ public class ItemService {
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItemIdolGroup(userId, userIdolGroups, pageable);
+
         List<ItemDetailResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
+                    // HINT : 경원
                     UserItem userItem = tuple.get(1, UserItem.class);
 
-                    // HINT : 경원
                     ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
+                    if(userItem != null) {
                         itemDetailResponse.likesOfMe();
                     }
                     // HINT : 태호
