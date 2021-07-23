@@ -190,6 +190,7 @@ public class ItemService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
+
                     // HINT : 경원
                     UserItem userItem = tuple.get(1, UserItem.class);
 
@@ -197,11 +198,12 @@ public class ItemService {
                     if(userItem != null) {
                         itemDetailResponse.likesOfMe();
                     }
+
                     // HINT : 태호
 //                    long count = tuple.get(1, long.class);
 //
 //                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-//                    if (count > 0L) {
+//                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
 //                        itemDetailResponse.likesOfMe();
 //                    }
 
