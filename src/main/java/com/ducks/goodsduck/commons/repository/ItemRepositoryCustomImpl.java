@@ -56,7 +56,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         // HINT : 경원
         return queryFactory
-                .select(item, userItem)
+                .select(item, userItem, idolGroup)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
