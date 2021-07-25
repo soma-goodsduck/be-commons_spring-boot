@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface ItemRepositoryCustom {
     Tuple findByItemId(Long itemId);
+    List<Item> findAll(Pageable pageable);
     List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     Tuple findByIdWithUserItem(Long userId, Long itemId);
     List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);

@@ -146,7 +146,7 @@ public class ItemService {
         }
     }
 
-    public Long isWriter(Long userId, Long itemId) {
+    public Long isItemOwner(Long userId, Long itemId) {
 
         Long findUserId = itemRepository.findById(itemId).get().getUser().getId();
 
@@ -170,7 +170,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Item> items = itemRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Item> items = itemRepositoryCustom.findAll(pageable);
         List<ItemDetailResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemDetailResponse(item))
@@ -194,22 +194,12 @@ public class ItemService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
-
-                    // HINT : 경원
                     UserItem userItem = tuple.get(1, UserItem.class);
 
                     ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
                     if(userItem != null) {
                         itemDetailResponse.likesOfMe();
                     }
-
-                    // HINT : 태호
-//                    long count = tuple.get(1, long.class);
-//
-//                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-//                    if(userItem != null && userItem.getUser().getId().equals(userId)) {
-//                        itemDetailResponse.likesOfMe();
-//                    }
 
                     return itemDetailResponse;
                 })

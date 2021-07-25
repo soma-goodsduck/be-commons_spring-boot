@@ -81,9 +81,9 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인 -> 수정(아이템 상세보기 시에 isOwner로 여부 확인)")
     @GetMapping("/items/edit/{itemId}")
-    public ApiResult<Long> confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+    public ApiResult<Long> confirmItemOwner(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
-        return OK(itemService.isWriter(userId, itemId));
+        return OK(itemService.isItemOwner(userId, itemId));
     }
 
     @ApiOperation(value = "아이템 수정")
@@ -107,6 +107,7 @@ public class ItemController {
                                                                        @RequestParam("pageNumber") Integer pageNumber) {
 
         Long userId = userService.checkLoginStatus(jwt);
+        userId = -1L;
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
