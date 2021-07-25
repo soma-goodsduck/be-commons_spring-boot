@@ -142,7 +142,7 @@ public class ItemController {
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
     @GetMapping("/users/items")
-    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") List<String> tradeStatusList) {
+    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) throws Exception {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
@@ -151,11 +151,11 @@ public class ItemController {
             return OK(itemService.findMyItem(userId, status)
                     .stream()
                     .map(tuple -> {
-                            Item item = tuple.get(0, Item.class);
-                            ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
+                        Item item = tuple.get(0, Item.class);
+                        ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
                                 .map(image -> new ImageDto(image))
                                 .orElseGet(() -> new ImageDto());
-                            return ItemSummaryDto.of(item, imageDto);
+                        return ItemSummaryDto.of(item, imageDto);
                     })
                     .collect(Collectors.toList()));
 
