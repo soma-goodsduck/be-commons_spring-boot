@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.config;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
  * com.ducks.goodsduck.commons.util.PropertyUtil 에서 사용
  */
 
-@Component
+@Configuration
 public class ApplicationContextServe implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;

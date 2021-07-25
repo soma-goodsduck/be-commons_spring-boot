@@ -42,6 +42,13 @@ dependencies {
 	// p6spy
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
 
+	// Websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// Stomp
+	implementation group: 'org.webjars', name: 'sockjs-client', version: '1.1.2'
+	implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.3-1'
+
 //	// Swagger 2
 //	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 //	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'

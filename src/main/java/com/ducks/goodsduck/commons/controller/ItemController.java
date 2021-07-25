@@ -53,8 +53,8 @@ public class ItemController {
     private final UserRepository userRepository;
     private final CategoryItemRepository categoryItemRepository;
 
-    @ApiOperation(value = "아이템 등록")
-    @PostMapping("/item/new")
+    @ApiOperation(value = "아이템 등록하기")
+    @PostMapping("/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
                            @RequestParam List<MultipartFile> multipartFiles,
                            HttpServletRequest request) throws IOException {
@@ -67,46 +67,32 @@ public class ItemController {
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기")
-    @GetMapping("/item/{itemId}")
+    @GetMapping("/items/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.showDetailWithLike(userId, itemId));
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인")
-    @GetMapping("/item/edit/{itemId}")
+    @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인 -> 수정(아이템 상세보기 시에 isOwner로 여부 확인)")
+    @GetMapping("/items/edit/{itemId}")
     public ApiResult<Long> confirmWriter(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.isWriter(userId, itemId));
     }
 
     @ApiOperation(value = "아이템 수정")
-    @PutMapping("/item/edit/{itemId}")
+    @PutMapping("/items/{itemId}")
     public ApiResult<Long> editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
-
         ItemUpdateRequest itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequest.class);
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
     @ApiOperation(value = "아이템 삭제")
-    @DeleteMapping("/item/{itemId}")
+    @DeleteMapping("/items/{itemId}")
     public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {
         return OK(itemService.delete(itemId));
     }
-
-    // 태호
-//    @NoCheckJwt
-//    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
-//    @GetMapping("/items")
-//    @Transactional
-//    public ApiResult<Page<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
-//                                                        @RequestParam("pageNumber") Integer pageNumber,
-//                                                        @RequestParam("pageSize") Integer pageSize) {
-//        Jws<Claims> claims = jwtService.getClaims(jwt);
-//        Long userId = Long.valueOf(String.valueOf((claims.getBody().get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS))));
-//        return OK(itemService.getItemList(userId, pageNumber, pageSize));
-//    }
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 in Home")
@@ -116,7 +102,6 @@ public class ItemController {
                                                                        @RequestParam("pageNumber") Integer pageNumber) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        userId = 8L;
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
@@ -132,7 +117,7 @@ public class ItemController {
     }
 
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
-    @GetMapping("/item/category")
+    @GetMapping("/items/category")
     @Transactional
     public ApiResult<List<CategoryItemDto>> getCategoryItem() {
         return OK(categoryItemRepository.findAll().stream()
@@ -142,7 +127,7 @@ public class ItemController {
 
     @NoCheckJwt
     @ApiOperation(value = "제품상태 리스트 불러오기 in 아이템 등록")
-    @GetMapping("/item/gradestatus")
+    @GetMapping("/items/grade-status")
     public ApiResult<List<GradeStatusDto>> getGradeStatusItem() {
         return OK(Arrays.asList(GradeStatus.values())
                 .stream()
@@ -151,7 +136,7 @@ public class ItemController {
     }
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
-    @GetMapping("/mypage/item")
+    @GetMapping("/users/items")
     public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") List<String> tradeStatusList) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -177,7 +162,7 @@ public class ItemController {
     }
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
-    @PatchMapping("/item/{item_id}/tradeStatus")
+    @PatchMapping("/items/{item_id}/trade-status")
     public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
@@ -191,26 +176,4 @@ public class ItemController {
 
         return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
-
-    // 경원 (보류)
-//    @NoCheckJwt
-//    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
-//    @GetMapping("/items")
-//    @Transactional
-//    public ApiResult<slice<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
-//                                                         @RequestParam("pageNumber") Integer pageNumber) {
-//
-//        Long userId = userService.checkLoginStatus(jwt);
-//        userId = -1L;
-//
-//        // HINT : 비회원에게 보여줄 홈
-////        if(userId.equals(-1L)) {
-//            Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE, Sort.by("createdAt").descending());
-//            return OK(itemRepository.findAll(pageable).map(item -> new ItemDetailResponse(item)));
-////        }
-////        // HINT : 회원에게 보여줄 홈
-////        else {
-////            return OK(itemService.getItemListUser(userId, pageNumber));
-////        }
-//    }
 }

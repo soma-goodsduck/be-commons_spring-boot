@@ -90,7 +90,11 @@ public class ItemService {
 
         if (itemTupleWithUserItem.get(1, long.class) > 0L) {
             itemDetailResponse.likesOfMe();
-        };
+        }
+
+        if (item.getUser().getId().equals(userId)) {
+            itemDetailResponse.myItem();
+        }
 
         return itemDetailResponse;
     }

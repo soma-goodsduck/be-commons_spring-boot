@@ -43,18 +43,16 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .fetchOne();
     }
 
-    // FEAT : 좋아요, 회원별 좋아하는 아이돌 필터링 기능 적용
     @Override
     public List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
-        if(userIdolGroups.size() != 0) {
+        if (userIdolGroups.size() != 0) {
             for (UserIdolGroup userIdolGroup : userIdolGroups) {
                 builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
             }
         }
 
-        // HINT : 경원
         return queryFactory
                 .select(item, userItem, idolGroup)
                 .from(item)
@@ -66,30 +64,14 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .where(builder)
                 .orderBy(item.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize()+1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
-
-        // HINT : 태호
-//        return queryFactory.select(item, new CaseBuilder()
-//                .when(userItem.user.id.eq(userId)).then(1L)
-//                .otherwise(0L)
-//                .sum(), idolMember, idolGroup, categoryItem, user)
-//                .from(item)
-//                .leftJoin(userItem).on(userItem.item.id.eq(item.id))
-//                .join(item.idolMember, idolMember)
-//                .join(item.idolMember.idolGroup, idolGroup)
-//                .join(item.categoryItem, categoryItem)
-//                .join(item.user, user)
-//                .where(builder)
-//                .orderBy(item.createdAt.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize()+1)
-//                .fetch();
     }
 
     @Override
     public Tuple findByIdWithUserItem(Long userId, Long itemId) {
-        return queryFactory.select(item, new CaseBuilder().when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
+        return queryFactory.select(item, new CaseBuilder()
+                .when(userItem.user.id.eq(userId)).then(1L).otherwise(0L).sum())
                 .from(item)
                 .leftJoin(userItem).on(userItem.item.eq(item))
                 .where(item.id.eq(itemId))

@@ -15,8 +15,6 @@ public class ItemDetailResponse {
 
     // HINT : 보류
 //    private ItemDetailResponseUser user;
-//    private Boolean hasNext;
-    // HINT : user -> itemOwner 로 변경
     private ItemDetailResponseItemOwner itemOwner;
     private Long itemId;
     private String name;
@@ -32,10 +30,7 @@ public class ItemDetailResponse {
     private Integer views;
     private Integer likesItemCount;
     private Boolean isLike;
-
-    public void likesOfMe() {
-        isLike = true;
-    }
+    private Boolean isOwner;
 
     public ItemDetailResponse(Item item) {
         this.itemId = item.getId();
@@ -56,5 +51,14 @@ public class ItemDetailResponse {
         this.views = item.getViews();
         this.likesItemCount = item.getLikesItemCount();
         this.isLike = false;
+        this.isOwner = false;
+    }
+
+    public void likesOfMe() {
+        isLike = true;
+    }
+
+    public void myItem() {
+        isOwner = true;
     }
 }

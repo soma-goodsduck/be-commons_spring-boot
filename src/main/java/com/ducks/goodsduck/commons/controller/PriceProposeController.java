@@ -30,8 +30,8 @@ public class PriceProposeController {
     @PostMapping("/item/{item_id}/propose")
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
     public ApiResult<PriceProposeResponse> proposePrice(@PathVariable("item_id") Long itemId,
-                                  @RequestBody PriceProposeRequest priceProposeRequest,
-                                  HttpServletRequest request) {
+                                                        @RequestBody PriceProposeRequest priceProposeRequest,
+                                                        HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price.")));

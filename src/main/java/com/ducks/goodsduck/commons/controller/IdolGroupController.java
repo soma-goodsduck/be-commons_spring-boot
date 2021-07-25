@@ -28,7 +28,7 @@ public class IdolGroupController {
     private final IdolGroupService idolGroupService;
 
     @NoCheckJwt
-    @GetMapping("/idol")
+    @GetMapping("/idol-groups")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
     public ApiResult<List<IdolGroupDto>> getIdolGroups() {
         return OK(idolGroupService.getIdolGroups()
@@ -39,9 +39,9 @@ public class IdolGroupController {
     }
 
     @NoCheckJwt
-    @GetMapping("/idol/{idol_group_id}")
+    @GetMapping("/idol-groups/{idolGroupId}")
     @ApiOperation("아이돌 그룹 가져오기 API")
-    public ApiResult<IdolGroupDto> getIdolGroup(@PathVariable("idol_group_id") Long idolGroupId) {
+    public ApiResult<IdolGroupDto> getIdolGroup(@PathVariable("idolGroupId") Long idolGroupId) {
         return OK(idolGroupService.getIdolGroup(idolGroupId)
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
                 .orElseGet(() -> new IdolGroupDto()));
