@@ -14,6 +14,6 @@ public interface ItemRepositoryCustom {
     Tuple findByItemId(Long itemId);
     List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     Tuple findByIdWithUserItem(Long userId, Long itemId);
-    List<Tuple> findAllByUserIdAndTradeStatus(Long userId, List<TradeStatus> status);
+    List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
     long updateTradeStatus(Long itemId, TradeStatus status);
 }
