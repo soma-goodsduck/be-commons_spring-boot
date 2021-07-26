@@ -85,7 +85,18 @@ public class ItemService {
     }
 
     public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
-        Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
+
+        Tuple itemTupleWithUserItem;
+
+        // HINT: 비회원인 경우
+        if (userId.equals(-1L)) {
+            itemTupleWithUserItem = itemRepositoryCustom.findByItemId(itemId);
+            Item item = itemTupleWithUserItem.get(0, Item.class);
+            item.increaseView();
+            return new ItemDetailResponse(item);
+        }
+
+        itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
