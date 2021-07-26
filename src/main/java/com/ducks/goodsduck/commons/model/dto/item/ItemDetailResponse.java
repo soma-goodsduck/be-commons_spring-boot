@@ -32,7 +32,7 @@ public class ItemDetailResponse {
     private Integer likesItemCount;
     private Boolean isLike;
     private Boolean isOwner;
-    private List<PriceProposeSimpleDto> proposedList;
+    private List<PriceProposeSimpleDto> proposedList = new ArrayList<>();
 
     public ItemDetailResponse(Item item) {
         this.itemId = item.getId();
