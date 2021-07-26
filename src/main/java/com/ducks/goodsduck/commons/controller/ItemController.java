@@ -135,7 +135,7 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
     @PatchMapping("/items/{item_id}/trade-status")
-    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("itemId") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
+    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("itemId") Long item_id, @RequestBody ItemTradeStatusUpdateRequest tradeStatus) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
 
