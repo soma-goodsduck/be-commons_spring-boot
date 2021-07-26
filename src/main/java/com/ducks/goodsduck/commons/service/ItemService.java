@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
@@ -34,6 +35,7 @@ public class ItemService {
     private final UserRepository userRepository;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
 
@@ -94,7 +96,17 @@ public class ItemService {
 
         if (item.getUser().getId().equals(userId)) {
             itemDetailResponse.myItem();
+            return itemDetailResponse;
         }
+
+        // TODO: 가격 제안 정보 포함
+        // HINT: 아이템 주인이 아닌 경우, 가격 제안 정보 여부 조회
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId)
+                .stream()
+                .filter(pricePropose -> pricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED) || pricePropose.getStatus().equals(PriceProposeStatus.ACCEPTED))
+                .collect(Collectors.toList());
+
+        itemDetailResponse.addProposedList(priceProposes);
 
         return itemDetailResponse;
     }

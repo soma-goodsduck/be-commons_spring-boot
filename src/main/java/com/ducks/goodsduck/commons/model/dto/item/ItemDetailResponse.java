@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
+import com.ducks.goodsduck.commons.model.dto.PriceProposeSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
@@ -31,6 +32,7 @@ public class ItemDetailResponse {
     private Integer likesItemCount;
     private Boolean isLike;
     private Boolean isOwner;
+    private List<PriceProposeSimpleDto> proposedList;
 
     public ItemDetailResponse(Item item) {
         this.itemId = item.getId();
@@ -60,5 +62,12 @@ public class ItemDetailResponse {
 
     public void myItem() {
         isOwner = true;
+    }
+
+    public void addProposedList(List<PricePropose> proposeList) {
+        this.proposedList = proposeList
+                .stream()
+                .map(pricePropose -> new PriceProposeSimpleDto(pricePropose))
+                .collect(Collectors.toList());
     }
 }
