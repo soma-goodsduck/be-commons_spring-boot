@@ -61,7 +61,7 @@ public class PriceProposeController {
     }
 
     @PostMapping("/items/{itemId}/price-propose/{priceProposeId}/refuse")
-    @ApiOperation(value = "받은 가격 제안에 대한 수락 요청 API", notes = "요청에 대한 처리 결과(boolean)만 반환")
+    @ApiOperation(value = "받은 가격 제안에 대한 거절 요청 API", notes = "요청에 대한 처리 결과(boolean)만 반환")
     public ApiResult refusePropose(@PathVariable("itemId") Long itemId,
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  HttpServletRequest request) {
@@ -70,7 +70,7 @@ public class PriceProposeController {
     }
 
     @PostMapping("/items/{itemId}/price-propose/{priceProposeId}/accept")
-    @ApiOperation(value = "받은 가격 제안에 대한 거절 요청 API", notes = "요청에 대한 처리 결과(boolean)만 반환")
+    @ApiOperation(value = "받은 가격 제안에 대한 수락 요청 API", notes = "요청에 대한 처리 결과(boolean)만 반환")
     public ApiResult acceptPropose(@PathVariable("itemId") Long itemId,
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  HttpServletRequest request) {

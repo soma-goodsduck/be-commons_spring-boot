@@ -110,12 +110,8 @@ public class ItemService {
             return itemDetailResponse;
         }
 
-        // TODO: 가격 제안 정보 포함
         // HINT: 아이템 주인이 아닌 경우, 가격 제안 정보 여부 조회
-        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId)
-                .stream()
-                .filter(pricePropose -> pricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED) || pricePropose.getStatus().equals(PriceProposeStatus.ACCEPTED))
-                .collect(Collectors.toList());
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
 
         itemDetailResponse.addProposedList(priceProposes);
 
