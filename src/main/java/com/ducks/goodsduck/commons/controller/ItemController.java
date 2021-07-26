@@ -3,23 +3,18 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
-import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.dto.GradeStatusDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
-import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
-import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.service.CustomJwtService;
 import com.ducks.goodsduck.commons.service.ItemService;
+import com.ducks.goodsduck.commons.service.UserItemService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,7 +32,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -52,9 +46,7 @@ public class ItemController {
 
     private final ItemService itemService;
     private final UserService userService;
-    private final CustomJwtService jwtService;
-
-    private final ItemRepository itemRepository;
+    private final UserItemService userItemService;
     private final UserRepository userRepository;
     private final CategoryItemRepository categoryItemRepository;
 
@@ -140,35 +132,6 @@ public class ItemController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
-    @GetMapping("/users/items")
-    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) throws Exception {
-
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
-        try {
-            TradeStatus status = valueOf(tradeStatus.toUpperCase());
-            return OK(itemService.findMyItem(userId, status)
-                    .stream()
-                    .map(tuple -> {
-                        Item item = tuple.get(0, Item.class);
-                        ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
-                                .map(image -> new ImageDto(image))
-                                .orElseGet(() -> new ImageDto());
-                        return ItemSummaryDto.of(item, imageDto);
-                    })
-                    .collect(Collectors.toList()));
-
-        } catch (IllegalArgumentException e) {
-            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
-            throw new IllegalArgumentException("There is no tradeStatus inserted");
-        } catch (NullPointerException e) {
-            log.debug("Exception during parsing from tuple: {}", e.getMessage(), e);
-            throw new NullPointerException(e.getMessage());
-        } catch (Exception e) {
-            throw new Exception("Unexpected exception occurred.");
-        }
-    }
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
     @PatchMapping("/items/{item_id}/trade-status")
@@ -184,5 +147,28 @@ public class ItemController {
         }
 
         return OK(itemService.updateTradeStatus(userId, item_id, status));
+    }
+
+    @GetMapping("/items/{itemId}/like")
+    @ApiOperation("특정 아이템 좋아요 요청 API")
+    public ApiResult doLikeItem(@PathVariable("item_id") Long itemId,
+                                HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userItemService.doLike(userId, itemId));
+    }
+
+    @DeleteMapping("/items/{itemId}/like")
+    @ApiOperation("좋아요 취소 요청 API")
+    public ApiResult cancleLikeItem(@PathVariable("item_id") Long itemId,
+                                    HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userItemService.cancelLikeItem(userId, itemId));
+    }
+
+    @GetMapping("/items/like")
+    @ApiOperation("좋아요한 아이템 목록 보기 API")
+    public ApiResult<List<ItemDto>> getLikeItems(HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userItemService.getLikeItemsOfUser(userId));
     }
 }
