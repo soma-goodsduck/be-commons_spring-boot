@@ -135,7 +135,7 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
     @PatchMapping("/items/{item_id}/trade-status")
-    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("item_id") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
+    public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("itemId") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
 
@@ -151,7 +151,7 @@ public class ItemController {
 
     @PostMapping("/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
-    public ApiResult doLikeItem(@PathVariable("item_id") Long itemId,
+    public ApiResult doLikeItem(@PathVariable("itemId") Long itemId,
                                 HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.doLike(userId, itemId));
@@ -159,7 +159,7 @@ public class ItemController {
 
     @DeleteMapping("/items/{itemId}/like")
     @ApiOperation("좋아요 취소 요청 API")
-    public ApiResult cancleLikeItem(@PathVariable("item_id") Long itemId,
+    public ApiResult cancleLikeItem(@PathVariable("itemId") Long itemId,
                                     HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.cancelLikeItem(userId, itemId));
