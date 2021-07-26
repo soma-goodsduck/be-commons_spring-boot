@@ -149,7 +149,7 @@ public class ItemController {
         return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
 
-    @GetMapping("/items/{itemId}/like")
+    @PostMapping("/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
     public ApiResult doLikeItem(@PathVariable("item_id") Long itemId,
                                 HttpServletRequest request) {
