@@ -33,7 +33,6 @@ public class ItemHomeResponse {
         this.itemId = item.getId();
         this.name = item.getName();
         this.description = item.getDescription();
-        this.image = new ItemDetailResponseImage(item.getImages().get(0));
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
         this.tradeStatus = item.getTradeStatus();

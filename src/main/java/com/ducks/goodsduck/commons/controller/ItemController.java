@@ -122,8 +122,6 @@ public class ItemController {
                                                                        @RequestParam(value = "keyword", required = false) String keyword) {
         Long userId = userService.checkLoginStatus(jwt);
 
-        log.info("입력된 키워드 : " + keyword);
-
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
             Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber);

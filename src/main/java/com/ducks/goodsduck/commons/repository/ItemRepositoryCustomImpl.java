@@ -100,7 +100,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, userItem, idolGroup)
+                .select(item, userItem, idolGroup, idolMember, image, categoryItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .leftJoin(image).on(image.item.id.eq(item.id))

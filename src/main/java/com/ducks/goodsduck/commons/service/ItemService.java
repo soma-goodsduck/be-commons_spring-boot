@@ -250,11 +250,14 @@ public class ItemService {
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
+                    Image image = tuple.get(4, Image.class);
 
                     ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
                     if(userItem != null) {
                         itemHomeResponse.likesOfMe();
                     }
+
+                    itemHomeResponse.setImage(new ItemDetailResponseImage(image));
 
                     return itemHomeResponse;
                 })
