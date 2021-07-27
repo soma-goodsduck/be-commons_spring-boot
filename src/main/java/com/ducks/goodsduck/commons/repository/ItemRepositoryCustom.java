@@ -13,6 +13,7 @@ import java.util.List;
 public interface ItemRepositoryCustom {
     Tuple findByItemId(Long itemId);
     List<Item> findAll(Pageable pageable);
+    List<Item> findAllV2(Pageable pageable, String keyword);
     List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     List<Tuple> findAllWithUserItemIdolGroupV2(Long userId, List<UserIdolGroup> userIdolGroups, String keyword, Pageable pageable);
     Tuple findByIdWithUserItem(Long userId, Long itemId);

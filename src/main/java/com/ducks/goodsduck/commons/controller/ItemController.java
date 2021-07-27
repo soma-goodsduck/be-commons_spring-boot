@@ -124,7 +124,7 @@ public class ItemController {
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber);
+            Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber, keyword);
             return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
         }
         // HINT : 회원에게 보여줄 홈

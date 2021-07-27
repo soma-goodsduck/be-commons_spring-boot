@@ -192,11 +192,11 @@ public class ItemService {
     }
 
     // HINT : 비회원용
-    public Slice<ItemHomeResponse> getItemListV2(Integer pageNumber) {
+    public Slice<ItemHomeResponse> getItemListV2(Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Item> items = itemRepositoryCustom.findAll(pageable);
+        List<Item> items = itemRepositoryCustom.findAllV2(pageable, keyword);
         List<ItemHomeResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemHomeResponse(item))

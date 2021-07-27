@@ -61,6 +61,25 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
+    public List<Item> findAllV2(Pageable pageable, String keyword) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (keyword != null) {
+            builder.and(item.name.contains(keyword));
+        }
+
+        return queryFactory
+                .select(item)
+                .from(item)
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+    }
+
+    @Override
     public List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
