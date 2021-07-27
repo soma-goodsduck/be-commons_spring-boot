@@ -38,7 +38,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = "아이템 CRUD APIs")
@@ -51,7 +51,7 @@ public class ItemController {
     private final CategoryItemRepository categoryItemRepository;
 
     @ApiOperation(value = "아이템 등록하기")
-    @PostMapping("/items")
+    @PostMapping("/v1/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
                            @RequestParam List<MultipartFile> multipartFiles,
                            HttpServletRequest request) throws IOException {
@@ -64,7 +64,7 @@ public class ItemController {
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기")
-    @GetMapping("/items/{itemId}")
+    @GetMapping("/v1/items/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.showDetailWithLike(userId, itemId));
@@ -72,28 +72,28 @@ public class ItemController {
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인 -> 수정(아이템 상세보기 시에 isOwner로 여부 확인)")
-    @GetMapping("/items/edit/{itemId}")
+    @GetMapping("/v1/items/edit/{itemId}")
     public ApiResult<Long> confirmItemOwner(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.isItemOwner(userId, itemId));
     }
 
     @ApiOperation(value = "아이템 수정")
-    @PutMapping("/items/{itemId}")
+    @PutMapping("/v1/items/{itemId}")
     public ApiResult<Long> editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
         ItemUpdateRequest itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequest.class);
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
     @ApiOperation(value = "아이템 삭제")
-    @DeleteMapping("/items/{itemId}")
+    @DeleteMapping("/v1/items/{itemId}")
     public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {
         return OK(itemService.delete(itemId));
     }
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 in Home")
-    @GetMapping("/items")
+    @GetMapping("/v1/items")
     @Transactional
     public ItemDetailResponseFinal<Slice<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
                                                                        @RequestParam("pageNumber") Integer pageNumber) {
@@ -113,8 +113,32 @@ public class ItemController {
         }
     }
 
+    @NoCheckJwt
+    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
+    @GetMapping("/v2/items")
+    @Transactional
+    public ItemDetailResponseFinal<Slice<ItemHomeResponse>> getItems(@RequestHeader("jwt") String jwt,
+                                                                       @RequestParam("pageNumber") Integer pageNumber,
+                                                                       @RequestParam(value = "keyword", required = false) String keyword) {
+        Long userId = userService.checkLoginStatus(jwt);
+
+        log.info("입력된 키워드 : " + keyword);
+
+        // HINT : 비회원에게 보여줄 홈
+        if(userId.equals(-1L)) {
+            Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈
+        else {
+            User user = userRepository.findById(userId).get();
+            Slice<ItemHomeResponse> itemList = itemService.getItemListUserV2(userId, pageNumber, keyword);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+        }
+    }
+
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
-    @GetMapping("/items/category")
+    @GetMapping("/v1/items/category")
     @Transactional
     public ApiResult<List<CategoryItemDto>> getCategoryItem() {
         return OK(categoryItemRepository.findAll().stream()
@@ -124,7 +148,7 @@ public class ItemController {
 
     @NoCheckJwt
     @ApiOperation(value = "제품상태 리스트 불러오기 in 아이템 등록")
-    @GetMapping("/items/grade-status")
+    @GetMapping("/v1/items/grade-status")
     public ApiResult<List<GradeStatusDto>> getGradeStatusItem() {
         return OK(Arrays.asList(GradeStatus.values())
                 .stream()
@@ -134,7 +158,7 @@ public class ItemController {
 
 
     @ApiOperation(value = "아이템 거래 상태 변경 API")
-    @PatchMapping("/items/{item_id}/trade-status")
+    @PatchMapping("/v1/items/{item_id}/trade-status")
     public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("itemId") Long item_id, ItemTradeStatusUpdateRequest tradeStatus) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
@@ -149,7 +173,7 @@ public class ItemController {
         return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
 
-    @PostMapping("/items/{itemId}/like")
+    @PostMapping("/v1/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
     public ApiResult doLikeItem(@PathVariable("itemId") Long itemId,
                                 HttpServletRequest request) {
@@ -157,7 +181,7 @@ public class ItemController {
         return OK(userItemService.doLike(userId, itemId));
     }
 
-    @DeleteMapping("/items/{itemId}/like")
+    @DeleteMapping("/v1/items/{itemId}/like")
     @ApiOperation("좋아요 취소 요청 API")
     public ApiResult cancleLikeItem(@PathVariable("itemId") Long itemId,
                                     HttpServletRequest request) {
@@ -165,7 +189,7 @@ public class ItemController {
         return OK(userItemService.cancelLikeItem(userId, itemId));
     }
 
-    @GetMapping("/items/like")
+    @GetMapping("/v1/items/like")
     @ApiOperation("좋아요한 아이템 목록 보기 API")
     public ApiResult<List<ItemDto>> getLikeItems(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);

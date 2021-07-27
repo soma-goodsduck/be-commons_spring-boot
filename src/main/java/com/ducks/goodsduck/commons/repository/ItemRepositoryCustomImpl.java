@@ -31,6 +31,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private QIdolGroup idolGroup = QIdolGroup.idolGroup;
     private QCategoryItem categoryItem = QCategoryItem.categoryItem;
     private QImage image = QImage.image;
+    private QImage subImage = new QImage("subImage");
     private QPricePropose pricePropose = QPricePropose.pricePropose;
 
     public ItemRepositoryCustomImpl(EntityManager em) {
@@ -63,6 +64,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     public List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
+
         if (userIdolGroups.size() != 0) {
             for (UserIdolGroup userIdolGroup : userIdolGroups) {
                 builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
@@ -73,6 +75,35 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem, idolGroup)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .join(item.idolMember, idolMember)
+                .join(item.idolMember.idolGroup, idolGroup)
+                .join(item.categoryItem, categoryItem)
+                .join(item.user, user)
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAllWithUserItemIdolGroupV2(Long userId, List<UserIdolGroup> userIdolGroups, String keyword, Pageable pageable) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(item.name.contains(keyword));
+        if (userIdolGroups.size() != 0) {
+            for (UserIdolGroup userIdolGroup : userIdolGroups) {
+                builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
+            }
+        }
+
+        builder.and(isHaveImage(subImage).in(1L, null));
+
+        return queryFactory
+                .select(item, userItem, idolGroup)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -98,7 +129,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     @Override
     public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
 
-        QImage subImage = new QImage("subImage");
         List<TradeStatus> statusList = new ArrayList<>();
         statusList.add(status);
         BooleanExpression conditionOfTradeStatus;

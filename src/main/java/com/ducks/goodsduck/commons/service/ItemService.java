@@ -191,6 +191,20 @@ public class ItemService {
         return toSlice(itemToList, pageable);
     }
 
+    // HINT : 비회원용
+    public Slice<ItemHomeResponse> getItemListV2(Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Item> items = itemRepositoryCustom.findAll(pageable);
+        List<ItemHomeResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemHomeResponse(item))
+                .collect(Collectors.toList());
+
+        return toSlice(itemToList, pageable);
+    }
+
     // HINT : 회원용
     public Slice<ItemDetailResponse> getItemListUser(Long userId, Integer pageNumber) {
 
@@ -214,6 +228,35 @@ public class ItemService {
                     }
 
                     return itemDetailResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
+    // HINT : 회원용
+    public Slice<ItemHomeResponse> getItemListUserV2(Long userId, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItemIdolGroupV2(userId, userIdolGroups, keyword, pageable);
+
+        List<ItemHomeResponse> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    return itemHomeResponse;
                 })
                 .collect(Collectors.toList());
 
