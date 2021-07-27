@@ -90,7 +90,11 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     public List<Tuple> findAllWithUserItemIdolGroupV2(Long userId, List<UserIdolGroup> userIdolGroups, String keyword, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(item.name.contains(keyword));
+
+        if (keyword != null) {
+            builder.and(item.name.contains(keyword));
+        }
+
         if (userIdolGroups.size() != 0) {
             for (UserIdolGroup userIdolGroup : userIdolGroups) {
                 builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
