@@ -1,20 +1,19 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
-import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.entity.CategoryItem;
 import com.ducks.goodsduck.commons.model.entity.Image;
-import com.ducks.goodsduck.commons.model.dto.GradeStatusDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
@@ -74,16 +73,17 @@ public class ItemController {
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/items/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
-        Long userId = userService.checkLoginStatus(jwt);
-        return OK(itemService.showDetailWithLike(userId, itemId));
-    }
 
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 거래글의 글쓴이 여부 확인 -> 수정(아이템 상세보기 시에 isOwner로 여부 확인)")
-    @GetMapping("/items/edit/{itemId}")
-    public ApiResult<Long> confirmItemOwner(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
         Long userId = userService.checkLoginStatus(jwt);
-        return OK(itemService.isItemOwner(userId, itemId));
+
+        // HINT : 비회원에게 보여줄 상세보기
+        if(userId.equals(-1L)) {
+            return OK(itemService.showDetail(itemId));
+        }
+        // HINT : 회원에게 보여줄 상세보기
+        else {
+            return OK(itemService.showDetailWithLike(userId, itemId));
+        }
     }
 
     @ApiOperation(value = "아이템 수정")
@@ -100,14 +100,12 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 in Home")
+    @ApiOperation(value = "아이템 리스트 가져오기 in 홈")
     @GetMapping("/items")
     @Transactional
-    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> getItems(@RequestHeader("jwt") String jwt,
-                                                                       @RequestParam("pageNumber") Integer pageNumber) {
+    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> getItems(@RequestParam Integer pageNumber, @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        userId = -1L;
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
@@ -117,9 +115,51 @@ public class ItemController {
         // HINT : 회원에게 보여줄 홈
         else {
             User user = userRepository.findById(userId).get();
-            Slice<ItemDetailResponse> itemList = itemService.getItemListUser(userId, pageNumber);
+            Slice<ItemDetailResponse> itemList = itemService.getItemList(userId, pageNumber);
             return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
         }
+    }
+
+    @NoCheckJwt
+    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈")
+    @GetMapping("/items/filter")
+    @Transactional
+    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> filterItemWithIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
+                                                                                      @RequestParam Integer pageNumber,
+                                                                                      @RequestHeader("jwt") String jwt) {
+
+        Long userId = userService.checkLoginStatus(jwt);
+
+        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
+        if(userId.equals(-1L)) {
+            Slice<ItemDetailResponse> itemList = itemService.filterByIdolGroup(idolGroupId, pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
+        else {
+            User user = userRepository.findById(userId).get();
+            Slice<ItemDetailResponse> itemList = itemService.filterByIdolGroup(userId, idolGroupId, pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+        }
+    }
+
+    @NoCheckJwt
+    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈")
+    @GetMapping("/items/filters")
+    @Transactional
+    public Long filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+                                  @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+                                  @RequestParam(value = "category", required = false) Long categoryItemId,
+                                  @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+                                  @RequestParam(value = "minPrice", required = false) Long minPrice,
+                                  @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+                                  HttpServletRequest request) {
+
+//        itemService
+
+//        itemService.findAllByAllFilterWithUserItem(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice));
+
+        return 1L;
     }
 
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")

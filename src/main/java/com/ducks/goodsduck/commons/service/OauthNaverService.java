@@ -48,7 +48,7 @@ public class OauthNaverService {
         params.add("grant_type", grantType);
         params.add("client_id", naverOauth2ClientId);
         params.add("client_secret", naverOauth2ClientSecret);
-        params.add("redirect_uri", URLEncoder.DEFAULT.encode(frontendRedirectUrl, StandardCharsets.UTF_8)); //
+        params.add("redirect_uri", URLEncoder.DEFAULT.encode(frontendRedirectUrl, StandardCharsets.UTF_8));
         params.add("code", code);
         params.add("state", state);
 

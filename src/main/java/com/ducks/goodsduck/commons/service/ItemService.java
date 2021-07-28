@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
@@ -61,7 +62,7 @@ public class ItemService {
 
             /** Image-Item 연관관계 삽입 **/
             for (ImageDto imageDto : imageDtos) {
-                Image image = new Image(imageDto.getOriginName(), imageDto.getUploadName(), imageDto.getUrl());
+                Image image = new Image(imageDto);
                 item.addImage(image);
                 imageRepository.save(image);
             }
@@ -86,7 +87,9 @@ public class ItemService {
         Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
+
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+        itemDetailResponse.setUserId(userId);
 
         if (itemTupleWithUserItem.get(1, long.class) > 0L) {
             itemDetailResponse.likesOfMe();
@@ -165,7 +168,7 @@ public class ItemService {
         return itemRepository.save(new Item(itemUploadRequest));
     }
 
-    // HINT : 비회원용
+    // FEAT : 비회원용 홈
     public Slice<ItemDetailResponse> getItemList(Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
@@ -179,8 +182,8 @@ public class ItemService {
         return toSlice(itemToList, pageable);
     }
 
-    // HINT : 회원용
-    public Slice<ItemDetailResponse> getItemListUser(Long userId, Integer pageNumber) {
+    // FEAT : 회원용 홈
+    public Slice<ItemDetailResponse> getItemList(Long userId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
@@ -188,7 +191,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItemIdolGroup(userId, userIdolGroups, pageable);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItem(userId, userIdolGroups, pageable);
 
         List<ItemDetailResponse> tupleToList =  listOfTuple
                 .stream()
@@ -206,6 +209,72 @@ public class ItemService {
                 .collect(Collectors.toList());
 
         return toSlice(tupleToList, pageable);
+    }
+
+    // FEAT : 비회원용 홈 필터링 (아이돌 그룹)
+    public Slice<ItemDetailResponse> filterByIdolGroup(Long idolGroupId, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Item> items = itemRepositoryCustom.findAllByIdolGroup(idolGroupId, pageable);
+
+        List<ItemDetailResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemDetailResponse(item))
+                .collect(Collectors.toList());
+
+        return toSlice(itemToList, pageable);
+    }
+    
+    // FEAT : 회원용 홈 필터링 (아이돌그룹)
+    public Slice<ItemDetailResponse> filterByIdolGroup(Long userId, Long idolGroupId, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItem(userId, idolGroupId, pageable);
+
+        List<ItemDetailResponse> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+
+                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    if (userItem != null) {
+                        itemDetailResponse.likesOfMe();
+                    }
+
+                    return itemDetailResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
+    // FEAT : 회원용 홈 필터링 (ALL)
+    public Long filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilter(userId, itemFilterDto, pageable);
+
+        List<ItemDetailResponse> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+
+                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    if (userItem != null) {
+                        itemDetailResponse.likesOfMe();
+                    }
+
+                    return itemDetailResponse;
+                })
+                .collect(Collectors.toList());
+
+//        return toSlice(tupleToList, pageable);
+        return 1L;
     }
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {

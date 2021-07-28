@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.repository;
 
+import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.querydsl.core.BooleanBuilder;
@@ -49,7 +50,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
     @Override
     public List<Item> findAll(Pageable pageable) {
-
         return queryFactory
                 .select(item)
                 .from(item)
@@ -60,7 +60,25 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllWithUserItemIdolGroup(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
+    public List<Item> findAllByIdolGroup(Long idolGroupId, Pageable pageable) {
+        return queryFactory
+                .select(item)
+                .from(item)
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId))
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+    }
+
+    @Override
+    public List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public List<Tuple> findAllByUserIdolGroupsWithUserItem(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
         if (userIdolGroups.size() != 0) {
@@ -70,7 +88,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         }
 
         return queryFactory
-                .select(item, userItem, idolGroup)
+                .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
@@ -82,6 +100,37 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAllByIdolGroupWithUserItem(Long userId, Long idolGroupId, Pageable pageable) {
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId))
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
+
+        List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
+
+
+        return null;
+//        return queryFactory
+//                .select(item, userItem)
+//                .from(item)
+//                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+//                .where(item.idolMember.idolGroup.id.eq(idolGroupId))
+//                .orderBy(item.createdAt.desc())
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize() + 1)
+//                .fetch();
     }
 
     @Override
@@ -130,6 +179,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .orderBy(item.createdAt.desc())
                 .fetch();
     }
+
     @Override
     public long updateTradeStatus(Long itemId, TradeStatus status) {
         return queryFactory.update(item)
@@ -154,5 +204,4 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                         subImage.item.eq(image.item)
                 ));
     }
-
 }

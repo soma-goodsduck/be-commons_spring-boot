@@ -24,7 +24,8 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
 
     @Override
     public List<PricePropose> findByUserIdAndItemId(Long userId, Long itemId) {
-        return queryFactory.select(pricePropose)
+        return queryFactory
+                .select(pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.user.id.eq(userId).and(
                         pricePropose.item.id.eq(itemId)

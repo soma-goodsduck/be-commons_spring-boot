@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 @Data
 public class ItemDetailResponse {
 
-    // HINT : 보류
-//    private ItemDetailResponseUser user;
+    private Long userId;
     private ItemDetailResponseItemOwner itemOwner;
     private Long itemId;
     private String name;
