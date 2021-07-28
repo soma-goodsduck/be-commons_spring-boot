@@ -1,8 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
@@ -100,8 +102,14 @@ public class ItemService {
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
 
+        User loginUser = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("User not founded.");
+                });
+
+
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
-        itemDetailResponse.setUserId(userId);
+        itemDetailResponse.setLoginUser(new UserSimpleDto(loginUser));
 
         if (itemTupleWithUserItem.get(1, long.class) > 0L) {
             itemDetailResponse.likesOfMe();

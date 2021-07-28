@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.dto.PriceProposeSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Data
 public class ItemDetailResponse {
 
-    private Long userId;
+    private UserSimpleDto loginUser;
     private ItemDetailResponseItemOwner itemOwner;
     private Long itemId;
     private String name;
@@ -34,7 +35,7 @@ public class ItemDetailResponse {
     private List<PriceProposeSimpleDto> proposedList = new ArrayList<>();
 
     public ItemDetailResponse(Item item) {
-        this.userId = -1L;
+        this.loginUser = new UserSimpleDto();
         this.itemId = item.getId();
         this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());
         this.itemId = item.getId();
