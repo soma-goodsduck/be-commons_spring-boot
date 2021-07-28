@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.querydsl.core.BooleanBuilder;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
@@ -69,12 +70,38 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
-
     }
 
     @Override
-    public List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable) {
-        return null;
+    public List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable) {
+
+        List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
+        TradeType tradeType = itemFilterDto.getTradeType();
+        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
+        Long minPrice = itemFilterDto.getMinPrice();
+        Long maxPrice = itemFilterDto.getMaxPrice();
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if(idolMembersId != null) {
+            for (Long idolMemberId : idolMembersId) {
+                builder.or(item.idolMember.id.eq(idolMemberId));
+            }
+        }
+        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
+        if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
+        if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
+
+        return queryFactory
+                .select(item)
+                .from(item)
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
     }
 
     @Override
@@ -116,21 +143,36 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
+    public List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
+        TradeType tradeType = itemFilterDto.getTradeType();
+        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
+        Long minPrice = itemFilterDto.getMinPrice();
+        Long maxPrice = itemFilterDto.getMaxPrice();
 
+        BooleanBuilder builder = new BooleanBuilder();
+        if(idolMembersId != null) {
+            for (Long idolMemberId : idolMembersId) {
+                builder.or(item.idolMember.id.eq(idolMemberId));
+            }
+        }
+        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
+        if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
+        if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
-        return null;
-//        return queryFactory
-//                .select(item, userItem)
-//                .from(item)
-//                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-//                .where(item.idolMember.idolGroup.id.eq(idolGroupId))
-//                .orderBy(item.createdAt.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize() + 1)
-//                .fetch();
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .where(builder)
+                .orderBy(item.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
     }
 
     @Override

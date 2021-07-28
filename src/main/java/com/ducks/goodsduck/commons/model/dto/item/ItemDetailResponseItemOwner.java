@@ -20,5 +20,6 @@ public class ItemDetailResponseItemOwner {
     public ItemDetailResponseItemOwner(User user) {
         this.userId = user.getId();
         this.nickName = user.getNickName();
+        this.imageUrl = user.getImageUrl();
     }
 }

@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
+import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
@@ -141,19 +142,28 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈")
     @GetMapping("/items/filters")
     @Transactional
-    public Long filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
                                   @RequestParam(value = "tradeType", required = false) TradeType tradeType,
                                   @RequestParam(value = "category", required = false) Long categoryItemId,
                                   @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
                                   @RequestParam(value = "minPrice", required = false) Long minPrice,
                                   @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                  HttpServletRequest request) {
+                                  @RequestParam Integer pageNumber,
+                                  @RequestHeader("jwt") String jwt) {
 
-//        itemService
+        Long userId = userService.checkLoginStatus(jwt);
 
-//        itemService.findAllByAllFilterWithUserItem(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice));
-
-        return 1L;
+        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
+        if(userId.equals(-1L)) {
+            Slice<ItemDetailResponse> itemList = itemService.filterByAll(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈 + 모든 필터링
+        else {
+            User user = userRepository.findById(userId).get();
+            Slice<ItemDetailResponse> itemList = itemService.filterByAll(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+        }
     }
 
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")

@@ -34,6 +34,7 @@ public class ItemDetailResponse {
     private List<PriceProposeSimpleDto> proposedList = new ArrayList<>();
 
     public ItemDetailResponse(Item item) {
+        this.userId = -1L;
         this.itemId = item.getId();
         this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());
         this.itemId = item.getId();

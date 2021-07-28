@@ -4,7 +4,6 @@ import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
-import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
@@ -270,12 +269,28 @@ public class ItemService {
         return toSlice(tupleToList, pageable);
     }
 
-    // FEAT : 회원용 홈 필터링 (ALL)
-    public Long filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
+    // FEAT: 비회원용 홈 필터링 (ALL)
+    public Slice<ItemDetailResponse> filterByAll(ItemFilterDto itemFilterDto, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilter(userId, itemFilterDto, pageable);
+        List<Item> items = itemRepositoryCustom.findAllByFilterWithUserItem(itemFilterDto, pageable);
+
+        List<ItemDetailResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemDetailResponse(item))
+                .collect(Collectors.toList());
+
+        return toSlice(itemToList, pageable);
+    }
+
+
+    // FEAT : 회원용 홈 필터링 (ALL)
+    public Slice<ItemDetailResponse> filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItem(userId, itemFilterDto, pageable);
 
         List<ItemDetailResponse> tupleToList = listOfTuple
                 .stream()
@@ -292,8 +307,7 @@ public class ItemService {
                 })
                 .collect(Collectors.toList());
 
-//        return toSlice(tupleToList, pageable);
-        return 1L;
+        return toSlice(tupleToList, pageable);
     }
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {

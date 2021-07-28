@@ -5,7 +5,6 @@ import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -21,9 +20,9 @@ public interface ItemRepositoryCustom {
     // 홈
     List<Item> findAll(Pageable pageable);
     List<Item> findAllByIdolGroup(Long idolGroupId, Pageable pageable);
-    List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable);
 
     List<Tuple> findAllByUserIdolGroupsWithUserItem(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     List<Tuple> findAllByIdolGroupWithUserItem(Long userId, Long idolGroupId, Pageable pageable);
-    List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
 }
