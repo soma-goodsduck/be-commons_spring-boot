@@ -29,7 +29,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .from(pricePropose)
                 .where(pricePropose.user.id.eq(userId).and(
                         pricePropose.item.id.eq(itemId)
-                ))
+                ).and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
                 .fetch();
     }
 

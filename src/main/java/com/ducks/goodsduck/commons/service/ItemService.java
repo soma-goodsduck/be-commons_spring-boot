@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
@@ -35,6 +36,7 @@ public class ItemService {
     private final UserRepository userRepository;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
 
@@ -84,7 +86,18 @@ public class ItemService {
     }
 
     public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
-        Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
+
+        Tuple itemTupleWithUserItem;
+
+        // HINT: 비회원인 경우
+        if (userId.equals(-1L)) {
+            itemTupleWithUserItem = itemRepositoryCustom.findByItemId(itemId);
+            Item item = itemTupleWithUserItem.get(0, Item.class);
+            item.increaseView();
+            return new ItemDetailResponse(item);
+        }
+
+        itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
 
@@ -97,7 +110,13 @@ public class ItemService {
 
         if (item.getUser().getId().equals(userId)) {
             itemDetailResponse.myItem();
+            return itemDetailResponse;
         }
+
+        // HINT: 아이템 주인이 아닌 경우, 가격 제안 정보 여부 조회
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
+
+        itemDetailResponse.addProposedList(priceProposes);
 
         return itemDetailResponse;
     }
