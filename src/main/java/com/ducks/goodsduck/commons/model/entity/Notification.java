@@ -43,6 +43,16 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Notification(User user, UserItem userItem) {
+        this.user = user;
+        User proposer = userItem.getUser();
+        this.senderNickName = proposer.getNickName();
+        this.senderImageUri = proposer.getImageUrl();
+        this.itemName = userItem.getItem().getName();
+        this.type = NotificationType.USER_ITEM;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Notification(User user, String senderNickname, String senderImageUri, String itemName, NotificationType type) {
         this.user = user;
         this.senderNickName = senderNickname;

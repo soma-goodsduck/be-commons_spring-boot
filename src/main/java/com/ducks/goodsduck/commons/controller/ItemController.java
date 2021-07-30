@@ -3,17 +3,21 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
+import com.ducks.goodsduck.commons.model.dto.UserItemResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.GradeStatusDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.entity.UserItem;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.ItemService;
+import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.UserItemService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -27,6 +31,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -47,6 +52,7 @@ public class ItemController {
     private final ItemService itemService;
     private final UserService userService;
     private final UserItemService userItemService;
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final CategoryItemRepository categoryItemRepository;
 
@@ -173,10 +179,16 @@ public class ItemController {
 
     @PostMapping("/v1/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
-    public ApiResult doLikeItem(@PathVariable("itemId") Long itemId,
-                                HttpServletRequest request) {
+    public ApiResult<UserItemResponse> doLikeItem(@PathVariable("itemId") Long itemId,
+                                                  HttpServletRequest request) throws IOException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userItemService.doLike(userId, itemId));
+        UserItem userItem = userItemService.doLike(userId, itemId);
+        User receiveUser = userItem.getItem().getUser();
+        Notification userItemNotification = new Notification(receiveUser, userItem);
+
+        notificationService.sendMessage(receiveUser.getId(), userItemNotification);
+
+        return OK(new UserItemResponse(userItem));
     }
 
     @DeleteMapping("/v1/items/{itemId}/like")
