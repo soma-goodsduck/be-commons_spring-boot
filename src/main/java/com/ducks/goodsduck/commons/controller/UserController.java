@@ -4,15 +4,18 @@ import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.UserDeviceResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.UserDevice;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.PriceProposeService;
+import com.ducks.goodsduck.commons.service.UserDeviceService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
@@ -40,6 +43,7 @@ public class UserController {
     private final UserService userService;
     private final PriceProposeService priceProposeService;
     private final ItemService itemService;
+    private final UserDeviceService userDeviceService;
 
     @NoCheckJwt
     @GetMapping("/users/login/naver")
@@ -116,6 +120,16 @@ public class UserController {
     public ApiResult<List<PriceProposeResponse>> getAllProposeFromMe(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.findAllGiveProposeByUser(userId));
+    }
+
+    @PostMapping("/users/user-device")
+    @ApiOperation("(FCM) 사용자 디바이스의 Registration Token을 등록하는 API")
+    public ApiResult registerUserDevice(HttpServletRequest request, @RequestHeader("registrationToken") String registrationToken) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        UserDevice savedUserDevice = userDeviceService.registerFCMToken(userId, registrationToken);
+        return OK(
+                new UserDeviceResponse(savedUserDevice.getUuid())
+        );
     }
 
     @NoCheckJwt
