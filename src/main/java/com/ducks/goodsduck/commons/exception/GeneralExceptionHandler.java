@@ -37,7 +37,6 @@ public class GeneralExceptionHandler {
         return newResponse(e, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-
     @ExceptionHandler(IllegalAccessException.class)
     public ResponseEntity<ApiResult<?>> handleUnauthorizedException(Exception e) {
         log.debug("Unauthorized exception occured: {}", e.getMessage(), e);
