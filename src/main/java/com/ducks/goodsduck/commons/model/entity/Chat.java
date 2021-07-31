@@ -10,10 +10,13 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CategoryItem {
+public class Chat {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CATEGORY_ITEM_ID")
-    private Long id;
-    private String name;
+    @Id
+    @Column(name = "chat_id")
+    private String id;
+
+    public Chat(String id) {
+        this.id = id;
+    }
 }

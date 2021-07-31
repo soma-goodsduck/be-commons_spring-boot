@@ -55,8 +55,8 @@ public class ItemController {
     @ApiOperation(value = "아이템 등록하기")
     @PostMapping("/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
-                           @RequestParam List<MultipartFile> multipartFiles,
-                           HttpServletRequest request) throws IOException {
+                                      @RequestParam List<MultipartFile> multipartFiles,
+                                      HttpServletRequest request) throws IOException {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
