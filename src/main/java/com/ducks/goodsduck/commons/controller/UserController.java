@@ -7,10 +7,12 @@ import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
+import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.PriceProposeService;
 import com.ducks.goodsduck.commons.service.UserService;
@@ -42,6 +44,8 @@ public class UserController {
     private final UserService userService;
     private final PriceProposeService priceProposeService;
     private final ItemService itemService;
+
+    private final UserRepository userRepository;
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API")
@@ -81,6 +85,15 @@ public class UserController {
         return OK(userService.find(userId)
                 .map(user -> new UserDto(user))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
+    }
+
+    @ApiOperation("jwt를 통한 유저 ID 조회 API")
+    @GetMapping("/users/look-up-id")
+    @Transactional
+    public ApiResult<UserSimpleDto> getUserIdByJwt(HttpServletRequest request) throws Exception {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userRepository.findById(userId).map(user -> new UserSimpleDto(user))
+                .orElseThrow(() -> new Exception("not find user id")));
     }
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
@@ -125,13 +138,6 @@ public class UserController {
     public ApiResult<List<PriceProposeResponse>> getAllProposeFromMe(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.findAllGiveProposeByUser(userId));
-    }
-
-    @NoCheckJwt
-    @ApiOperation("jwt를 통한 유저 ID 조회 API")
-    @GetMapping("/users/look-up-id")
-    public ApiResult<Long> getUserIdByJwt(@RequestHeader("jwt") String jwt) {
-        return OK(userService.checkLoginStatus(jwt));
     }
 
     @NoCheckJwt

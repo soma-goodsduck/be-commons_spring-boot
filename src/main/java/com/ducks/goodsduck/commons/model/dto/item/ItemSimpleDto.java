@@ -10,9 +10,11 @@ public class ItemSimpleDto {
 
     private Long id;
     private String name;
+    private String imageUrl;
 
     public ItemSimpleDto(Item item) {
         this.id = item.getId();
         this.name = item.getName();
+        this.imageUrl = item.getImages().get(0).getUrl();
     }
 }
