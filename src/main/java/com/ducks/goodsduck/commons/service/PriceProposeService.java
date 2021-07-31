@@ -36,8 +36,9 @@ public class PriceProposeService {
 
     public Optional<PriceProposeResponse> proposePrice(Long userId, Long itemId, int price) {
 
-        // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인
+        // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인 => WHY LIST?
         List<PricePropose> priceProposeList = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
+
         if (!priceProposeList.isEmpty()) {
             throw new DuplicateRequestException("Propose of price already exists.");
         }

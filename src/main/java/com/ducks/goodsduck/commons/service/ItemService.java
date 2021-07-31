@@ -120,10 +120,15 @@ public class ItemService {
             return itemDetailResponse;
         }
 
-        // HINT: 아이템 주인이 아닌 경우, 가격 제안 정보 여부 조회
-        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
-
+        // HINT: 가격 제안 정보 조회
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
         itemDetailResponse.addProposedList(priceProposes);
+        
+        // HINT: 가격 제안 유무 체크
+        PricePropose pricePropose = priceProposeRepositoryCustom.findByItemIdAndUserId(userId, itemId);
+        if(pricePropose != null) {
+            itemDetailResponse.setBeforePricePropose(true);
+        }
 
         return itemDetailResponse;
     }

@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.PriceProposeRequest;
 import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
@@ -32,6 +33,7 @@ public class PriceProposeController {
                                                         @RequestBody PriceProposeRequest priceProposeRequest,
                                                         HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
         return OK(priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price.")));
     }
