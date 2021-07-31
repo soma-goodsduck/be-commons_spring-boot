@@ -87,7 +87,6 @@ public class UserController {
     public ApiResult<UserDto> getUser(HttpServletRequest request) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
         return OK(userService.find(userId)
                 .map(user -> new UserDto(user))
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));

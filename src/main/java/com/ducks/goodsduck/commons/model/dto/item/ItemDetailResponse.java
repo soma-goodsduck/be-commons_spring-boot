@@ -33,7 +33,7 @@ public class ItemDetailResponse {
     private Boolean isLike;
     private Boolean isOwner;
     private List<PriceProposeSimpleDto> proposedList = new ArrayList<>();
-    private Boolean beforePricePropose;
+    private PriceProposeSimpleDto myPricePropose;
 
     public ItemDetailResponse(Item item) {
         this.loginUser = new UserSimpleDto();
@@ -56,7 +56,6 @@ public class ItemDetailResponse {
         this.likesItemCount = item.getLikesItemCount();
         this.isLike = false;
         this.isOwner = false;
-        this.beforePricePropose = false;
     }
 
     public void likesOfMe() {
@@ -72,5 +71,9 @@ public class ItemDetailResponse {
                 .stream()
                 .map(pricePropose -> new PriceProposeSimpleDto(pricePropose))
                 .collect(Collectors.toList());
+    }
+
+    public void addMyPricePropose(PricePropose pricePropose) {
+        this.myPricePropose = new PriceProposeSimpleDto(pricePropose);
     }
 }

@@ -3,7 +3,7 @@ package com.ducks.goodsduck.commons.model.dto.item;
 import com.ducks.goodsduck.commons.model.dto.ApiError;
 import org.springframework.http.HttpStatus;
 
-public class ItemDetailResponseFinal<T> {
+public class ItemHomeResponseFinal<T> {
 
     private final Boolean success;
     private final Boolean hasNext;
@@ -11,7 +11,7 @@ public class ItemDetailResponseFinal<T> {
     private final T response;
     private final ApiError error;
 
-    public ItemDetailResponseFinal(Boolean success, Boolean hasNext, ItemDetailResponseUser user, T response, ApiError error) {
+    public ItemHomeResponseFinal(Boolean success, Boolean hasNext, ItemDetailResponseUser user, T response, ApiError error) {
         this.success = success;
         this.hasNext = hasNext;
         this.user = user;
@@ -19,16 +19,16 @@ public class ItemDetailResponseFinal<T> {
         this.error = error;
     }
 
-    public static <T> ItemDetailResponseFinal<T> OK(Boolean hasNext, ItemDetailResponseUser itemDetailResponseUser, T response) {
-        return new ItemDetailResponseFinal<>(true, hasNext, itemDetailResponseUser, response, null);
+    public static <T> ItemHomeResponseFinal<T> OK(Boolean hasNext, ItemDetailResponseUser itemDetailResponseUser, T response) {
+        return new ItemHomeResponseFinal<>(true, hasNext, itemDetailResponseUser, response, null);
     }
 
-    public static ItemDetailResponseFinal<?> ERROR(Throwable throwable, HttpStatus status) {
-        return new ItemDetailResponseFinal<>(false, false, null, null, new ApiError(throwable, status));
+    public static ItemHomeResponseFinal<?> ERROR(Throwable throwable, HttpStatus status) {
+        return new ItemHomeResponseFinal<>(false, false, null, null, new ApiError(throwable, status));
     }
 
-    public static ItemDetailResponseFinal<?> ERROR(String errorMessage, HttpStatus status) {
-        return new ItemDetailResponseFinal<>(false, false, null, null, new ApiError(errorMessage, status));
+    public static ItemHomeResponseFinal<?> ERROR(String errorMessage, HttpStatus status) {
+        return new ItemHomeResponseFinal<>(false, false, null, null, new ApiError(errorMessage, status));
     }
 
     public Boolean isSuccess() {

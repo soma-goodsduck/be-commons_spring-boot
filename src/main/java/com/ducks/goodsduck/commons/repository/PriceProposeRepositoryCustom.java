@@ -10,9 +10,7 @@ import java.util.List;
 
 @Repository
 public interface PriceProposeRepositoryCustom {
-    List<PricePropose> findByUserIdAndItemId(Long userId, Long itemId);
-
-    PricePropose findByItemIdAndUserId(Long userId, Long itemId);
+    PricePropose findByUserIdAndItemId(Long userId, Long itemId);
     List<PricePropose> findAllByItemId(Long itemId);
 
     List<Tuple> findByItems(List<Item> items);

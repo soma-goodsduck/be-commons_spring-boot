@@ -98,20 +98,20 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 in 홈")
     @GetMapping("/items")
     @Transactional
-    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> getItems(@RequestParam Integer pageNumber, @RequestHeader("jwt") String jwt) {
+    public ItemHomeResponseFinal<Slice<ItemHomeResponse>> getItems(@RequestParam Integer pageNumber, @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
-            Slice<ItemDetailResponse> itemList = itemService.getItemList(pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+            Slice<ItemHomeResponse> itemList = itemService.getItemList(pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), null, itemList);
         }
         // HINT : 회원에게 보여줄 홈
         else {
             User user = userRepository.findById(userId).get();
-            Slice<ItemDetailResponse> itemList = itemService.getItemList(userId, pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+            Slice<ItemHomeResponse> itemList = itemService.getItemList(userId, pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
         }
     }
 
@@ -119,22 +119,22 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈")
     @GetMapping("/items/filter")
     @Transactional
-    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> filterItemWithIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                      @RequestParam Integer pageNumber,
-                                                                                      @RequestHeader("jwt") String jwt) {
+    public ItemHomeResponseFinal<Slice<ItemHomeResponse>> filterItemWithIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
+                                                                                    @RequestParam Integer pageNumber,
+                                                                                    @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
 
         // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
         if(userId.equals(-1L)) {
-            Slice<ItemDetailResponse> itemList = itemService.filterByIdolGroup(idolGroupId, pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(idolGroupId, pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), null, itemList);
         }
         // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
         else {
             User user = userRepository.findById(userId).get();
-            Slice<ItemDetailResponse> itemList = itemService.filterByIdolGroup(userId, idolGroupId, pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(userId, idolGroupId, pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
         }
     }
 
@@ -142,27 +142,27 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈")
     @GetMapping("/items/filters")
     @Transactional
-    public ItemDetailResponseFinal<Slice<ItemDetailResponse>> filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
-                                  @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                  @RequestParam(value = "category", required = false) Long categoryItemId,
-                                  @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
-                                  @RequestParam(value = "minPrice", required = false) Long minPrice,
-                                  @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                  @RequestParam Integer pageNumber,
-                                  @RequestHeader("jwt") String jwt) {
+    public ItemHomeResponseFinal<Slice<ItemHomeResponse>> filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+                                                                              @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+                                                                              @RequestParam(value = "category", required = false) Long categoryItemId,
+                                                                              @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+                                                                              @RequestParam(value = "minPrice", required = false) Long minPrice,
+                                                                              @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+                                                                              @RequestParam Integer pageNumber,
+                                                                              @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
 
         // HINT : 비회원에게 보여줄 홈 + 모든 필터링
         if(userId.equals(-1L)) {
-            Slice<ItemDetailResponse> itemList = itemService.filterByAll(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), null, itemList);
+            Slice<ItemHomeResponse> itemList = itemService.filterByAll(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), null, itemList);
         }
         // HINT : 회원에게 보여줄 홈 + 모든 필터링
         else {
             User user = userRepository.findById(userId).get();
-            Slice<ItemDetailResponse> itemList = itemService.filterByAll(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
-            return ItemDetailResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+            Slice<ItemHomeResponse> itemList = itemService.filterByAll(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+            return ItemHomeResponseFinal.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
         }
     }
 

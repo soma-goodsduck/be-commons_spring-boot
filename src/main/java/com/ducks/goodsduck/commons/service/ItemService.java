@@ -83,22 +83,17 @@ public class ItemService {
         Item item = itemRepository.findById(itemId).get();
         item.increaseView();
 
-        return new ItemDetailResponse(item);
+        ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
+        itemDetailResponse.addProposedList(priceProposes);
+
+        return itemDetailResponse;
     }
 
     public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
 
-        Tuple itemTupleWithUserItem;
-
-        // HINT: 비회원인 경우
-        if (userId.equals(-1L)) {
-            itemTupleWithUserItem = itemRepositoryCustom.findByItemId(itemId);
-            Item item = itemTupleWithUserItem.get(0, Item.class);
-            item.increaseView();
-            return new ItemDetailResponse(item);
-        }
-
-        itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
+        Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
 
@@ -106,7 +101,6 @@ public class ItemService {
                 .orElseThrow(() -> {
                     throw new NotFoundException("User not founded.");
                 });
-
 
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
         itemDetailResponse.setLoginUser(new UserSimpleDto(loginUser));
@@ -125,9 +119,9 @@ public class ItemService {
         itemDetailResponse.addProposedList(priceProposes);
         
         // HINT: 가격 제안 유무 체크
-        PricePropose pricePropose = priceProposeRepositoryCustom.findByItemIdAndUserId(userId, itemId);
+        PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
         if(pricePropose != null) {
-            itemDetailResponse.setBeforePricePropose(true);
+            itemDetailResponse.addMyPricePropose(pricePropose);
         }
 
         return itemDetailResponse;
@@ -200,21 +194,21 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈
-    public Slice<ItemDetailResponse> getItemList(Integer pageNumber) {
+    public Slice<ItemHomeResponse> getItemList(Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Item> items = itemRepositoryCustom.findAll(pageable);
-        List<ItemDetailResponse> itemToList =  items
+        List<ItemHomeResponse> itemToList =  items
                 .stream()
-                .map(item -> new ItemDetailResponse(item))
+                .map(item -> new ItemHomeResponse(item))
                 .collect(Collectors.toList());
 
         return toSlice(itemToList, pageable);
     }
 
     // FEAT : 회원용 홈
-    public Slice<ItemDetailResponse> getItemList(Long userId, Integer pageNumber) {
+    public Slice<ItemHomeResponse> getItemList(Long userId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
@@ -224,18 +218,18 @@ public class ItemService {
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItem(userId, userIdolGroups, pageable);
 
-        List<ItemDetailResponse> tupleToList =  listOfTuple
+        List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
 
-                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
                     if(userItem != null) {
-                        itemDetailResponse.likesOfMe();
+                        itemHomeResponse.likesOfMe();
                     }
 
-                    return itemDetailResponse;
+                    return itemHomeResponse;
                 })
                 .collect(Collectors.toList());
 
@@ -243,39 +237,39 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈 필터링 (아이돌 그룹)
-    public Slice<ItemDetailResponse> filterByIdolGroup(Long idolGroupId, Integer pageNumber) {
+    public Slice<ItemHomeResponse> filterByIdolGroup(Long idolGroupId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Item> items = itemRepositoryCustom.findAllByIdolGroup(idolGroupId, pageable);
 
-        List<ItemDetailResponse> itemToList =  items
+        List<ItemHomeResponse> itemToList =  items
                 .stream()
-                .map(item -> new ItemDetailResponse(item))
+                .map(item -> new ItemHomeResponse(item))
                 .collect(Collectors.toList());
 
         return toSlice(itemToList, pageable);
     }
     
     // FEAT : 회원용 홈 필터링 (아이돌그룹)
-    public Slice<ItemDetailResponse> filterByIdolGroup(Long userId, Long idolGroupId, Integer pageNumber) {
+    public Slice<ItemHomeResponse> filterByIdolGroup(Long userId, Long idolGroupId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItem(userId, idolGroupId, pageable);
 
-        List<ItemDetailResponse> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
 
-                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
                     if (userItem != null) {
-                        itemDetailResponse.likesOfMe();
+                        itemHomeResponse.likesOfMe();
                     }
 
-                    return itemDetailResponse;
+                    return itemHomeResponse;
                 })
                 .collect(Collectors.toList());
 
@@ -283,15 +277,15 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 홈 필터링 (ALL)
-    public Slice<ItemDetailResponse> filterByAll(ItemFilterDto itemFilterDto, Integer pageNumber) {
+    public Slice<ItemHomeResponse> filterByAll(ItemFilterDto itemFilterDto, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Item> items = itemRepositoryCustom.findAllByFilterWithUserItem(itemFilterDto, pageable);
 
-        List<ItemDetailResponse> itemToList =  items
+        List<ItemHomeResponse> itemToList =  items
                 .stream()
-                .map(item -> new ItemDetailResponse(item))
+                .map(item -> new ItemHomeResponse(item))
                 .collect(Collectors.toList());
 
         return toSlice(itemToList, pageable);
@@ -299,19 +293,19 @@ public class ItemService {
 
 
     // FEAT : 회원용 홈 필터링 (ALL)
-    public Slice<ItemDetailResponse> filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
+    public Slice<ItemHomeResponse> filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItem(userId, itemFilterDto, pageable);
 
-        List<ItemDetailResponse> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
 
-                    ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
+                    ItemHomeResponse itemDetailResponse = new ItemHomeResponse(item);
                     if (userItem != null) {
                         itemDetailResponse.likesOfMe();
                     }

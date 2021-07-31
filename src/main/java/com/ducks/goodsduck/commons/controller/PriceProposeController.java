@@ -32,8 +32,8 @@ public class PriceProposeController {
     public ApiResult<PriceProposeResponse> proposePrice(@PathVariable("itemId") Long itemId,
                                                         @RequestBody PriceProposeRequest priceProposeRequest,
                                                         HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price.")));
     }
@@ -43,7 +43,8 @@ public class PriceProposeController {
     public ApiResult<PriceProposeResponse> cancelPropose(@PathVariable("itemId") Long itemId,
                                               @PathVariable("priceProposeId") Long priceProposeId,
                                               HttpServletRequest request) throws IllegalAccessException {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         try {
             return OK(priceProposeService.cancelPropose(userId, priceProposeId)
                     .orElseThrow(() -> new RuntimeException("Cannot cancel the propose of price.")));
@@ -67,7 +68,7 @@ public class PriceProposeController {
     public ApiResult refusePropose(@PathVariable("itemId") Long itemId,
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updateProposeStatus(userId, itemId, priceProposeId, PriceProposeStatus.REFUSED));
     }
 
@@ -76,7 +77,7 @@ public class PriceProposeController {
     public ApiResult acceptPropose(@PathVariable("itemId") Long itemId,
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updateProposeStatus(userId, itemId, priceProposeId, PriceProposeStatus.ACCEPTED));
     }
 
@@ -84,7 +85,7 @@ public class PriceProposeController {
     @ApiOperation(value = "특정 게시글에 대한 가격 제안 요청 목록 보기 API", notes = "SUGGESTED 상태인 가격 제안만 표시")
     public ApiResult<List<PriceProposeResponse>> getAllPropose(@PathVariable("itemId") Long itemId,
                                                     HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.findAllProposeByItem(userId, itemId));
     }
 }
