@@ -101,8 +101,9 @@ public class PriceProposeService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
-                    PricePropose pricePropose = tuple.get(1, PricePropose.class);
-                    return new PriceProposeResponse(findUser, item, pricePropose);
+                    User proposer = tuple.get(1, User.class);
+                    PricePropose pricePropose = tuple.get(2, PricePropose.class);
+                    return new PriceProposeResponse(proposer, item, pricePropose);
                 })
                 .collect(Collectors.toList());
     }

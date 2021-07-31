@@ -56,7 +56,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
 
     @Override
     public List<Tuple> findByItems(List<Item> items) {
-        return queryFactory.select(pricePropose.item, pricePropose)
+        return queryFactory.select(pricePropose.item, pricePropose.user, pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.item.in(items).and(
                         pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
