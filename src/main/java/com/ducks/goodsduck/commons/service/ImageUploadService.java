@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.management.RuntimeErrorException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -58,10 +59,6 @@ public class ImageUploadService {
 
     /** S3에 이미지 업로드 + 리사이징 **/
     public ImageDto uploadImage(MultipartFile multipartFile) throws IOException {
-
-        System.out.println("11111111111111111111111111111");
-        System.out.println(itemS3Bucket);
-        System.out.println(accessKey);
 
         // S3 셋팅
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -130,7 +127,11 @@ public class ImageUploadService {
             metadata.setContentType("gif");
         }
 
-        s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, imageIS, metadata));
+        try {
+            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, imageIS, metadata));
+        } catch (Exception e){
+            throw new RuntimeException("fail to upload image");
+        }
     }
 
     private Integer getNewWidth(int newHeight, int width, int height) {

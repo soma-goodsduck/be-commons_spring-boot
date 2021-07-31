@@ -166,14 +166,6 @@ public class ItemController {
         }
     }
 
-//    @ApiOperation("채팅방 이미지 업로드 API -> URL 수정예정")
-//    @PutMapping("/users/chat-image")
-//    public ApiResult<Long> uploadChatImage(@RequestParam MultipartFile multipartFile, HttpServletRequest request) throws IOException {
-//        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-//        return OK(userService.uploadProfileImage(userId, multipartFile));
-//    }
-
-
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
     @GetMapping("/items/category")
     @Transactional

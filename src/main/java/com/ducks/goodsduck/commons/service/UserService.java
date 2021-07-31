@@ -177,6 +177,10 @@ public class UserService {
         }
     }
 
+    public String uploadChatImage(MultipartFile multipartFile) throws IOException {
+        return imageUploadService.uploadImage(multipartFile).getUrl();
+    }
+
     public void updateLastLoginAt(Long userId) {
 
         User user = userRepository.findById(userId).get();

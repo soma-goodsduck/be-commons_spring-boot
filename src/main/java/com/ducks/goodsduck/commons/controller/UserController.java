@@ -75,6 +75,12 @@ public class UserController {
         return OK(userService.uploadProfileImage(userId, multipartFile));
     }
 
+    @ApiOperation("채팅방 이미지 업로드 API -> 채팅방 ID 기준으로 이미지를 저장해야할듯... 임시용")
+    @PostMapping("/users/chat-image")
+    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
+        return OK(userService.uploadChatImage(multipartFile));
+    }
+
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/users/look-up")
     @Transactional
