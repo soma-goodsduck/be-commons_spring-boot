@@ -207,6 +207,29 @@ public class ItemService {
         return toSlice(itemToList, pageable);
     }
 
+    // HINT : 비회원용 (V2)
+    public Slice<ItemHomeResponseV2> getItemListV2(Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllV2(pageable, keyword);
+        List<ItemHomeResponseV2> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    Image image = tuple.get(3, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
     // FEAT : 회원용 홈
     public Slice<ItemHomeResponse> getItemList(Long userId, Integer pageNumber) {
 
@@ -250,7 +273,31 @@ public class ItemService {
 
         return toSlice(itemToList, pageable);
     }
-    
+
+    // FEAT : 비회원용 홈 필터링 (아이돌 그룹) V2
+    public Slice<ItemHomeResponseV2> filterByIdolGroupV2(Long idolGroupId, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupV2(idolGroupId, pageable, keyword);
+
+        List<ItemHomeResponseV2> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    Image image = tuple.get(3, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
     // FEAT : 회원용 홈 필터링 (아이돌그룹)
     public Slice<ItemHomeResponse> filterByIdolGroup(Long userId, Long idolGroupId, Integer pageNumber) {
 
@@ -276,6 +323,34 @@ public class ItemService {
         return toSlice(tupleToList, pageable);
     }
 
+    // FEAT : 회원용 홈 필터링 (아이돌그룹) V2
+    public Slice<ItemHomeResponseV2> filterByIdolGroupV2(Long userId, Long idolGroupId, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV2(userId, idolGroupId, pageable, keyword);
+
+        List<ItemHomeResponseV2> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+                    Image image = tuple.get(4, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
     // FEAT: 비회원용 홈 필터링 (ALL)
     public Slice<ItemHomeResponse> filterByAll(ItemFilterDto itemFilterDto, Integer pageNumber) {
 
@@ -291,6 +366,29 @@ public class ItemService {
         return toSlice(itemToList, pageable);
     }
 
+    // FEAT: 비회원용 홈 필터링 (ALL)
+    public Slice<ItemHomeResponseV2> filterByAllV2(ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(itemFilterDto, pageable, keyword);
+
+        List<ItemHomeResponseV2> tupleToList = listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    Image image = tuple.get(3, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
 
     // FEAT : 회원용 홈 필터링 (ALL)
     public Slice<ItemHomeResponse> filterByAll(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber) {
@@ -305,17 +403,78 @@ public class ItemService {
                     Item item = tuple.get(0, Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
 
-                    ItemHomeResponse itemDetailResponse = new ItemHomeResponse(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
                     if (userItem != null) {
-                        itemDetailResponse.likesOfMe();
+                        itemHomeResponse.likesOfMe();
                     }
 
-                    return itemDetailResponse;
+                    return itemHomeResponse;
                 })
                 .collect(Collectors.toList());
 
         return toSlice(tupleToList, pageable);
     }
+
+    // FEAT : 회원용 홈 필터링 (ALL) V2
+    public Slice<ItemHomeResponseV2> filterByAllV2(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(userId, itemFilterDto, pageable, keyword);
+
+        List<ItemHomeResponseV2> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+                    Image image = tuple.get(4, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
+    // HINT : 회원용
+    public Slice<ItemHomeResponseV2> getItemListUserV2(Long userId, Integer pageNumber, String keyword) {
+
+        Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllWithUserItemIdolGroupV2(userId, userIdolGroups, pageable, keyword);
+
+        List<ItemHomeResponseV2> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+                    Image image = tuple.get(4, Image.class);
+
+                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    itemHomeResponse.setImageUrl(image.getUrl());
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return toSlice(tupleToList, pageable);
+    }
+
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
         final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);

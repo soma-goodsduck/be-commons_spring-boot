@@ -11,6 +11,7 @@ import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class ItemDto {
     private LocalDateTime itemCreatedAt;
     private LocalDateTime updatedAt;
     private Boolean isLike = false;
-    private List<ImageDto> images;
+    private List<ImageDto> images = new ArrayList<>();
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
     private CategoryItem categoryItem;

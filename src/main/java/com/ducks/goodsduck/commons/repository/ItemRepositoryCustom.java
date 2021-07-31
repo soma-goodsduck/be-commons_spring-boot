@@ -19,10 +19,16 @@ public interface ItemRepositoryCustom {
 
     // 홈
     List<Item> findAll(Pageable pageable);
+    List<Tuple> findAllV2(Pageable pageable, String keyword);
     List<Item> findAllByIdolGroup(Long idolGroupId, Pageable pageable);
+    List<Tuple> findAllByIdolGroupV2(Long idolGroupId, Pageable pageable, String keyword);
     List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Tuple> findAllByFilterWithUserItemV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
+    List<Tuple> findAllWithUserItemIdolGroupV2(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable, String keyword);
 
     List<Tuple> findAllByUserIdolGroupsWithUserItem(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     List<Tuple> findAllByIdolGroupWithUserItem(Long userId, Long idolGroupId, Pageable pageable);
+    List<Tuple> findAllByIdolGroupWithUserItemV2(Long userId, Long idolGroupId, Pageable pageable, String keyword);
     List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Tuple> findAllByFilterWithUserItemV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
 }

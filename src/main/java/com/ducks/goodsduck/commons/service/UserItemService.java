@@ -53,7 +53,7 @@ public class UserItemService {
                 .collect(Collectors.toList());
     }
 
-    public boolean doLike(Long userId, Long itemId) {
+    public UserItem doLike(Long userId, Long itemId) {
 
         // HINT: UESR가 이미 좋아한 아이템인지 확인
         List<UserItem> likeItemsOfUser = userItemRepositoryCustom.findByUserIdAndItemId(userId, itemId);
@@ -74,9 +74,7 @@ public class UserItemService {
                         () -> new IllegalArgumentException("Item not founded.")
                 );
 
-        userItemRepository.save(new UserItem(findUser, findItem));
-
-        return true;
+        return userItemRepository.save(new UserItem(findUser, findItem));
     }
 
     public boolean cancelLikeItem(Long userId, Long itemId) {
