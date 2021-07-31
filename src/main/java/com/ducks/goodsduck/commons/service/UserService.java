@@ -1,13 +1,11 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
-import com.ducks.goodsduck.commons.model.entity.IdolGroup;
-import com.ducks.goodsduck.commons.model.entity.SocialAccount;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
+import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
@@ -20,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class UserService {
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
-
+    private final ImageUploadService imageUploadService;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
@@ -161,6 +161,24 @@ public class UserService {
 
         if (userRepository.existsById(userId)) return userId;
         else return -1L;
+    }
+
+    public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
+
+        try {
+            ImageDto imageDto = imageUploadService.uploadImage(multipartFile);
+
+            User user = userRepository.findById(userId).get();
+            user.setImageUrl(imageDto.getUrl());
+
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public String uploadChatImage(MultipartFile multipartFile) throws IOException {
+        return imageUploadService.uploadImage(multipartFile).getUrl();
     }
 
     public void updateLastLoginAt(Long userId) {

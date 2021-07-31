@@ -19,11 +19,11 @@ import static com.google.firebase.messaging.Notification.*;
 @Slf4j
 public class NotificationService {
 
-    private final UserDeviceRepositoryCustom userDeviceRepositoryCustom;
+    private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final NotificationRepository notificationRepository;
 
-    public NotificationService(UserDeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository) {
-        this.userDeviceRepositoryCustom = userDeviceRepositoryCustom;
+    public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository) {
+        this.deviceRepositoryCustom = userDeviceRepositoryCustom;
         this.notificationRepository = notificationRepository;
     }
 
@@ -32,7 +32,7 @@ public class NotificationService {
         try {
             notificationRepository.save(notification);
 
-            List<String> registrationTokens = userDeviceRepositoryCustom.getRegistrationTokensByUserId(receiverUserId);
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiverUserId);
             NotificationResponse notificationResponse = new NotificationResponse(notification);
             NotificationMessage notificationMessage = notificationResponse.getMessage();
 

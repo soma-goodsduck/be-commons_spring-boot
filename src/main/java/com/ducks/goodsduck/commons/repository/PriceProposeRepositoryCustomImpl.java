@@ -23,12 +23,23 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
     }
 
     @Override
-    public List<PricePropose> findByUserIdAndItemId(Long userId, Long itemId) {
-        return queryFactory.select(pricePropose)
+    public PricePropose findByUserIdAndItemId(Long userId, Long itemId) {
+        return queryFactory
+                .select(pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.user.id.eq(userId).and(
                         pricePropose.item.id.eq(itemId)
-                ))
+                ).and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
+                .fetchOne();
+    }
+
+    @Override
+    public List<PricePropose> findAllByItemId(Long itemId) {
+        return queryFactory
+                .select(pricePropose)
+                .from(pricePropose)
+                .where(pricePropose.item.id.eq(itemId)
+                .and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
                 .fetch();
     }
 

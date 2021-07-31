@@ -5,11 +5,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UserDeviceResponse {
+public class DeviceResponse {
 
     private String uuid;
 
-    public UserDeviceResponse(String uuid) {
+    public DeviceResponse(String uuid) {
         this.uuid = uuid;
     }
 }

@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserDevice {
+public class Device {
 
     @Id @GeneratedValue
-    @Column(name = "USER_DEVICE_ID")
+    @Column(name = "DEVICE_ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +25,7 @@ public class UserDevice {
     private String registrationToken;
     private LocalDateTime createdAt;
 
-    public UserDevice(User user, String uuid, String registrationToken) {
+    public Device(User user, String uuid, String registrationToken) {
         this.user = user;
         this.uuid = uuid;
         this.registrationToken = registrationToken;

@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -38,6 +40,6 @@ public class PricePropose {
         this.item = item;
         this.status = PriceProposeStatus.SUGGESTED;
         this.price = price;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.management.RuntimeErrorException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -33,16 +34,10 @@ public class ImageUploadService {
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
     
     private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
-    private final String s3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.bucket"));
+    private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.bucket"));
     private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", PropertyUtil.getProperty("cloud.aws.credentials.accessKey"));
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
-
-//    private final String localFilePath = PropertyUtil.getProperty("spring.file.path.local");
-//    private final String s3Bucket = PropertyUtil.getProperty("cloud.aws.s3.bucket");
-//    private final String accessKey = PropertyUtil.getProperty("cloud.aws.credentials.accessKey");
-//    private final String secretKey = PropertyUtil.getProperty("cloud.aws.credentials.secretKey");
-//    private final String region = PropertyUtil.getProperty("cloud.aws.region.static");
 
     public String getFilePath(String fileName) {
         return localFilePath + fileName;
@@ -109,7 +104,7 @@ public class ImageUploadService {
             uploadImageToS3(s3Client, uploadName, ext, image);
         }
 
-        return new ImageDto(orginName, uploadName, s3Client.getUrl(s3Bucket, uploadName).toString());
+        return new ImageDto(orginName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
     }
 
     private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image) throws IOException {
@@ -132,7 +127,11 @@ public class ImageUploadService {
             metadata.setContentType("gif");
         }
 
-        s3Client.putObject(new PutObjectRequest(s3Bucket, uploadName, imageIS, metadata));
+        try {
+            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, imageIS, metadata));
+        } catch (Exception e){
+            throw new RuntimeException("fail to upload image");
+        }
     }
 
     private Integer getNewWidth(int newHeight, int width, int height) {

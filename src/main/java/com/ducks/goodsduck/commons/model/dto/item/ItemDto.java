@@ -56,5 +56,6 @@ public class ItemDto {
                         .stream()
                         .map(itemImage -> new ImageDto(itemImage))
                         .collect(Collectors.toList());
+        this.idolMember = item.getIdolMember();
     }
 }

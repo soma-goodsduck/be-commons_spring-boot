@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,9 +24,9 @@ public class Image {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    public Image(String originName, String uploadName, String url) {
-        this.originName = originName;
-        this.uploadName = uploadName;
-        this.url = url;
+    public Image(ImageDto imageDto) {
+        this.originName = imageDto.getOriginName();
+        this.uploadName = imageDto.getUploadName();
+        this.url = imageDto.getUrl();
     }
 }

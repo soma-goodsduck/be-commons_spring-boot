@@ -20,14 +20,14 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 @Api(tags = "아이돌 멤버 APIs")
 public class IdolMemberController {
 
     private final IdolMemberService idolMemberService;
 
     @NoCheckJwt
-    @GetMapping("/idol-members/idol-groups/{idolGroupId}")
+    @GetMapping("/v1/idol-members/idol-groups/{idolGroupId}")
     @ApiOperation("특정 아이돌 그룹에 해당하는 아이돌 멤버 리스트 가져오기 API")
     public ApiResult<List<IdolMemberDto>> getIdolMembersOfGroup(@PathVariable("idolGroupId") Long idolGroupId) {
         return OK(idolMemberService.findIdolMembersOfGroup(idolGroupId)
@@ -37,7 +37,7 @@ public class IdolMemberController {
     }
 
     @NoCheckJwt
-    @GetMapping("/idol-members")
+    @GetMapping("/v1/idol-members")
     @ApiOperation("아이돌 멤버 리스트 가져오기 API")
     public ApiResult<List<IdolMemberDto>> getIdolMemberList() {
         return OK(idolMemberService.findAllIdolMembers()
@@ -47,7 +47,7 @@ public class IdolMemberController {
     }
 
     @NoCheckJwt
-    @GetMapping("/idol/member/{idol_member_id}")
+    @GetMapping("/v1/idol/member/{idol_member_id}")
     @ApiOperation("특정 아이돌 멤버 가져오기 API")
     public ApiResult<IdolMemberDto> getIdolMember(@PathVariable("idol_member_id") Long idolMemberId) {
         return OK(idolMemberService.findIdolMemberById(idolMemberId)

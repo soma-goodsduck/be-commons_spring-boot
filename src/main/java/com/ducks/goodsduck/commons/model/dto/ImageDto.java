@@ -12,7 +12,6 @@ public class ImageDto {
     private String uploadName;
     private String url;
 
-    // HINT : 엔티티를 파라미터로 하는 DTO 생성자를 만들어두면 편함
     public ImageDto(Image image) {
         this.originName = image.getOriginName();
         this.uploadName = image.getUploadName();
