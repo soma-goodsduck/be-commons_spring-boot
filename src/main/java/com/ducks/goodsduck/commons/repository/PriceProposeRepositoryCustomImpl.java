@@ -14,6 +14,7 @@ import java.util.List;
 public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
     private QPricePropose pricePropose = QPricePropose.pricePropose;
     private QUser user = QUser.user;
     private QItem item = QItem.item;
@@ -56,7 +57,8 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
 
     @Override
     public List<Tuple> findByItems(List<Item> items) {
-        return queryFactory.select(pricePropose.item, pricePropose)
+        return queryFactory
+                .select(pricePropose.item, pricePropose.user, pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.item.in(items).and(
                         pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
@@ -66,7 +68,8 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
 
     @Override
     public List<Tuple> findByItemId(Long itemId) {
-        return queryFactory.select(user, pricePropose.item, pricePropose)
+        return queryFactory
+                .select(user, pricePropose.item, pricePropose)
                 .from(pricePropose)
                 .join(pricePropose.user, user)
                 .where(pricePropose.item.id.eq(itemId).and(

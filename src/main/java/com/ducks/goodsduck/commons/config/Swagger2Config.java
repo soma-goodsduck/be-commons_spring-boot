@@ -31,7 +31,7 @@ public class Swagger2Config {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.ducks.goodsduck.commons"))
-                .paths(PathSelectors.ant("/api/v1/**"))
+                .paths(PathSelectors.ant("/api/**"))
                 .build()
                 .apiInfo(this.apiInfo());
     }

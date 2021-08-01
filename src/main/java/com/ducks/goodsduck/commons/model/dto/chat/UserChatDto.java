@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.chat;
 
 import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;

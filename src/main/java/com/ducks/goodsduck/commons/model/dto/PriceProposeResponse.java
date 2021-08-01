@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class PriceProposeResponse {
 
     private Long priceProposeId;
+    private Long receiverId;
     private UserSimpleDto proposer;
     private ItemSimpleDto item;
     private int proposedPrice;
@@ -24,6 +25,7 @@ public class PriceProposeResponse {
 
     public PriceProposeResponse (PricePropose pricePropose) {
         this.priceProposeId = pricePropose.getId();
+        this.receiverId = pricePropose.getItem().getUser().getId();
         this.proposer = new UserSimpleDto();
         this.item = new ItemSimpleDto();
         this.proposedPrice = pricePropose.getPrice();
@@ -33,6 +35,7 @@ public class PriceProposeResponse {
 
     public PriceProposeResponse (User user, Item item, PricePropose pricePropose) {
         this.priceProposeId = pricePropose.getId();
+        this.receiverId = item.getUser().getId();
         this.proposer = new UserSimpleDto(user);
         this.item = new ItemSimpleDto(item);
         this.proposedPrice = pricePropose.getPrice();

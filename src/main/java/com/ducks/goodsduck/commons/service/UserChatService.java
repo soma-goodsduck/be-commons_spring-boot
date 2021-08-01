@@ -1,9 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.UserChatDto;
-import com.ducks.goodsduck.commons.model.dto.user.UserDto;
+import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
+import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,5 +89,21 @@ public class UserChatService {
         }
 
         return new UserChatDto(userList, userChatList.get(0).getItem());
+    }
+
+    public List<ChatAndItemDto> getChatInfoOfUser(Long userId) {
+
+        List<Tuple> chatAndItemByUserIdTuple = userChatRepositoryCustom.findChatAndItemByUserId(userId);
+
+        List<ChatAndItemDto> chatAndItemList = chatAndItemByUserIdTuple.stream().
+                map(tuple -> {
+                    Chat chat = tuple.get(0, Chat.class);
+                    Item item = tuple.get(1, Item.class);
+
+                    return new ChatAndItemDto(chat, item);
+                })
+                .collect(Collectors.toList());
+
+        return chatAndItemList;
     }
 }

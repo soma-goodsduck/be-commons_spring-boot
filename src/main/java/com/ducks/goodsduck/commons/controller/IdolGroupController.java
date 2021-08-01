@@ -21,14 +21,14 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 @Api(tags = "아이돌 그룹 APIs")
 public class IdolGroupController {
 
     private final IdolGroupService idolGroupService;
 
     @NoCheckJwt
-    @GetMapping("/idol-groups")
+    @GetMapping("/v1/idol-groups")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
     public ApiResult<List<IdolGroupDto>> getIdolGroups() {
         return OK(idolGroupService.getIdolGroups()
@@ -39,7 +39,7 @@ public class IdolGroupController {
     }
 
     @NoCheckJwt
-    @GetMapping("/idol-groups/{idolGroupId}")
+    @GetMapping("/v1/idol-groups/{idolGroupId}")
     @ApiOperation("아이돌 그룹 가져오기 API")
     public ApiResult<IdolGroupDto> getIdolGroup(@PathVariable("idolGroupId") Long idolGroupId) {
         return OK(idolGroupService.getIdolGroup(idolGroupId)

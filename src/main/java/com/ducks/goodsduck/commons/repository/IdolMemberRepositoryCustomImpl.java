@@ -23,7 +23,6 @@ public class IdolMemberRepositoryCustomImpl implements IdolMemberRepositoryCusto
 
     @Override
     public List<Tuple> findAllByIdolGroupId(Long idolGroupId) {
-
         return queryFactory
                 .select(idolMember, idolMember.idolGroup)
                 .from(idolMember)
