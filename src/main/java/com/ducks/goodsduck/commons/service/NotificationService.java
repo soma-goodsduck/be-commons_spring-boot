@@ -1,17 +1,21 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.NotificationMessage;
+import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
+import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.repository.*;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.CHAT;
 import static com.google.firebase.messaging.Notification.*;
 
 @Service
@@ -21,10 +25,14 @@ public class NotificationService {
 
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final NotificationRepository notificationRepository;
+    private final UserChatRepositoryCustom userChatRepositoryCustom;
+    private final UserRepository userRepository;
 
-    public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository) {
+    public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository, UserChatRepositoryCustomImpl userChatRepositoryCustom, UserRepository userRepository) {
         this.deviceRepositoryCustom = userDeviceRepositoryCustom;
         this.notificationRepository = notificationRepository;
+        this.userChatRepositoryCustom = userChatRepositoryCustom;
+        this.userRepository = userRepository;
     }
 
     public void sendMessage(Long receiverUserId, Notification notification) throws IOException {
@@ -33,8 +41,8 @@ public class NotificationService {
             notificationRepository.save(notification);
 
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiverUserId);
-            NotificationResponse notificationResponse = new NotificationResponse(notification);
-            NotificationMessage notificationMessage = notificationResponse.getMessage();
+            var notificationResponse = new NotificationResponse(notification);
+            var notificationMessage = notificationResponse.getMessage();
 
             // HINT: 알림 Message 구성
             MulticastMessage message = MulticastMessage.builder()
@@ -51,7 +59,74 @@ public class NotificationService {
             if (response.getFailureCount() > 0) {
                 List<SendResponse> responses = response.getResponses();
                 List<String> failedTokens = new ArrayList<>();
-                for (int i = 0; i < responses.size(); i++) {
+                for (var i = 0; i < responses.size(); i++) {
+                    if (!responses.get(i).isSuccessful()) {
+                        // The order of responses corresponds to the order of the registration tokens.
+                        failedTokens.add(registrationTokens.get(i));
+                    }
+                }
+                log.debug("List of tokens that caused failures: " + failedTokens);
+            }
+            log.debug(String.format("Completed successful messaging count: %d",  response.getSuccessCount()));
+
+        } catch (FirebaseMessagingException e) {
+            log.debug(e.getMessage(), e);
+            throw new IOException(e.getMessage());
+        } catch (Exception e) {
+            log.debug(e.getMessage(), e);
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    public void sendMessageOfChat(NotificationRequest notificationRequest) throws IOException {
+
+        Notification notification;
+
+        try {
+            List<UserChat> userChats = userChatRepositoryCustom.findAllByChatId(notificationRequest.getChatRoomId())
+                    .stream()
+                    // HINT: SENDER에 해당하는 ROW 제거
+                    .filter(userChat -> !userChat.getUser().getId().equals(notificationRequest.getSenderId()))
+                    .collect(Collectors.toList());
+
+            if (userChats.isEmpty()) {
+                throw new NoResultException("UserChat not founded.");
+            } else if (userChats.size() > 1) {
+                log.debug("UserChats exist total: " + userChats.size());
+            }
+
+            var userChat = userChats.get(0);
+
+            var receiver = userChat.getUser();
+            var sender = userRepository.findById(notificationRequest.getSenderId())
+                    .orElseThrow(() -> {
+                        throw new NoResultException("User who send notification not founded.");
+                    });
+
+            notification = new Notification(receiver, sender.getNickName(), sender.getImageUrl(), userChat.getItem().getName(), CHAT);
+
+            notificationRepository.save(notification);
+
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
+            var notificationResponse = new NotificationResponse(notification);
+            var notificationMessage = notificationResponse.getMessage();
+
+            // HINT: 알림 Message 구성
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(builder()
+                            .setTitle(notificationMessage.getMessageTitle())
+                            .setBody(notificationMessage.getMessageBody())
+                            .setImage(notificationMessage.getImageUri())
+                            .build())
+                    .addAllTokens(registrationTokens)
+                    .build();
+
+            // HINT: 파이어베이스에 Cloud Messaging 요청
+            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+            if (response.getFailureCount() > 0) {
+                List<SendResponse> responses = response.getResponses();
+                List<String> failedTokens = new ArrayList<>();
+                for (var i = 0; i < responses.size(); i++) {
                     if (!responses.get(i).isSuccessful()) {
                         // The order of responses corresponds to the order of the registration tokens.
                         failedTokens.add(registrationTokens.get(i));

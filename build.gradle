@@ -27,6 +27,10 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
 
+	// New Relic
+	implementation 'com.newrelic.telemetry:micrometer-registry-new-relic:0.7.0'
+	implementation 'io.micrometer:micrometer-core:1.6.4'
+
 	// Spring Boot AOP
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
