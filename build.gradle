@@ -80,8 +80,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-apply plugin: 'com.google.gms.google-services'
-
 test {
 	useJUnitPlatform()
 }
