@@ -45,26 +45,20 @@ public class ChatController {
         Long itemOwnerId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.createWithPricePropose(chatDto.getChatId(), itemOwnerId, priceProposeId));
     }
-
-    @NoCheckJwt
+    
     @ApiOperation("채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
     public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) throws IllegalAccessException {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 8L;
-
         return OK(userChatService.getChatInfo(chatId, userId));
     }
 
-    @NoCheckJwt
     @ApiOperation("유저가 속해있는 채팅방 정보 획득 API")
     @GetMapping("/v1/chat")
     public ApiResult<List<ChatAndItemDto>> getChatInfoOfUser(HttpServletRequest request) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 8L;
-
         return OK(userChatService.getChatInfoOfUser(userId));
     }
 }
