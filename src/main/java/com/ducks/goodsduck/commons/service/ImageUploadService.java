@@ -71,9 +71,9 @@ public class ImageUploadService {
             return null;
         }
 
-        String orginName = multipartFile.getOriginalFilename();
-        String uploadName = createUploadName(orginName);
-        String ext = extractExt(orginName);
+        String originName = multipartFile.getOriginalFilename();
+        String uploadName = createUploadName(originName);
+        String ext = extractExt(originName);
         Long bytes = multipartFile.getSize();
 
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
@@ -104,7 +104,7 @@ public class ImageUploadService {
             uploadImageToS3(s3Client, uploadName, ext, image);
         }
 
-        return new ImageDto(orginName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+        return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
     }
 
     private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image) throws IOException {
