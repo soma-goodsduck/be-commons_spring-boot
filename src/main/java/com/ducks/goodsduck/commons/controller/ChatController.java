@@ -27,7 +27,6 @@ public class ChatController {
     private final UserChatService userChatService;
     
     // 유저가 참여하고 있는 채팅방 아이디
-
     @ApiOperation("채팅방 생성 API by 즉시 판매/구매 API")
     @PostMapping("/v1/chat/items/{itemId}")
     public ApiResult<Boolean> createChatWithImmediateTrade(@PathVariable("itemId") Long itemId,

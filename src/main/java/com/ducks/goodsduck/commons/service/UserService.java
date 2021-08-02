@@ -150,10 +150,10 @@ public class UserService {
             payloads = jwtService.getPayloads(jwt);
         } catch (JwtException e) {
             // 비밀키 상이(SignatureException), 토큰 정보 위조(MalformedJwtException) , 만료된 경우(ExpiredJwtException)
-            log.debug("There is a problem of getting payloads from jwt.", e.getMessage());
+            log.info("There is a problem of getting payloads from jwt.", e.getMessage());
             return -1L;
         } catch (Exception e) {
-            log.debug("Unexpected error getting payloads from jwt", e.getMessage());
+            log.info("Unexpected error getting payloads from jwt (no member)", e.getMessage());
             return -1L;
         }
 
@@ -197,5 +197,54 @@ public class UserService {
                 .stream()
                 .map(user -> new UserDto(user))
                 .collect(Collectors.toList());
+    }
+
+    public Long updateNickname(Long userId, String newNickname) {
+        User user = userRepository.findById(userId).get();
+
+        try {
+            user.setNickName(newNickname);
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
+
+        User user = userRepository.findById(userId).get();
+
+        try {
+            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+            userIdolGroupRepository.deleteInBatch(userIdolGroups);
+            userIdolGroups.clear();
+
+            for (Long likeIdolGroupId : likeIdolGroupsId) {
+                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+                user.addUserIdolGroup(userIdolGroup);
+            }
+            userIdolGroupRepository.saveAll(userIdolGroups);
+
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long deleteLikeIdolGroup(Long userId, Long deleteIdolGroupId) {
+
+        User user = userRepository.findById(userId).get();
+
+        try {
+            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+            // TODO : userIdolGroups.remove, userIdolGroup.delete
+
+//            userIdolGroup 삭제시에 userId.eq, deleteIdolGroupId.eq 만 삭제해야함
+
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
     }
 }

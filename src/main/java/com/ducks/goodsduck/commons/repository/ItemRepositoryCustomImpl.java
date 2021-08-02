@@ -540,6 +540,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .fetchOne();
     }
 
+    // TODO : 경원 로직 체크
     @Override
     public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
 

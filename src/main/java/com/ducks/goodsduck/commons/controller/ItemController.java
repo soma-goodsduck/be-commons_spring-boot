@@ -93,6 +93,8 @@ public class ItemController {
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
+    // HINT : 수정, 삭제는 itemDetail 불러올 때 이미 권한 여부 체크
+    @NoCheckJwt
     @ApiOperation(value = "아이템 삭제")
     @DeleteMapping("/v1/items/{itemId}")
     public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {

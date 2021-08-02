@@ -1,10 +1,8 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
-import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
-import com.ducks.goodsduck.commons.model.dto.DeviceResponse;
+import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
@@ -12,8 +10,10 @@ import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Device;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
+import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.PriceProposeService;
@@ -50,6 +50,7 @@ public class UserController {
     private final DeviceService deviceService;
 
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API")
@@ -157,6 +158,45 @@ public class UserController {
         return OK(
                 new DeviceResponse(savedDevice.getUuid())
         );
+    }
+
+    @ApiOperation("유저 닉네임 수정 API")
+    @PutMapping("/v1/users/nickname")
+    public ApiResult<Long> updateNickName(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateNickname(userId, nicknameRequest.getNewNickname()));
+    }
+
+    @ApiOperation(value = "유저 좋아하는 아이돌 수정 API", notes = "좋아하는 아이돌 그룹이 추가될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
+    @PutMapping("/v1/users/idol-groups")
+    public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
+                                                HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
+    }
+
+    @ApiOperation(value = "유저 좋아하는 아이돌 삭제 API", notes = "List형태가 아닌 IdolGroupId만 요청 (삭제는 단일)")
+    @DeleteMapping("/v1/users/idol-groups")
+    public ApiResult<Long> deleteLikeIdolGroups(@RequestBody UserIdolGroupDeleteRequest userIdolGroupDeleteRequest,
+                                                HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.deleteLikeIdolGroup(userId, userIdolGroupDeleteRequest.getDeleteIdolGroupId()));
+    }
+    
+    @NoCheckJwt // TODO : 유저의 아이템 출력, 삭제 -> 이미 URL 위에잇네.. 체크 기능은 다른듯!!
+    @GetMapping("/v1/users/my-items")
+    @Transactional
+    public ApiResult<List<ItemSummaryDto>> getItemsOfUser(HttpServletRequest request) {
+
+        // 특정 사용자의 아이템이 출력되게 수정
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 3L;
+
+        return OK(itemRepository.findAll().stream()
+                .map(item -> new ItemSummaryDto(item, new ImageDto(item.getImages().get(0))))
+                .collect(Collectors.toList()));
     }
 
     @NoCheckJwt

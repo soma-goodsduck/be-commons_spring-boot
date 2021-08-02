@@ -15,6 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         FilterRegistrationBean<AccessControlAllowFilter> registrationBean = new FilterRegistrationBean<>(new AccessControlAllowFilter());
         registrationBean.setOrder(Integer.MIN_VALUE);
         registrationBean.setUrlPatterns(Arrays.asList("/api/v1/*"));
+        registrationBean.setUrlPatterns(Arrays.asList("/api/v3/*"));
         return registrationBean;
     }
 }

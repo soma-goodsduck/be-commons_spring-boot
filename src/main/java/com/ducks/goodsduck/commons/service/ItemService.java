@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -153,19 +154,10 @@ public class ItemService {
             List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
 
             User user = deleteItem.getUser();
-            List<Item> userItems = user.getItems();
+            List<Item> itemsOfUser = user.getItems();
 
-            for (Image deleteImage : deleteImages) {
-                imageRepository.delete(deleteImage);
-            }
-
-            for (Item userItem : userItems) {
-                if(userItem.getId().equals(deleteItem.getId())) {
-                    userItems.remove(userItem);
-                    break;
-                }
-            }
-
+            itemsOfUser.remove(deleteItem);
+            imageRepository.deleteInBatch(deleteImages);
             itemRepository.delete(deleteItem);
             
             return 1L;
