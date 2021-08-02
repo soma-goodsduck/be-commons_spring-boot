@@ -11,4 +11,5 @@ public interface UserChatRepositoryCustom {
 
     List<UserChat> findAllByChatId(String chatId);
     List<Tuple> findChatAndItemByUserId(Long userId);
+    Tuple findReceieverAndItemByChatId(String chatId, Long senderId);
 }

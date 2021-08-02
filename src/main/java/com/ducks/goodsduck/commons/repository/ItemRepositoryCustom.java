@@ -46,4 +46,6 @@ public interface ItemRepositoryCustom {
     List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
     List<Tuple> findAllByFilterWithUserItemV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
     List<Tuple> findAllByFilterWithUserItemV3(Long userId, ItemFilterDto itemFilterDto, Long itemId);
+
+    Tuple findItemAndUserByItemId(Long itemId);
 }

@@ -41,6 +41,11 @@ public class NotificationService {
             notificationRepository.save(notification);
 
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiverUserId);
+
+            if (registrationTokens.isEmpty()) {
+                log.debug("Device for notification not founded.");
+                return;
+            }
             var notificationResponse = new NotificationResponse(notification);
             var notificationMessage = notificationResponse.getMessage();
 
