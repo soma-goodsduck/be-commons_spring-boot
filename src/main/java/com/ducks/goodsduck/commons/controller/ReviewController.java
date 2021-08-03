@@ -38,7 +38,7 @@ public class ReviewController {
     @PostMapping("/v1/users/reviews")
     @ApiOperation("채팅방 ID를 통해 특정 유저에 대한 리뷰 남기기")
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
-                                         @RequestBody ReviewRequest reviewRequest) {
+                                         @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         reviewService.saveReview(userId, reviewRequest);
         return OK(true);

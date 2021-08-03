@@ -9,6 +9,7 @@ import com.ducks.goodsduck.commons.repository.*;
 import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.util.List;
@@ -16,58 +17,75 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @Slf4j
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
-    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final ItemRepositoryCustom itemRepositoryCustom;
 
-    public ReviewService(ReviewRepository reviewRepository, UserRepository userRepository, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
+    public ReviewService(ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository) {
         this.reviewRepository = reviewRepository;
-        this.userRepository = userRepository;
+        this.reviewRepositoryCustom = reviewRepositoryCustom;
         this.userChatRepositoryCustom = userChatRepositoryCustom;
         this.itemRepository = itemRepository;
-        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
+    public Optional<Review> saveReview(Long senderId, ReviewRequest reviewRequest) throws IllegalAccessException {
 
-    public Optional<Review> saveReview(Long senderId, ReviewRequest reviewRequest) {
+        String chatRoomId = reviewRequest.getChatRoomId();
 
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
+        // HINT: 리뷰 중복 방지
+        if (reviewRepositoryCustom.existsByItemIdAndUserId(reviewRequest.getItemId(), senderId)) {
+            throw new IllegalAccessException("Review of this trade already exists.");
+        }
 
-        Tuple receieverAndItem = userChatRepositoryCustom.findReceieverAndItemByChatId(reviewRequest.getChatRoomId(), senderId);
+        Tuple senderAndItem = userChatRepositoryCustom.findSenderAndItemByChatIdAndUserId(chatRoomId, senderId);
 
-        Item tradedItem = receieverAndItem.get(0, Item.class);
-        User receiver = receieverAndItem.get(1, User.class);
+        // HINT: 채팅에 참여한 사용자에 한해서 리뷰 작성 가능
+        if (senderAndItem == null) {
+            throw new IllegalAccessException("Reviewer must be in chat room.");
+        }
 
-        return Optional.ofNullable(reviewRepository.save(new Review(receiver, tradedItem, reviewRequest.getContent())));
+        User sender = senderAndItem.get(0, User.class);
+        Item tradedItem = senderAndItem.get(1, Item.class);
+
+        if (senderId.equals(tradedItem.getUser().getId())) {
+            throw new IllegalAccessException("It's not be able to write review by self.");
+        }
+
+        return Optional.ofNullable(reviewRepository.save(new Review(sender, tradedItem, reviewRequest.getContent())));
     }
 
     public List<ReviewResponse> getReviewsOfItemOwner(Long itemId) {
 
-        itemRepository.findById(itemId);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("Owner of item not founded.");
+                });
 
-        Tuple itemAndUser = itemRepositoryCustom.findItemAndUserByItemId(itemId);
+        List<Item> itemsByUserId = itemRepository.findByUserId(item.getUser().getId());
 
-        Item item = itemAndUser.get(0, Item.class);
-        User user = itemAndUser.get(1, User.class);
-
-        return reviewRepository.findByUserId(user.getId())
+        return reviewRepositoryCustom.findInItems(itemsByUserId)
                 .stream()
-                .map(review -> new ReviewResponse(review))
+                .map(tuple -> {
+                    Review review = tuple.get(0, Review.class);
+                    return new ReviewResponse(review);
+                })
                 .collect(Collectors.toList());
     }
 
     public List<ReviewResponse> getReviewsOfLoginUser(Long userId) {
-        return reviewRepository.findByUserId(userId)
+        List<Item> itemsByUserId = itemRepository.findByUserId(userId);
+
+        return reviewRepositoryCustom.findInItems(itemsByUserId)
                 .stream()
-                .map(review -> new ReviewResponse(review))
+                .map(tuple -> {
+                    Review review = tuple.get(0, Review.class);
+                    return new ReviewResponse(review);
+                })
                 .collect(Collectors.toList());
     }
 }
