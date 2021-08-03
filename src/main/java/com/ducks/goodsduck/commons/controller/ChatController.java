@@ -32,9 +32,8 @@ public class ChatController {
     private final UserChatService userChatService;
     private final UserService userService;
     private final NotificationService notificationService;
-    
-    // 유저가 참여하고 있는 채팅방 아이디
-    @ApiOperation("채팅방 생성 API by 즉시 판매/구매 API")
+
+    @ApiOperation("채팅방 생성 API by 즉시 판매/구매")
     @PostMapping("/v1/chat/items/{itemId}")
     public ApiResult<Boolean> createChatWithImmediateTrade(@PathVariable("itemId") Long itemId,
                                                            @RequestBody ChatRequestDto chatDto, HttpServletRequest request) {
@@ -43,7 +42,7 @@ public class ChatController {
         return OK(userChatService.createWithImmediateTrade(chatDto.getChatId(), userId, itemId));
     }
 
-    @ApiOperation("채팅방 생성 API by 가격 제안 수락 API")
+    @ApiOperation("채팅방 생성 API by 가격 제안 수락")
     @PostMapping("/v1/chat/price-propose/{priceProposeId}")
     public ApiResult<Boolean> createChatWithPricePropose(@PathVariable("priceProposeId") Long priceProposeId,
                                                          @RequestBody ChatRequestDto chatDto, HttpServletRequest request) {
@@ -52,13 +51,31 @@ public class ChatController {
         return OK(userChatService.createWithPricePropose(chatDto.getChatId(), itemOwnerId, priceProposeId));
     }
 
+    // TODO : 채팅방 삭제 구현
+    @ApiOperation("채팅방 나갔을 때, 채팅방 삭제 API")
+    @DeleteMapping
+    public ApiResult<Long> deleteChat(@RequestBody ChatRequestDto chatDto, HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+//        userChatService.
+        return OK(1L);
+    }
+
     @ApiOperation("채팅방 이미지 업로드 API")
     @PostMapping("/v1/users/chat-image")
     public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
         return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT));
     }
 
-    @ApiOperation("(개발용) 채팅방 ID를 통한 User 정보 획득 API")
+
+    @ApiOperation("채팅 전송 시 알림 요청 API")
+    @PostMapping("/v1/chat/notification")
+    public ApiResult<Boolean> sendNotification(@RequestBody NotificationRequest notificationRequest) throws IOException {
+        notificationService.sendMessageOfChat(notificationRequest);
+        return OK(true);
+    }
+
+    @ApiOperation("(삭제예정) 채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
     public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) throws IllegalAccessException {
 
@@ -66,18 +83,11 @@ public class ChatController {
         return OK(userChatService.getChatInfo(chatId, userId));
     }
 
-    @ApiOperation("(개발용) 유저가 속해있는 채팅방 정보 획득 API")
+    @ApiOperation("(삭제예정) 유저가 속해있는 채팅방 정보 획득 API")
     @GetMapping("/v1/chat")
     public ApiResult<List<ChatAndItemDto>> getChatInfoOfUser(HttpServletRequest request) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.getChatInfoOfUser(userId));
-    }
-
-    @ApiOperation("채팅 전송 시 알림 요청 API")
-    @PostMapping("/v1/chat/notification")
-    public ApiResult<Boolean> sendNotification(@RequestBody NotificationRequest notificationRequest) throws IOException {
-        notificationService.sendMessageOfChat(notificationRequest);
-        return OK(true);
     }
 }
