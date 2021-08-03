@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
@@ -51,14 +52,10 @@ public class ChatController {
         return OK(userChatService.createWithPricePropose(chatDto.getChatId(), itemOwnerId, priceProposeId));
     }
 
-    // TODO : 채팅방 삭제 구현
     @ApiOperation("채팅방 나갔을 때, 채팅방 삭제 API")
-    @DeleteMapping
-    public ApiResult<Long> deleteChat(@RequestBody ChatRequestDto chatDto, HttpServletRequest request) {
-
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-//        userChatService.
-        return OK(1L);
+    @DeleteMapping("/v1/chat")
+    public ApiResult<Boolean> deleteChat(@RequestBody ChatRequestDto chatDto) throws Exception {
+        return OK(userChatService.deleteChat(chatDto.getChatId()));
     }
 
     @ApiOperation("채팅방 이미지 업로드 API")

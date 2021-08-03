@@ -4,6 +4,8 @@ import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
@@ -20,6 +22,8 @@ import com.ducks.goodsduck.commons.service.PriceProposeService;
 import com.ducks.goodsduck.commons.service.DeviceService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -73,11 +77,40 @@ public class UserController {
         return OK(userService.signUp(userSignUpRequest));
     }
 
+    @ApiOperation("프로필 통합 수정 API")
+    @PutMapping("/v1/users/profile")
+    public ApiResult<Boolean> updateProfile(@RequestParam(required = false) MultipartFile multipartFile,
+                                            @RequestParam String stringProfileDto,
+                                            HttpServletRequest request) throws Exception {
+
+        UpdateProfileRequest updateProfileRequest = new ObjectMapper().readValue(stringProfileDto, UpdateProfileRequest.class);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateProfile(userId, multipartFile, updateProfileRequest));
+    }
+
     @ApiOperation("프로필 사진 업로드 API")
     @PutMapping("/v1/users/profile-image")
-    public ApiResult<Long> uploadProfileImage(@RequestParam MultipartFile multipartFile, HttpServletRequest request) throws IOException {
+    public ApiResult<Long> uploadProfileImage(@RequestParam(required = false) MultipartFile multipartFile,
+                                              HttpServletRequest request) throws IOException {
+
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.uploadProfileImage(userId, multipartFile));
+    }
+
+    @ApiOperation("유저 닉네임 수정 API")
+    @PutMapping("/v1/users/nickname")
+    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
+    }
+
+    @ApiOperation(value = "유저 좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
+    @PutMapping("/v1/users/idol-groups")
+    public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
+                                                HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
@@ -159,22 +192,6 @@ public class UserController {
     @PostMapping("/v1/users/nickname-check")
     public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameRequest nicknameRequest) {
         return OK(userService.checkNickname(nicknameRequest.getNickName()));
-    }
-
-    @ApiOperation("유저 닉네임 수정 API")
-    @PutMapping("/v1/users/nickname")
-    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
-    }
-
-    @ApiOperation(value = "유저 좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
-    @PutMapping("/v1/users/idol-groups")
-    public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
-                                                HttpServletRequest request) {
-
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
     @NoCheckJwt

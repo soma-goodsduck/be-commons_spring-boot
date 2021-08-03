@@ -66,7 +66,17 @@ public class UserChatService {
         return true;
     }
 
-//    public
+    public Boolean deleteChat(String chatId) throws Exception {
+
+        try {
+            chatRepository.deleteById(chatId);
+            List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
+            userChatRepository.deleteInBatch(userChatList);
+            return true;
+        } catch (Exception e) {
+            throw new Exception("Fail to delete Chat");
+        }
+    }
 
     public UserChatDto getChatInfo(String chatId, Long userId) throws IllegalAccessException {
 

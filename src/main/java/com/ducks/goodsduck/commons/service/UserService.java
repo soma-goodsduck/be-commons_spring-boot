@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
+import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
@@ -161,6 +162,39 @@ public class UserService {
         else return -1L;
     }
 
+    public Boolean updateProfile(Long userId, MultipartFile multipartFile, UpdateProfileRequest updateProfileRequest) throws Exception {
+
+        try {
+            User user = userRepository.findById(userId).get();
+
+            // 프로필 사진 수정
+            if(multipartFile != null) {
+                ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+                user.setImageUrl(imageDto.getUrl());
+            }
+
+            // 닉네임 수정
+            user.setNickName(updateProfileRequest.getNickName());
+
+            // 좋아하는 아이돌 수정
+            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+            userIdolGroupRepository.deleteInBatch(userIdolGroups);
+            userIdolGroups.clear();
+
+            List<Long> likeIdolGroupsId = updateProfileRequest.getLikeIdolGroupsId();
+            for (Long likeIdolGroupId : likeIdolGroupsId) {
+                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+                user.addUserIdolGroup(userIdolGroup);
+            }
+            userIdolGroupRepository.saveAll(userIdolGroups);
+
+            return true;
+        } catch (Exception e) {
+            throw new Exception("Fail to edit profile");
+        }
+    }
+
     public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
 
         try {
@@ -168,6 +202,39 @@ public class UserService {
 
             User user = userRepository.findById(userId).get();
             user.setImageUrl(imageDto.getUrl());
+
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long updateNickname(Long userId, String newNickname) {
+        User user = userRepository.findById(userId).get();
+
+        try {
+            user.setNickName(newNickname);
+            return userId;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
+
+        User user = userRepository.findById(userId).get();
+
+        try {
+            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+            userIdolGroupRepository.deleteInBatch(userIdolGroups);
+            userIdolGroups.clear();
+
+            for (Long likeIdolGroupId : likeIdolGroupsId) {
+                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+                user.addUserIdolGroup(userIdolGroup);
+            }
+            userIdolGroupRepository.saveAll(userIdolGroups);
 
             return userId;
         } catch (Exception e) {
@@ -206,38 +273,4 @@ public class UserService {
             return true;
         }
     }
-
-    public Long updateNickname(Long userId, String newNickname) {
-        User user = userRepository.findById(userId).get();
-
-        try {
-            user.setNickName(newNickname);
-            return userId;
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
-
-    public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
-
-        User user = userRepository.findById(userId).get();
-
-        try {
-            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
-            userIdolGroupRepository.deleteInBatch(userIdolGroups);
-            userIdolGroups.clear();
-
-            for (Long likeIdolGroupId : likeIdolGroupsId) {
-                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
-                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
-                user.addUserIdolGroup(userIdolGroup);
-            }
-            userIdolGroupRepository.saveAll(userIdolGroups);
-
-            return userId;
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
-
 }
