@@ -42,6 +42,16 @@ public class UserChatRepositoryCustomImpl implements UserChatRepositoryCustom {
     }
 
     @Override
+    public Tuple findSenderAndItemByChatIdAndUserId(String chatId, Long senderId) {
+        return queryFactory
+                .select(userChat.user, userChat.item)
+                .from(userChat)
+                .where(userChat.chat.id.eq(chatId)
+                        .and(userChat.user.id.eq(senderId)))
+                .fetchOne();
+    }
+    
+    @Override
     public Chat findByUserIdAndItemId(Long userId, Long itemId) {
         return queryFactory
                 .select(chat)

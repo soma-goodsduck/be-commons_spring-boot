@@ -599,4 +599,13 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                         subImage.item.eq(image.item)
                 ));
     }
+
+    @Override
+    public Tuple findItemAndUserByItemId(Long itemId) {
+        return queryFactory
+                .select(item, item.user)
+                .from(item)
+                .where(item.id.eq(itemId))
+                .fetchOne();
+    }
 }

@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface UserChatRepositoryCustom {
-
     List<UserChat> findAllByChatId(String chatId);
     List<Tuple> findChatAndItemByUserId(Long userId);
+    Tuple findSenderAndItemByChatIdAndUserId(String chatId, Long senderId);
     Chat findByUserIdAndItemId(Long userId, Long itemId);
 }
