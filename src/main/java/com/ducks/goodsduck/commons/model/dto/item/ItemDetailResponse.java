@@ -34,6 +34,7 @@ public class ItemDetailResponse {
     private Boolean isOwner;
     private List<PriceProposeSimpleDto> proposedList = new ArrayList<>();
     private PriceProposeSimpleDto myPricePropose;
+    private String chatId;
 
     public ItemDetailResponse(Item item) {
         this.loginUser = new UserSimpleDto();

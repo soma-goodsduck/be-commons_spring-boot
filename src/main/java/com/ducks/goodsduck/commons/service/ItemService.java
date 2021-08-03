@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
@@ -36,6 +37,7 @@ public class ItemService {
     private final ItemRepositoryCustom itemRepositoryCustom;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
+    private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
@@ -46,7 +48,7 @@ public class ItemService {
 
         try {
             /** 이미지 업로드 처리 **/
-            List<ImageDto> imageDtos = imageUploadService.uploadImages(multipartFiles);
+            List<ImageDto> imageDtos = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
 
             Item item = new Item(itemUploadRequest);
 
@@ -70,8 +72,6 @@ public class ItemService {
                 item.addImage(image);
                 imageRepository.save(image);
             }
-
-            List<Image> images = item.getImages();
 
             return item.getId();
         } catch (Exception e) {
@@ -123,6 +123,12 @@ public class ItemService {
         PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
         if(pricePropose != null) {
             itemDetailResponse.addMyPricePropose(pricePropose);
+        }
+
+        // HINT: 채팅방 정보
+        Chat chat = userChatRepositoryCustom.findByUserIdAndItemId(userId, itemId);
+        if(chat != null) {
+            itemDetailResponse.setChatId(chat.getId());
         }
 
         return itemDetailResponse;

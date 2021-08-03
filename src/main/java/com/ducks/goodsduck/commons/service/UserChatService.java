@@ -66,6 +66,8 @@ public class UserChatService {
         return true;
     }
 
+//    public
+
     public UserChatDto getChatInfo(String chatId, Long userId) throws IllegalAccessException {
 
         User checkUser = userRepository.findById(userId).get();
@@ -105,5 +107,9 @@ public class UserChatService {
                 .collect(Collectors.toList());
 
         return chatAndItemList;
+    }
+
+    public String getChatIdByUserIdAndItemOwnerId(Long userId) {
+        return "1";
     }
 }

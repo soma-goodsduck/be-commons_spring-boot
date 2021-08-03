@@ -79,9 +79,7 @@ public class PriceProposeController {
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  @RequestBody PriceProposeRequest priceProposeRequest,
                                  HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 8L;
-
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updatePropose(userId, priceProposeId, priceProposeRequest.getPrice()));
     }
 
