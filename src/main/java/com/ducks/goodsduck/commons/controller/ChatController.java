@@ -1,11 +1,12 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
+import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRequestDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
+import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.UserChatService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -30,6 +31,7 @@ public class ChatController {
 
     private final UserChatService userChatService;
     private final UserService userService;
+    private final NotificationService notificationService;
     
     // 유저가 참여하고 있는 채팅방 아이디
     @ApiOperation("채팅방 생성 API by 즉시 판매/구매 API")
@@ -70,5 +72,12 @@ public class ChatController {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.getChatInfoOfUser(userId));
+    }
+
+    @ApiOperation("채팅 전송 시 알림 요청 API")
+    @PostMapping("/v1/chat/notification")
+    public ApiResult<Boolean> sendNotification(@RequestBody NotificationRequest notificationRequest) throws IOException {
+        notificationService.sendMessageOfChat(notificationRequest);
+        return OK(true);
     }
 }
