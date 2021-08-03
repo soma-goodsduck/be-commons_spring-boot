@@ -5,15 +5,19 @@ import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRequestDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
+import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.service.UserChatService;
+import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
@@ -25,6 +29,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 public class ChatController {
 
     private final UserChatService userChatService;
+    private final UserService userService;
     
     // 유저가 참여하고 있는 채팅방 아이디
     @ApiOperation("채팅방 생성 API by 즉시 판매/구매 API")
@@ -44,8 +49,14 @@ public class ChatController {
         Long itemOwnerId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.createWithPricePropose(chatDto.getChatId(), itemOwnerId, priceProposeId));
     }
-    
-    @ApiOperation("채팅방 ID를 통한 User 정보 획득 API")
+
+    @ApiOperation("채팅방 이미지 업로드 API")
+    @PostMapping("/v1/users/chat-image")
+    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
+        return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT));
+    }
+
+    @ApiOperation("(개발용) 채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
     public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) throws IllegalAccessException {
 
@@ -53,7 +64,7 @@ public class ChatController {
         return OK(userChatService.getChatInfo(chatId, userId));
     }
 
-    @ApiOperation("유저가 속해있는 채팅방 정보 획득 API")
+    @ApiOperation("(개발용) 유저가 속해있는 채팅방 정보 획득 API")
     @GetMapping("/v1/chat")
     public ApiResult<List<ChatAndItemDto>> getChatInfoOfUser(HttpServletRequest request) {
 

@@ -106,4 +106,8 @@ public class UserChatService {
 
         return chatAndItemList;
     }
+
+    public String getChatIdByUserIdAndItemOwnerId(Long userId) {
+        return "1";
+    }
 }

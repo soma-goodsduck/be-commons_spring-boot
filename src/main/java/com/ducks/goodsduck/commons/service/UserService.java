@@ -6,16 +6,15 @@ import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
-import com.ducks.goodsduck.commons.repository.IdolGroupRepository;
-import com.ducks.goodsduck.commons.repository.SocialAccountRepository;
-import com.ducks.goodsduck.commons.repository.UserIdolGroupRepository;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +37,7 @@ public class UserService {
     private final OauthNaverService oauthNaverService;
 
     private final UserRepository userRepository;
+    private final UserRepositoryCustom userRepositoryCustom;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
@@ -55,8 +55,6 @@ public class UserService {
         JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
-
-        log.info(userSocialAccountId);
 
         return socialAccountRepository.findById(userSocialAccountId)
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
@@ -166,7 +164,7 @@ public class UserService {
     public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
 
         try {
-            ImageDto imageDto = imageUploadService.uploadImage(multipartFile);
+            ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
 
             User user = userRepository.findById(userId).get();
             user.setImageUrl(imageDto.getUrl());
@@ -177,8 +175,8 @@ public class UserService {
         }
     }
 
-    public String uploadChatImage(MultipartFile multipartFile) throws IOException {
-        return imageUploadService.uploadImage(multipartFile).getUrl();
+    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
+        return imageUploadService.uploadImage(multipartFile, ImageType.CHAT).getUrl();
     }
 
     public void updateLastLoginAt(Long userId) {
@@ -191,12 +189,22 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    // 유저 전체 리스트 조회
     public List<UserDto> findAll(){
         return userRepository.findAll()
                 .stream()
                 .map(user -> new UserDto(user))
                 .collect(Collectors.toList());
+    }
+
+    public Boolean checkNickname(String nickname) {
+
+        Long count = userRepositoryCustom.findByNickname(nickname);
+
+        if(count >= 1L) {
+            throw new DuplicateKeyException("This nickname already existed");
+        } else {
+            return true;
+        }
     }
 
     public Long updateNickname(Long userId, String newNickname) {
@@ -232,19 +240,4 @@ public class UserService {
         }
     }
 
-    public Long deleteLikeIdolGroup(Long userId, Long deleteIdolGroupId) {
-
-        User user = userRepository.findById(userId).get();
-
-        try {
-            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
-            // TODO : userIdolGroups.remove, userIdolGroup.delete
-
-//            userIdolGroup 삭제시에 userId.eq, deleteIdolGroupId.eq 만 삭제해야함
-
-            return userId;
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
 }

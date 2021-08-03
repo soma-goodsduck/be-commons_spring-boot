@@ -40,4 +40,15 @@ public class UserChatRepositoryCustomImpl implements UserChatRepositoryCustom {
                 .where(userChat.user.id.eq(userId))
                 .fetch();
     }
+
+    @Override
+    public Chat findByUserIdAndItemId(Long userId, Long itemId) {
+        return queryFactory
+                .select(chat)
+                .from(userChat)
+                .join(userChat.chat, chat)
+                .where(userChat.user.id.eq(userId)
+                        .and(userChat.item.id.eq(itemId)))
+                .fetchOne();
+    }
 }

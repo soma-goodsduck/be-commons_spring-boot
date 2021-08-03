@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NicknameRequest {
 
-    String newNickname;
+    String nickName;
 }

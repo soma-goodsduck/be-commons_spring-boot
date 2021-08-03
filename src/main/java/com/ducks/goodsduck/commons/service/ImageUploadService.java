@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
@@ -15,6 +16,7 @@ import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +36,9 @@ public class ImageUploadService {
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
     
     private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
-    private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.bucket"));
+    private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.itemBucket"));
+    private final String profileS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.profileBucket"));
+    private final String chatS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.bucket", PropertyUtil.getProperty("cloud.aws.s3.chatBucket"));
     private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", PropertyUtil.getProperty("cloud.aws.credentials.accessKey"));
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
@@ -43,13 +47,13 @@ public class ImageUploadService {
         return localFilePath + fileName;
     }
 
-    public List<ImageDto> uploadImages(List<MultipartFile> multipartFiles) throws IOException {
+    public List<ImageDto> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
 
         List<ImageDto> imageDtos = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
             if(!multipartFile.isEmpty()) {
-                ImageDto imageDto = uploadImage(multipartFile);
+                ImageDto imageDto = uploadImage(multipartFile, imageType);
                 imageDtos.add(imageDto);
             }
         }
@@ -58,7 +62,7 @@ public class ImageUploadService {
     }
 
     /** S3에 이미지 업로드 + 리사이징 **/
-    public ImageDto uploadImage(MultipartFile multipartFile) throws IOException {
+    public ImageDto uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
 
         // S3 셋팅
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -99,15 +103,23 @@ public class ImageUploadService {
 
             BufferedImage resizedImage = rescale.filter(image, null);
 
-            uploadImageToS3(s3Client, uploadName, ext, resizedImage);
+            uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
         } else {
-            uploadImageToS3(s3Client, uploadName, ext, image);
+            uploadImageToS3(s3Client, uploadName, ext, image, imageType);
         }
 
-        return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+        if(imageType.equals(ImageType.ITEM)) {
+            return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+        } else if(imageType.equals(ImageType.PROFILE)) {
+            return new ImageDto(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
+        } else if(imageType.equals(ImageType.CHAT)) {
+            return new ImageDto(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
+        } else {
+            return null;
+        }
     }
 
-    private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image) throws IOException {
+    private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image, ImageType imageType) throws IOException {
 
         ByteArrayOutputStream imageOS = new ByteArrayOutputStream();
         ImageIO.write(image, ext, imageOS);
@@ -127,9 +139,13 @@ public class ImageUploadService {
             metadata.setContentType("gif");
         }
 
-        try {
+        if(imageType.equals(ImageType.ITEM)) {
             s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, imageIS, metadata));
-        } catch (Exception e){
+        } else if(imageType.equals(ImageType.PROFILE)) {
+            s3Client.putObject(new PutObjectRequest(profileS3Bucket, uploadName, imageIS, metadata));
+        } else if(imageType.equals(ImageType.CHAT)) {
+            s3Client.putObject(new PutObjectRequest(chatS3Bucket, uploadName, imageIS, metadata));
+        } else {
             throw new RuntimeException("fail to upload image");
         }
     }

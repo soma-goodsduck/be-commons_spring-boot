@@ -80,12 +80,6 @@ public class UserController {
         return OK(userService.uploadProfileImage(userId, multipartFile));
     }
 
-    @ApiOperation("채팅방 이미지 업로드 API -> 채팅방 ID 기준으로 이미지를 저장해야할듯... 임시용")
-    @PostMapping("/v1/users/chat-image")
-    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
-        return OK(userService.uploadChatImage(multipartFile));
-    }
-
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
     @Transactional
@@ -160,14 +154,21 @@ public class UserController {
         );
     }
 
-    @ApiOperation("유저 닉네임 수정 API")
-    @PutMapping("/v1/users/nickname")
-    public ApiResult<Long> updateNickName(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateNickname(userId, nicknameRequest.getNewNickname()));
+    @NoCheckJwt
+    @ApiOperation("유저 닉네임 중복 확인 API")
+    @PostMapping("/v1/users/nickname-check")
+    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameRequest nicknameRequest) {
+        return OK(userService.checkNickname(nicknameRequest.getNickName()));
     }
 
-    @ApiOperation(value = "유저 좋아하는 아이돌 수정 API", notes = "좋아하는 아이돌 그룹이 추가될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
+    @ApiOperation("유저 닉네임 수정 API")
+    @PutMapping("/v1/users/nickname")
+    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
+    }
+
+    @ApiOperation(value = "유저 좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
     @PutMapping("/v1/users/idol-groups")
     public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
                                                 HttpServletRequest request) {
@@ -176,23 +177,11 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
-    @ApiOperation(value = "유저 좋아하는 아이돌 삭제 API", notes = "List형태가 아닌 IdolGroupId만 요청 (삭제는 단일)")
-    @DeleteMapping("/v1/users/idol-groups")
-    public ApiResult<Long> deleteLikeIdolGroups(@RequestBody UserIdolGroupDeleteRequest userIdolGroupDeleteRequest,
-                                                HttpServletRequest request) {
-
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.deleteLikeIdolGroup(userId, userIdolGroupDeleteRequest.getDeleteIdolGroupId()));
-    }
-    
-    @NoCheckJwt // TODO : 유저의 아이템 출력, 삭제 -> 이미 URL 위에잇네.. 체크 기능은 다른듯!!
-    @GetMapping("/v1/users/my-items")
+    @NoCheckJwt
+    @ApiOperation(value = "다른 사람의 프로필 보기 (개발중 - userId vs nickname)")
+    @GetMapping("/v1/users/{userId}")
     @Transactional
-    public ApiResult<List<ItemSummaryDto>> getItemsOfUser(HttpServletRequest request) {
-
-        // 특정 사용자의 아이템이 출력되게 수정
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 3L;
+    public ApiResult<List<ItemSummaryDto>> getItemsOfUser(@PathVariable("userId") Long userId, HttpServletRequest request) {
 
         return OK(itemRepository.findAll().stream()
                 .map(item -> new ItemSummaryDto(item, new ImageDto(item.getImages().get(0))))
