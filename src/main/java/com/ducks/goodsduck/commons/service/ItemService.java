@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -585,19 +584,6 @@ public class ItemService {
         return tupleToList;
     }
 
-    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
-        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
-        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
-    }
-
-    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
-        return pageable.isPaged() && content.size() > pageable.getPageSize();
-    }
-
-    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
-        return content.subList(0, pageable.getPageSize());
-    }
-
     public List<Tuple> findMyItem(Long userId, TradeStatus status) {
         return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
     }
@@ -626,5 +612,61 @@ public class ItemService {
         }
 
         return itemRepositoryCustom.updateTradeStatus(itemId, status) > 0 ? true : false;
+    }
+
+    // FEAT: 비회원용 검색 기능
+    public List<ItemHomeResponse> getSearchedItemListForGuest(String keyword, Long itemId) {
+
+        List<String> keywords = List.of(keyword.split(" "));
+
+        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keywords, itemId);
+        List<ItemHomeResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemHomeResponse(item))
+                .collect(Collectors.toList());
+
+        return itemToList;
+    }
+
+    // FEAT: 회원용 검색 기능
+    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId) {
+
+        List<String> keywords = List.of(keyword.split(" "));
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keywords, itemId);
+
+        List<ItemHomeResponse> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return tupleToList;
+    }
+
+    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
+        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
+        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
+    }
+
+    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
+        return pageable.isPaged() && content.size() > pageable.getPageSize();
+    }
+
+    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
+        return content.subList(0, pageable.getPageSize());
     }
 }
