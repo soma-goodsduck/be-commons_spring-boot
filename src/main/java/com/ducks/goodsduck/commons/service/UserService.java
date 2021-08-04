@@ -304,6 +304,6 @@ public class UserService {
         Integer itemCount = items.size();
         Long reviewCount = reviewRepositoryCustom.countByUserId(userId);
 
-        return new OtherUserPageDto(itemCount, reviewCount, showItems, reviews);
+        return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
     }
 }
