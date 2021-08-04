@@ -85,6 +85,7 @@ public class ItemController {
         }
     }
 
+    @NoCheckJwt
     @ApiOperation(value = "아이템 수정")
     @PutMapping("/v1/items/{itemId}")
     public ApiResult<Long> editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
@@ -93,6 +94,16 @@ public class ItemController {
     }
 
     // HINT : 수정, 삭제는 itemDetail 불러올 때 이미 권한 여부 체크
+    @NoCheckJwt
+    @ApiOperation(value = "아이템 수정 V2")
+    @PutMapping("/v2/items/{itemId}")
+    public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
+                                      @RequestParam String stringItemDto,
+                                      @RequestParam(required = false) List<MultipartFile> multipartFiles) throws JsonProcessingException {
+        ItemUpdateRequestV2 itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequestV2.class);
+        return OK(itemService.editV2(itemId, itemUpdateRequest, multipartFiles));
+    }
+
     @NoCheckJwt
     @ApiOperation(value = "아이템 삭제")
     @DeleteMapping("/v1/items/{itemId}")

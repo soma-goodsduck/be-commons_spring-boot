@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserDto {
 
     private String socialAccountId;
+    private String bcryptId;
     private String nickName;
     private String phoneNumber;
     private String email;
@@ -43,5 +44,6 @@ public class UserDto {
         this.createdAt = user.getCreatedAt();
         this.lastLoginAt = user.getLastLoginAt();
         this.jwt = "";
+        this.bcryptId = user.getBcryptId();
     }
 }

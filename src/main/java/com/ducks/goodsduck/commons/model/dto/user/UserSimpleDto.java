@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 public class UserSimpleDto {
 
     private Long userId;
+    private String bcryptId;
     private String nickName;
     private String imageUrl;
 
     public UserSimpleDto(User user) {
         this.userId = user.getId();
+        this.bcryptId = user.getBcryptId();
         this.nickName = user.getNickName();
         this.imageUrl = user.getImageUrl();
     }

@@ -13,21 +13,21 @@ import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class UserService {
@@ -47,23 +47,6 @@ public class UserService {
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepository reviewRepository;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
-
-    public UserService(CustomJwtService jwtService, OauthKakaoService oauthKakaoService, OauthNaverService oauthNaverService, ImageUploadService imageUploadService, UserRepository userRepository, UserRepositoryCustomImpl userRepositoryCustom, ItemRepository itemRepository, SocialAccountRepository socialAccountRepository, IdolGroupRepository idolGroupRepository, UserIdolGroupRepository userIdolGroupRepository, UserItemRepository userItemRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustom, ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom) {
-        this.jwtService = jwtService;
-        this.oauthKakaoService = oauthKakaoService;
-        this.oauthNaverService = oauthNaverService;
-        this.imageUploadService = imageUploadService;
-        this.userRepository = userRepository;
-        this.userRepositoryCustom = userRepositoryCustom;
-        this.itemRepository = itemRepository;
-        this.socialAccountRepository = socialAccountRepository;
-        this.idolGroupRepository = idolGroupRepository;
-        this.userIdolGroupRepository = userIdolGroupRepository;
-        this.userItemRepository = userItemRepository;
-        this.priceProposeRepositoryCustom = priceProposeRepositoryCustom;
-        this.reviewRepository = reviewRepository;
-        this.reviewRepositoryCustom = reviewRepositoryCustom;
-    }
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
@@ -188,10 +171,11 @@ public class UserService {
         try {
             User user = userRepository.findById(userId).get();
 
+            // TODO : ImageDto -> Image 쳌
             // 프로필 사진 수정
             if(multipartFile != null) {
-                ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
-                user.setImageUrl(imageDto.getUrl());
+                Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+                user.setImageUrl(image.getUrl());
             }
 
             // 닉네임 수정
@@ -218,11 +202,12 @@ public class UserService {
 
     public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
 
+        // TODO : ImageDto -> Image 쳌
         try {
-            ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
 
             User user = userRepository.findById(userId).get();
-            user.setImageUrl(imageDto.getUrl());
+            user.setImageUrl(image.getUrl());
 
             return userId;
         } catch (Exception e) {
@@ -295,20 +280,30 @@ public class UserService {
         }
     }
 
-    public OtherUserPageDto showOtherUserPage(Long userId) {
+    public OtherUserPageDto showOtherUserPage(String bcryptId) {
 
-        User user = userRepository.findById(userId).get();
-//        reviewRepository.find
+        User user = userRepository.findByBcryptId(bcryptId);
+        Long userId = user.getId();
 
         // 판매상품
         List<Item> items = user.getItems();
+        List<Item> showItems = new ArrayList<>();
+
+        if(items.size() > 3) {
+            showItems.add(items.get(0));
+            showItems.add(items.get(1));
+            showItems.add(items.get(2));
+        } else {
+            showItems = items;
+        }
 
         // 후기
-
+        List<Review> reviews = reviewRepositoryCustom.findAllByUserId(userId);
 
         // 판매상품, 후기, 보증스탬프 개수
-//        Integer itemCount = items.size();
+        Integer itemCount = items.size();
+        Long reviewCount = reviewRepositoryCustom.countByUserId(userId);
 
-        return new OtherUserPageDto(items);
+        return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
     }
 }

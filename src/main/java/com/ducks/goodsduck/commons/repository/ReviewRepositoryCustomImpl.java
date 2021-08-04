@@ -43,6 +43,24 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
+    public List<Review> findAllByUserId(Long userId) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.user.id.eq(userId))
+                .fetch();
+    }
+
+    @Override
+    public Long countByUserId(Long userId) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.user.id.eq(userId))
+                .fetchCount();
+    }
+
+    @Override
     public Long countInItems(List<Item> items) {
         return queryFactory
                 .select(review)
