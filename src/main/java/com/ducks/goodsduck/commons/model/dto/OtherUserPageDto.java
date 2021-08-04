@@ -12,16 +12,20 @@ import java.util.stream.Collectors;
 public class OtherUserPageDto {
 
     private Integer itemCount;
-    private Integer reviewCount;
+    private Long reviewCount;
     private Integer stampCount;
     private List<ItemSimpleDto> items;
-    private List<Review> reviews;
+    private List<ReviewResponse> reviews;
 
-    public OtherUserPageDto(List<Item> items) {
-        this.itemCount = items.size();
+    public OtherUserPageDto(Integer itemCount, Long reviewCount, List<Item> items, List<Review> reviews) {
+        this.itemCount = itemCount;
+        this.reviewCount = reviewCount;
         this.stampCount = 10;
         this.items = items.stream()
                 .map(item -> new ItemSimpleDto(item))
+                .collect(Collectors.toList());
+        this.reviews = reviews.stream()
+                .map(review -> new ReviewResponse(review))
                 .collect(Collectors.toList());
     }
 }

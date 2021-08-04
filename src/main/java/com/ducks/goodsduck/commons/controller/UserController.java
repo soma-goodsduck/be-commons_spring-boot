@@ -18,6 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -162,15 +163,13 @@ public class UserController {
         );
     }
 
-    // TODO : 개발
+    // TODO : 개발중 (경원)
     @NoCheckJwt
-    @ApiOperation(value = "다른 사람의 프로필 보기")
-    @GetMapping("/v1/users/{userId}")
+    @ApiOperation(value = "다른 사람의 프로필 보기 (ver.bcryptId)")
+    @GetMapping("/v1/users/{bcryptUserId}")
     @Transactional
-    public ApiResult<OtherUserPageDto> getItemsOfUser(@PathVariable("userId") Long userId) {
-        userId = 3L;
-
-        return OK(userService.showOtherUserPage(userId));
+    public ApiResult<OtherUserPageDto> getItemsOfUser(@PathVariable("bcryptUserId") String bcryptId) {
+        return OK(userService.showOtherUserPage(bcryptId));
     }
 
     @NoCheckJwt

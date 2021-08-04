@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class ItemService {
@@ -35,6 +37,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemRepositoryCustom itemRepositoryCustom;
     private final ImageRepository imageRepository;
+    private final ImageRepositoryCustom imageRepositoryCustom;
     private final UserRepository userRepository;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
@@ -45,26 +48,9 @@ public class ItemService {
 
     private final ImageUploadService imageUploadService;
 
-    public ItemService(ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom, ImageRepository imageRepository, UserRepository userRepository, UserChatRepositoryCustomImpl userChatRepositoryCustom, IdolMemberRepository idolMemberRepository, CategoryItemRepository categoryItemRepository, UserItemRepository userItemRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustom, ReviewRepositoryCustomImpl reviewRepositoryCustom, ImageUploadService imageUploadService) {
-        this.itemRepository = itemRepository;
-        this.itemRepositoryCustom = itemRepositoryCustom;
-        this.imageRepository = imageRepository;
-        this.userRepository = userRepository;
-        this.userChatRepositoryCustom = userChatRepositoryCustom;
-        this.idolMemberRepository = idolMemberRepository;
-        this.categoryItemRepository = categoryItemRepository;
-        this.userItemRepository = userItemRepository;
-        this.priceProposeRepositoryCustom = priceProposeRepositoryCustom;
-        this.reviewRepositoryCustom = reviewRepositoryCustom;
-        this.imageUploadService = imageUploadService;
-    }
-
     public Long upload(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
 
         try {
-            /** 이미지 업로드 처리 **/
-            List<ImageDto> imageDtos = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
-
             Item item = new Item(itemUploadRequest);
 
             /** Item-User 연관관계 삽입 **/
@@ -79,20 +65,56 @@ public class ItemService {
             CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
             item.setCategoryItem(categoryItem);
 
-            itemRepository.save(item);
-
-            /** Image-Item 연관관계 삽입 **/
-            for (ImageDto imageDto : imageDtos) {
-                Image image = new Image(imageDto);
+            /** 이미지 업로드 처리 & Image-Item 연관관계 삽입 **/
+            List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
+            for (Image image : images) {
                 item.addImage(image);
                 imageRepository.save(image);
             }
+
+            itemRepository.save(item);
 
             return item.getId();
         } catch (Exception e) {
             return -1L;
         }
     }
+
+    // TODO : 추후 확인 후 삭제 예정
+//    public Long upload(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
+//
+//        try {
+//            /** 이미지 업로드 처리 **/
+//            List<ImageDto> imageDtos = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
+//
+//            Item item = new Item(itemUploadRequest);
+//
+//            /** Item-User 연관관계 삽입 **/
+//            User findUser = userRepository.findById(userId).get();
+//            item.setUser(findUser);
+//
+//            /** Item-IdolMember 연관관계 삽입 **/
+//            IdolMember idolMember = idolMemberRepository.findById(itemUploadRequest.getIdolMember()).get();
+//            item.setIdolMember(idolMember);
+//
+//            /** Item-Category 연관관계 삽입 **/
+//            CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
+//            item.setCategoryItem(categoryItem);
+//
+//            itemRepository.save(item);
+//
+//            /** Image-Item 연관관계 삽입 **/
+//            for (ImageDto imageDto : imageDtos) {
+//                Image image = new Image(imageDto);
+//                item.addImage(image);
+//                imageRepository.save(image);
+//            }
+//
+//            return item.getId();
+//        } catch (Exception e) {
+//            return -1L;
+//        }
+//    }
 
     public ItemDetailResponse showDetail(Long itemId) {
 
@@ -158,9 +180,99 @@ public class ItemService {
             item.setPrice(itemUpdateRequest.getPrice());
             item.setTradeType(itemUpdateRequest.getTradeType());
             item.setGradeStatus(itemUpdateRequest.getGradeStatus());
-
             IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
             item.setIdolMember(idolMember);
+            CategoryItem categoryItem = categoryItemRepository.findByName(itemUpdateRequest.getCategory());
+            item.setCategoryItem(categoryItem);
+
+            return item.getId();
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long editV2(Long itemId, ItemUpdateRequestV2 itemUpdateRequest, List<MultipartFile> multipartFiles) {
+
+        try {
+            /**
+             * 기존 아이템 정보 수정
+             * 이름
+             * 가격
+             * 설명
+             * 상태 (S, A, B, C)
+             * 타입 (BUY, SELL)
+             * 아이돌 멤버
+             * 카테고리
+             */
+            Item item = itemRepository.findById(itemId).get();
+            item.setName(itemUpdateRequest.getName());
+            item.setDescription(itemUpdateRequest.getDescription());
+            item.setPrice(itemUpdateRequest.getPrice());
+            item.setTradeType(itemUpdateRequest.getTradeType());
+            item.setGradeStatus(itemUpdateRequest.getGradeStatus());
+            IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
+            item.setIdolMember(idolMember);
+            CategoryItem categoryItem = categoryItemRepository.findByName(itemUpdateRequest.getCategory());
+            item.setCategoryItem(categoryItem);
+
+            /**
+             * 기존 이미지 수정 (Url)
+             * case1. 기존 이미지 유지한 경우 -> 따로 변경할 필요없음
+             * case2. 기존 이미지 전부 삭제한 경우
+             * case3. 기존 이미지 1개 이상 남기고 삭제한 경우
+             *
+             * 새로운 이미지 수정 (파일)
+             * case4. 새로운 이미지 추가하지 않은 경우 -> 따로 변경할 필요없음
+             * case5. 새로운 이미지 추가한 경우
+             */
+            List<Image> existImages = item.getImages();
+            List<String> updateImageUrls = itemUpdateRequest.getImageUrls();
+
+            // case2
+            if(updateImageUrls == null) {
+                List<Image> deleteImages = new ArrayList<>();
+                Iterator<Image> iter = existImages.iterator();
+                while(iter.hasNext()) {
+                    Image existImage = iter.next();
+                    deleteImages.add(existImage);
+                    iter.remove();
+                }
+
+                imageRepository.deleteInBatch(deleteImages);
+            }
+            // case3
+            else {
+                List<Image> updateImages = imageRepositoryCustom.findByImageUrls(updateImageUrls);
+
+                if(!(existImages.containsAll(updateImages) && updateImages.containsAll(existImages))) {
+
+                    HashMap<Long, String> imageMap = new HashMap<>();
+                    for (Image updateExistImage : updateImages) {
+                        imageMap.put(updateExistImage.getId(), updateExistImage.getUrl());
+                    }
+
+                    List<Image> deleteImages = new ArrayList<>();
+                    Iterator<Image> iter = existImages.iterator();
+                    while(iter.hasNext()) {
+                        Image existImage = iter.next();
+                        if(imageMap.get(existImage.getId()) == null) {
+                            deleteImages.add(existImage);
+                            iter.remove();
+                        }
+                    }
+
+                    imageRepository.deleteInBatch(deleteImages);
+                }
+            }
+
+            // case5
+            if(multipartFiles != null) {
+                List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
+                for (Image image : images) {
+                    item.addImage(image);
+                    imageRepository.save(image);
+                }
+            }
 
             return item.getId();
         } catch (Exception e) {

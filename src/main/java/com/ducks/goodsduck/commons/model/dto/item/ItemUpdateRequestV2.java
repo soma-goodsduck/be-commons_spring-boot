@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ItemUpdateRequest {
+public class ItemUpdateRequestV2 {
 
     private String name;
     private Long price;
@@ -16,4 +16,5 @@ public class ItemUpdateRequest {
     private Long idolMember;
     private String category;
     private String description;
+    private List<String> imageUrls;
 }

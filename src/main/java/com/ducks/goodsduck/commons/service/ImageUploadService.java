@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -47,22 +48,22 @@ public class ImageUploadService {
         return localFilePath + fileName;
     }
 
-    public List<ImageDto> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
+    public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
 
-        List<ImageDto> imageDtos = new ArrayList<>();
+        List<Image> images = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
             if(!multipartFile.isEmpty()) {
-                ImageDto imageDto = uploadImage(multipartFile, imageType);
-                imageDtos.add(imageDto);
+                Image image = uploadImage(multipartFile, imageType);
+                images.add(image);
             }
         }
 
-        return imageDtos;
+        return images;
     }
 
     /** S3에 이미지 업로드 + 리사이징 **/
-    public ImageDto uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
+    public Image uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
 
         // S3 셋팅
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -109,15 +110,87 @@ public class ImageUploadService {
         }
 
         if(imageType.equals(ImageType.ITEM)) {
-            return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+            return new Image(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.PROFILE)) {
-            return new ImageDto(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
+            return new Image(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.CHAT)) {
-            return new ImageDto(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
+            return new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
         } else {
             return null;
         }
     }
+
+    // TODO : 추후 확인 후 삭제 예정
+//    public List<ImageDto> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
+//
+//        List<ImageDto> imageDtos = new ArrayList<>();
+//
+//        for (MultipartFile multipartFile : multipartFiles) {
+//            if(!multipartFile.isEmpty()) {
+//                ImageDto imageDto = uploadImage(multipartFile, imageType);
+//                imageDtos.add(imageDto);
+//            }
+//        }
+//
+//        return imageDtos;
+//    }
+
+//    public ImageDto uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
+//
+//        // S3 셋팅
+//        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+//                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+//                .withRegion(region)
+//                .build();
+//
+//        if(multipartFile.isEmpty()) {
+//            return null;
+//        }
+//
+//        String originName = multipartFile.getOriginalFilename();
+//        String uploadName = createUploadName(originName);
+//        String ext = extractExt(originName);
+//        Long bytes = multipartFile.getSize();
+//
+//        BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+//
+//        // 1MB 이상에서만 리사이징
+//        if(bytes >= 1048576) {
+//
+//            int width = image.getWidth();
+//            int height = image.getHeight();
+//            int newWidth = width;
+//            int newHeight = height;
+//
+//            if(width > height) {
+//                newHeight = 500;
+//                newWidth = getNewWidth(newHeight, width, height);
+//            } else {
+//                newWidth = 500;
+//                newHeight = getNewHeight(newWidth, width, height);
+//            }
+//
+//            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
+//            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
+//
+//            BufferedImage resizedImage = rescale.filter(image, null);
+//
+//            uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
+//        } else {
+//            uploadImageToS3(s3Client, uploadName, ext, image, imageType);
+//        }
+//
+//        if(imageType.equals(ImageType.ITEM)) {
+//            return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+//        } else if(imageType.equals(ImageType.PROFILE)) {
+//            return new ImageDto(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
+//        } else if(imageType.equals(ImageType.CHAT)) {
+//            return new ImageDto(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
+//        } else {
+//            return null;
+//        }
+//    }
 
     private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image, ImageType imageType) throws IOException {
 
