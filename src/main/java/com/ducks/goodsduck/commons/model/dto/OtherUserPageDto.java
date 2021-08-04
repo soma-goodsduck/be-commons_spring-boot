@@ -15,7 +15,7 @@ public class OtherUserPageDto {
     private Long reviewCount;
     private Integer stampCount;
     private List<ItemSimpleDto> items;
-    private List<Review> reviews;
+    private List<ReviewResponse> reviews;
 
     public OtherUserPageDto(Integer itemCount, Long reviewCount, List<Item> items, List<Review> reviews) {
         this.itemCount = itemCount;
@@ -24,7 +24,8 @@ public class OtherUserPageDto {
         this.items = items.stream()
                 .map(item -> new ItemSimpleDto(item))
                 .collect(Collectors.toList());
-//        this.reviews = reviews.stream()
-//                .map(review -> new Re)
+        this.reviews = reviews.stream()
+                .map(review -> new ReviewResponse(review))
+                .collect(Collectors.toList());
     }
 }
