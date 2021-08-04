@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -21,6 +22,7 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+    private String bcryptId;
     private String nickName;
     private String email;
     private String phoneNumber;
@@ -51,6 +53,7 @@ public class User {
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.role = UserRole.USER;
+        this.bcryptId = BCrypt.hashpw(this.phoneNumber, BCrypt.gensalt(5));
     }
 
     public void addSocialAccount(SocialAccount socialAccount) {

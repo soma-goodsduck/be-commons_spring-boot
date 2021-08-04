@@ -22,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +42,7 @@ public class UserService {
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
     private final ReviewRepository reviewRepository;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
@@ -169,10 +167,11 @@ public class UserService {
         try {
             User user = userRepository.findById(userId).get();
 
+            // TODO : ImageDto -> Image 쳌
             // 프로필 사진 수정
             if(multipartFile != null) {
-                ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
-                user.setImageUrl(imageDto.getUrl());
+                Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+                user.setImageUrl(image.getUrl());
             }
 
             // 닉네임 수정
@@ -199,11 +198,12 @@ public class UserService {
 
     public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
 
+        // TODO : ImageDto -> Image 쳌
         try {
-            ImageDto imageDto = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
 
             User user = userRepository.findById(userId).get();
-            user.setImageUrl(imageDto.getUrl());
+            user.setImageUrl(image.getUrl());
 
             return userId;
         } catch (Exception e) {
@@ -276,20 +276,30 @@ public class UserService {
         }
     }
 
-    public OtherUserPageDto showOtherUserPage(Long userId) {
+    public OtherUserPageDto showOtherUserPage(String bcryptId) {
 
-        User user = userRepository.findById(userId).get();
-//        reviewRepository.find
+        User user = userRepository.findByBcryptId(bcryptId);
+        Long userId = user.getId();
 
         // 판매상품
         List<Item> items = user.getItems();
+        List<Item> showItems = new ArrayList<>();
+
+        if(items.size() > 3) {
+            showItems.add(items.get(0));
+            showItems.add(items.get(1));
+            showItems.add(items.get(2));
+        } else {
+            showItems = items;
+        }
 
         // 후기
-
+        List<Review> reviews = reviewRepositoryCustom.findAllByUserId(userId);
 
         // 판매상품, 후기, 보증스탬프 개수
-//        Integer itemCount = items.size();
+        Integer itemCount = items.size();
+        Long reviewCount = reviewRepositoryCustom.countByUserId(userId);
 
-        return new OtherUserPageDto(items);
+        return new OtherUserPageDto(itemCount, reviewCount, showItems, reviews);
     }
 }

@@ -29,4 +29,10 @@ public class Image {
         this.uploadName = imageDto.getUploadName();
         this.url = imageDto.getUrl();
     }
+
+    public Image(String originName, String uploadName, String url) {
+        this.originName = originName;
+        this.uploadName = uploadName;
+        this.url = url;
+    }
 }
