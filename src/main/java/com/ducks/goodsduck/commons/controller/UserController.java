@@ -88,6 +88,22 @@ public class UserController {
         return OK(userService.updateProfile(userId, multipartFile, updateProfileRequest));
     }
 
+    @NoCheckJwt
+    @ApiOperation("닉네임 중복 확인 API")
+    @PostMapping("/v1/users/nickname-check")
+    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameRequest nicknameRequest) {
+        return OK(userService.checkNickname(nicknameRequest.getNickName()));
+    }
+
+    @ApiOperation(value = "좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
+    @PutMapping("/v1/users/idol-groups")
+    public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
+                                                HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
+    }
+
     @ApiOperation("프로필 사진 업로드 API")
     @PutMapping("/v1/users/profile-image")
     public ApiResult<Long> uploadProfileImage(@RequestParam(required = false) MultipartFile multipartFile,
@@ -102,15 +118,6 @@ public class UserController {
     public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
-    }
-
-    @ApiOperation(value = "유저 좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
-    @PutMapping("/v1/users/idol-groups")
-    public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
-                                                HttpServletRequest request) {
-
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
@@ -187,22 +194,15 @@ public class UserController {
         );
     }
 
+    // TODO : 개발
     @NoCheckJwt
-    @ApiOperation("유저 닉네임 중복 확인 API")
-    @PostMapping("/v1/users/nickname-check")
-    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameRequest nicknameRequest) {
-        return OK(userService.checkNickname(nicknameRequest.getNickName()));
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "다른 사람의 프로필 보기 (개발중 - userId vs nickname)")
+    @ApiOperation(value = "다른 사람의 프로필 보기")
     @GetMapping("/v1/users/{userId}")
     @Transactional
-    public ApiResult<List<ItemSummaryDto>> getItemsOfUser(@PathVariable("userId") Long userId, HttpServletRequest request) {
+    public ApiResult<OtherUserPageDto> getItemsOfUser(@PathVariable("userId") Long userId) {
+        userId = 3L;
 
-        return OK(itemRepository.findAll().stream()
-                .map(item -> new ItemSummaryDto(item, new ImageDto(item.getImages().get(0))))
-                .collect(Collectors.toList()));
+        return OK(userService.showOtherUserPage(userId));
     }
 
     @NoCheckJwt

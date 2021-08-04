@@ -65,7 +65,6 @@ public class ItemController {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
 
@@ -206,9 +205,9 @@ public class ItemController {
     @GetMapping("/v2/items/filter")
     @Transactional
     public ItemHomeResponseResult<Slice<ItemHomeResponseV2>> filterItemWithIdolGroupV2(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                     @RequestParam Integer pageNumber,
-                                                                                     @RequestParam(value = "keyword", required = false) String keyword,
-                                                                                     @RequestHeader("jwt") String jwt) {
+                                                                                       @RequestParam Integer pageNumber,
+                                                                                       @RequestParam(value = "keyword", required = false) String keyword,
+                                                                                       @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
 
@@ -230,8 +229,8 @@ public class ItemController {
     @GetMapping("/v3/items/filter")
     @Transactional
     public ItemHomeResponseResult<List<ItemHomeResponse>> filterItemWithIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                     @RequestParam ("itemId") Long itemId,
-                                                                                     @RequestHeader("jwt") String jwt) {
+                                                                                    @RequestParam ("itemId") Long itemId,
+                                                                                    @RequestHeader("jwt") String jwt) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;

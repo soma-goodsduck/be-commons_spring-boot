@@ -13,6 +13,7 @@ import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,7 +54,7 @@ public class ChatController {
     }
 
     @ApiOperation("채팅방 나갔을 때, 채팅방 삭제 API")
-    @DeleteMapping("/v1/chat")
+    @PostMapping("/v1/chat")
     public ApiResult<Boolean> deleteChat(@RequestBody ChatRequestDto chatDto) throws Exception {
         return OK(userChatService.deleteChat(chatDto.getChatId()));
     }
@@ -63,7 +64,6 @@ public class ChatController {
     public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
         return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT));
     }
-
 
     @ApiOperation("채팅 전송 시 알림 요청 API")
     @PostMapping("/v1/chat/notification")

@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
+import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
@@ -36,13 +37,14 @@ public class UserService {
     private final CustomJwtService jwtService;
     private final OauthKakaoService oauthKakaoService;
     private final OauthNaverService oauthNaverService;
+    private final ImageUploadService imageUploadService;
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
-    private final ImageUploadService imageUploadService;
+    private final ReviewRepository reviewRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
@@ -272,5 +274,22 @@ public class UserService {
         } else {
             return true;
         }
+    }
+
+    public OtherUserPageDto showOtherUserPage(Long userId) {
+
+        User user = userRepository.findById(userId).get();
+//        reviewRepository.find
+
+        // 판매상품
+        List<Item> items = user.getItems();
+
+        // 후기
+
+
+        // 판매상품, 후기, 보증스탬프 개수
+//        Integer itemCount = items.size();
+
+        return new OtherUserPageDto(items);
     }
 }
