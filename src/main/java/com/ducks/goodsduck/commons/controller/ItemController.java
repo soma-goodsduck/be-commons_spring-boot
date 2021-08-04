@@ -178,7 +178,7 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 in 홈 (V3 NoOffSet)")
+    @ApiOperation(value = "아이템 검색 (회원/비회원)")
     @GetMapping("/v1/items/search")
     @Transactional
     public ItemHomeResponseResult<List<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
