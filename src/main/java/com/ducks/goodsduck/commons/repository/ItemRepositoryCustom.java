@@ -48,4 +48,10 @@ public interface ItemRepositoryCustom {
     List<Tuple> findAllByFilterWithUserItemV3(Long userId, ItemFilterDto itemFilterDto, Long itemId);
 
     Tuple findItemAndUserByItemId(Long itemId);
+
+    // 비회원 - 검색 및 itemId 기반 Limit
+    List<Item> findByKeywordWithLimit(List<String> keywords, Long itemId);
+
+    // 회원 - 검색 및 itemId 기반 Limit
+    List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, List<String> keywords, Long itemId);
 }

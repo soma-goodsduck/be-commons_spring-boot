@@ -583,6 +583,59 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .execute();
     }
 
+    @Override
+    public Tuple findItemAndUserByItemId(Long itemId) {
+        return queryFactory
+                .select(item, item.user)
+                .from(item)
+                .where(item.id.eq(itemId))
+                .fetchOne();
+    }
+
+    @Override
+    public List<Item> findByKeywordWithLimit(List<String> keywords, Long itemId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(itemId != 0) {
+            builder.and(item.id.lt(itemId));
+        }
+
+        for (String keyword:keywords) {
+            builder.and(item.name.contains(keyword));
+        }
+
+        return queryFactory
+                .select(item)
+                .from(item)
+                .where(builder)
+                .orderBy(item.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, List<String> keywords, Long itemId) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(itemId != 0) {
+            builder.and(item.id.lt(itemId));
+        }
+
+        for (String keyword:keywords) {
+            builder.and(item.name.contains(keyword));
+        }
+
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .where(builder)
+                .orderBy(item.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
     private NumberExpression<Integer> getStatusCompareExpression() {
         return new CaseBuilder()
                 .when(item.tradeStatus.eq(BUYING)).then(20)
@@ -598,14 +651,5 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .where(subImage.id.lt(image.id).and(
                         subImage.item.eq(image.item)
                 ));
-    }
-
-    @Override
-    public Tuple findItemAndUserByItemId(Long itemId) {
-        return queryFactory
-                .select(item, item.user)
-                .from(item)
-                .where(item.id.eq(itemId))
-                .fetchOne();
     }
 }
