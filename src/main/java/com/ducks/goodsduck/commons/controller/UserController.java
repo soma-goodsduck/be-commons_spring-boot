@@ -2,17 +2,8 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
-import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
-import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
-import com.ducks.goodsduck.commons.model.dto.user.UserDto;
-import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
-import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
-import com.ducks.goodsduck.commons.model.entity.Image;
-import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
-import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
@@ -23,7 +14,6 @@ import com.ducks.goodsduck.commons.service.DeviceService;
 import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.valueOf;
@@ -142,32 +130,12 @@ public class UserController {
 
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
     @GetMapping("/v1/users/items")
-    public ApiResult<List<ItemSummaryDto>> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) throws Exception {
+    public ApiResult<MypageResponse> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        TradeStatus status = valueOf(tradeStatus.toUpperCase());
 
-        try {
-            TradeStatus status = valueOf(tradeStatus.toUpperCase());
-            return OK(itemService.findMyItem(userId, status)
-                    .stream()
-                    .map(tuple -> {
-                        Item item = tuple.get(0, Item.class);
-                        ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
-                                .map(image -> new ImageDto(image))
-                                .orElseGet(() -> new ImageDto());
-                        return ItemSummaryDto.of(item, imageDto);
-                    })
-                    .collect(Collectors.toList()));
-
-        } catch (IllegalArgumentException e) {
-            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
-            throw new IllegalArgumentException("There is no tradeStatus inserted");
-        } catch (NullPointerException e) {
-            log.debug("Exception during parsing from tuple: {}", e.getMessage(), e);
-            throw new NullPointerException(e.getMessage());
-        } catch (Exception e) {
-            throw new Exception("Unexpected exception occurred.");
-        }
+        return OK(itemService.findMyItem(userId, status));
     }
 
     @GetMapping("/v1/users/items/price-propose")

@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReviewRepositoryCustom {
     boolean existsByItemIdAndUserId(Long itemId, Long senderId);
     List<Tuple> findInItems(List<Item> items);
+    Long countInItems(List<Item> items);
 }

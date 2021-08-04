@@ -4,6 +4,7 @@ import com.amazonaws.services.kms.model.NotFoundException;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class ItemService {
@@ -39,9 +39,25 @@ public class ItemService {
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
+    private final UserItemRepository userItemRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
+
+    public ItemService(ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom, ImageRepository imageRepository, UserRepository userRepository, UserChatRepositoryCustomImpl userChatRepositoryCustom, IdolMemberRepository idolMemberRepository, CategoryItemRepository categoryItemRepository, UserItemRepository userItemRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustom, ReviewRepositoryCustomImpl reviewRepositoryCustom, ImageUploadService imageUploadService) {
+        this.itemRepository = itemRepository;
+        this.itemRepositoryCustom = itemRepositoryCustom;
+        this.imageRepository = imageRepository;
+        this.userRepository = userRepository;
+        this.userChatRepositoryCustom = userChatRepositoryCustom;
+        this.idolMemberRepository = idolMemberRepository;
+        this.categoryItemRepository = categoryItemRepository;
+        this.userItemRepository = userItemRepository;
+        this.priceProposeRepositoryCustom = priceProposeRepositoryCustom;
+        this.reviewRepositoryCustom = reviewRepositoryCustom;
+        this.imageUploadService = imageUploadService;
+    }
 
     public Long upload(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
 
@@ -584,8 +600,36 @@ public class ItemService {
         return tupleToList;
     }
 
-    public List<Tuple> findMyItem(Long userId, TradeStatus status) {
-        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
+    public MypageResponse findMyItem(Long userId, TradeStatus status) {
+        List<ItemSummaryDto> myItems = itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status)
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
+                            .map(image -> new ImageDto(image))
+                            .orElseGet(() -> new ImageDto());
+                    return ItemSummaryDto.of(item, imageDto);
+                })
+                .collect(Collectors.toList());
+
+        List<Item> itemsByUserId = itemRepository.findByUserId(userId);
+
+        // 찜 Count
+        Long countOfLikes = userItemRepository.countByUserId(userId);
+
+        // 후기 Count
+        Long countOfReceivedReviews = reviewRepositoryCustom.countInItems(itemsByUserId);
+
+        // 가격제시 Count
+        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);
+
+        MypageResponse mypageResponse = new MypageResponse(myItems);
+
+        mypageResponse.setCountOfLikes(countOfLikes);
+        mypageResponse.setCountOfReceivedReviews(countOfReceivedReviews);
+        mypageResponse.setCountOfReceievedPriceProposes(countOfReceievedPriceProposes);
+
+        return mypageResponse;
     }
 
     public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {

@@ -13,7 +13,6 @@ import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,7 +28,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class UserService {
@@ -41,10 +39,31 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
+    private final ItemRepository itemRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
+    private final UserItemRepository userItemRepository;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepository reviewRepository;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
+
+    public UserService(CustomJwtService jwtService, OauthKakaoService oauthKakaoService, OauthNaverService oauthNaverService, ImageUploadService imageUploadService, UserRepository userRepository, UserRepositoryCustomImpl userRepositoryCustom, ItemRepository itemRepository, SocialAccountRepository socialAccountRepository, IdolGroupRepository idolGroupRepository, UserIdolGroupRepository userIdolGroupRepository, UserItemRepository userItemRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustom, ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom) {
+        this.jwtService = jwtService;
+        this.oauthKakaoService = oauthKakaoService;
+        this.oauthNaverService = oauthNaverService;
+        this.imageUploadService = imageUploadService;
+        this.userRepository = userRepository;
+        this.userRepositoryCustom = userRepositoryCustom;
+        this.itemRepository = itemRepository;
+        this.socialAccountRepository = socialAccountRepository;
+        this.idolGroupRepository = idolGroupRepository;
+        this.userIdolGroupRepository = userIdolGroupRepository;
+        this.userItemRepository = userItemRepository;
+        this.priceProposeRepositoryCustom = priceProposeRepositoryCustom;
+        this.reviewRepository = reviewRepository;
+        this.reviewRepositoryCustom = reviewRepositoryCustom;
+    }
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {

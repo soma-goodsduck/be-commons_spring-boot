@@ -41,4 +41,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .where(review.item.in(items))
                 .fetch();
     }
+
+    @Override
+    public Long countInItems(List<Item> items) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.item.in(items))
+                .fetchCount();
+    }
 }
