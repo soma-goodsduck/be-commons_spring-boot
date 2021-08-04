@@ -13,4 +13,5 @@ public interface ReviewRepositoryCustom {
     List<Tuple> findInItems(List<Item> items);
     Long countByUserId(Long userId);
     List<Review> findAllByUserId(Long userId);
+    Long countInItems(List<Item> items);
 }

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,9 +39,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
+    private final ItemRepository itemRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
+    private final UserItemRepository userItemRepository;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepository reviewRepository;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
 

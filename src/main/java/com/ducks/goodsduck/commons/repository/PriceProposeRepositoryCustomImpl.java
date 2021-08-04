@@ -17,7 +17,6 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
 
     private QPricePropose pricePropose = QPricePropose.pricePropose;
     private QUser user = QUser.user;
-    private QItem item = QItem.item;
 
     public PriceProposeRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -45,7 +44,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
     }
 
     @Override
-    public long updatePrice(Long userId, Long priceProposeId, int price) {
+    public Long updatePrice(Long userId, Long priceProposeId, int price) {
         return queryFactory.update(pricePropose)
                 .set(pricePropose.price, price)
                 .set(pricePropose.createdAt, LocalDateTime.now())
@@ -89,12 +88,21 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
     }
 
     @Override
-    public long updateStatus(Long priceProposeId, PriceProposeStatus status) {
+    public Long updateStatus(Long priceProposeId, PriceProposeStatus status) {
         return queryFactory.update(pricePropose)
                 .set(pricePropose.status, status)
                 .where(pricePropose.id.eq(priceProposeId).and(
                         pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
                 ))
                 .execute();
+    }
+
+    @Override
+    public Long countSuggestedInItems(List<Item> itemsByUserId) {
+        return queryFactory
+                .select(pricePropose)
+                .from(pricePropose)
+                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(PriceProposeStatus.SUGGESTED)))
+                .fetchCount();
     }
 }

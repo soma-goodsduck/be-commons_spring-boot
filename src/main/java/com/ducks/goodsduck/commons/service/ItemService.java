@@ -4,6 +4,7 @@ import com.amazonaws.services.kms.model.NotFoundException;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
@@ -21,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
@@ -39,7 +42,9 @@ public class ItemService {
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
+    private final UserItemRepository userItemRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
 
@@ -707,21 +712,36 @@ public class ItemService {
         return tupleToList;
     }
 
-    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
-        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
-        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
-    }
+    public MypageResponse findMyItem(Long userId, TradeStatus status) {
+        List<ItemSummaryDto> myItems = itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status)
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0, Item.class);
+                    ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
+                            .map(image -> new ImageDto(image))
+                            .orElseGet(() -> new ImageDto());
+                    return ItemSummaryDto.of(item, imageDto);
+                })
+                .collect(Collectors.toList());
 
-    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
-        return pageable.isPaged() && content.size() > pageable.getPageSize();
-    }
+        List<Item> itemsByUserId = itemRepository.findByUserId(userId);
 
-    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
-        return content.subList(0, pageable.getPageSize());
-    }
+        // 찜 Count
+        Long countOfLikes = userItemRepository.countByUserId(userId);
 
-    public List<Tuple> findMyItem(Long userId, TradeStatus status) {
-        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status);
+        // 후기 Count
+        Long countOfReceivedReviews = reviewRepositoryCustom.countInItems(itemsByUserId);
+
+        // 가격제시 Count
+        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);
+
+        MypageResponse mypageResponse = new MypageResponse(myItems);
+
+        mypageResponse.setCountOfLikes(countOfLikes);
+        mypageResponse.setCountOfReceivedReviews(countOfReceivedReviews);
+        mypageResponse.setCountOfReceievedPriceProposes(countOfReceievedPriceProposes);
+
+        return mypageResponse;
     }
 
     public boolean updateTradeStatus(Long userId, Long itemId, TradeStatus status) {
@@ -748,5 +768,61 @@ public class ItemService {
         }
 
         return itemRepositoryCustom.updateTradeStatus(itemId, status) > 0 ? true : false;
+    }
+
+    // FEAT: 비회원용 검색 기능
+    public List<ItemHomeResponse> getSearchedItemListForGuest(String keyword, Long itemId) {
+
+        List<String> keywords = List.of(keyword.split(" "));
+
+        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keywords, itemId);
+        List<ItemHomeResponse> itemToList =  items
+                .stream()
+                .map(item -> new ItemHomeResponse(item))
+                .collect(Collectors.toList());
+
+        return itemToList;
+    }
+
+    // FEAT: 회원용 검색 기능
+    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId) {
+
+        List<String> keywords = List.of(keyword.split(" "));
+
+        User user = userRepository.findById(userId).get();
+        user.updateLastLoginAt();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keywords, itemId);
+
+        List<ItemHomeResponse> tupleToList =  listOfTuple
+                .stream()
+                .map(tuple -> {
+                    Item item = tuple.get(0,Item.class);
+                    UserItem userItem = tuple.get(1, UserItem.class);
+
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item);
+                    if(userItem != null) {
+                        itemHomeResponse.likesOfMe();
+                    }
+
+                    return itemHomeResponse;
+                })
+                .collect(Collectors.toList());
+
+        return tupleToList;
+    }
+
+    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
+        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
+        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
+    }
+
+    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
+        return pageable.isPaged() && content.size() > pageable.getPageSize();
+    }
+
+    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
+        return content.subList(0, pageable.getPageSize());
     }
 }

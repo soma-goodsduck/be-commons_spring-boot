@@ -21,7 +21,7 @@ public class ItemHomeResponse {
     private List<ItemDetailResponseImage> images = new ArrayList<>();
     private Long price;
     private String tradeType;
-    private TradeStatus tradeStatus;
+    private String tradeStatus;
     private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
     private Integer views;
@@ -38,7 +38,7 @@ public class ItemHomeResponse {
                 .collect(Collectors.toList());
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
-        this.tradeStatus = item.getTradeStatus();
+        this.tradeStatus = item.getTradeStatus().getKorName();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
         this.views = item.getViews();

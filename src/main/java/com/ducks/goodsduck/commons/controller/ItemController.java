@@ -189,6 +189,41 @@ public class ItemController {
     }
 
     @NoCheckJwt
+    @ApiOperation(value = "아이템 검색 (회원/비회원)")
+    @GetMapping("/v1/items/search")
+    @Transactional
+    public ItemHomeResponseResult<List<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
+                                                                           @RequestParam("itemId") Long itemId,
+                                                                           @RequestHeader("jwt") String jwt) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
+        Long userId = userService.checkLoginStatus(jwt);
+
+        // HINT : 비회원에게 보여줄 홈
+        if(userId.equals(-1L)) {
+            List<ItemHomeResponse> itemList = itemService.getSearchedItemListForGuest(keyword, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return ItemHomeResponseResult.OK(hasNext, null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈
+        else {
+            User user = userRepository.findById(userId).get();
+            List<ItemHomeResponse> itemList = itemService.getSearchedItemListForUser(keyword, userId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return ItemHomeResponseResult.OK(hasNext, new ItemDetailResponseUser(user), itemList);
+        }
+    }
+
+    @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈")
     @GetMapping("/v1/items/filter")
     @Transactional

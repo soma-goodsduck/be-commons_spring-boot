@@ -84,7 +84,7 @@ public class PriceProposeService {
     }
 
     public boolean updatePropose(Long userId, Long priceProposeId, int price) {
-        long count = priceProposeRepositoryCustom.updatePrice(userId, priceProposeId, price);
+        Long count = priceProposeRepositoryCustom.updatePrice(userId, priceProposeId, price);
         if (count > 0) {
             return true;
         } else {
@@ -148,7 +148,7 @@ public class PriceProposeService {
             return false;
         }
 
-        long count = priceProposeRepositoryCustom.updateStatus(priceProposeId, status);
+        Long count = priceProposeRepositoryCustom.updateStatus(priceProposeId, status);
 
         if (count > 0) {
             return true;
