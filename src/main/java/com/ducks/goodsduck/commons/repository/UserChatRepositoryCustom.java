@@ -13,4 +13,5 @@ public interface UserChatRepositoryCustom {
     List<Tuple> findChatAndItemByUserId(Long userId);
     Tuple findSenderAndItemByChatIdAndUserId(String chatId, Long senderId);
     Chat findByUserIdAndItemId(Long userId, Long itemId);
+    List<Tuple> findByItemIdExceptItemOwner(Long itemOwnerId, Long itemId);
 }

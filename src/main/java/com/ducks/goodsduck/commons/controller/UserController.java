@@ -2,16 +2,14 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.service.ItemService;
-import com.ducks.goodsduck.commons.service.PriceProposeService;
-import com.ducks.goodsduck.commons.service.DeviceService;
-import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
@@ -40,6 +38,7 @@ public class UserController {
     private final PriceProposeService priceProposeService;
     private final ItemService itemService;
     private final DeviceService deviceService;
+    private final UserChatService userChatService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -136,6 +135,14 @@ public class UserController {
         TradeStatus status = valueOf(tradeStatus.toUpperCase());
 
         return OK(itemService.findMyItem(userId, status));
+    }
+
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API (게시물 주인 jwt 필요)")
+    @GetMapping("/v1/users/items/{itemId}/chat")
+    public ApiResult<List<UserChatResponse>> getUserChatListByItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        return OK(userChatService.findByItemId(userId, itemId));
     }
 
     @GetMapping("/v1/users/items/price-propose")
