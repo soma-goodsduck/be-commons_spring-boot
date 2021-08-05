@@ -730,7 +730,7 @@ public class ItemService {
         Long countOfLikes = userItemRepository.countByUserId(userId);
 
         // 후기 Count
-        Long countOfReceivedReviews = reviewRepositoryCustom.countInItems(itemsByUserId);
+        Long countOfReceivedReviews = reviewRepositoryCustom.countByReveiverId(userId);
 
         // 가격제시 Count
         Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);

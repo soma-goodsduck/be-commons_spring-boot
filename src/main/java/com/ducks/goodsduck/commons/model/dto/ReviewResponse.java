@@ -13,12 +13,14 @@ public class ReviewResponse {
     private String writerImageUrl;
     private String writerNickName;
     private String content;
+    private Integer score;
     private LocalDateTime createdAt;
 
     public ReviewResponse(Review review) {
         this.writerImageUrl = review.getUser().getImageUrl();
         this.writerNickName = review.getUser().getNickName();
         this.content = review.getContent();
+        this.score = review.getScore();
         this.createdAt = review.getCreatedAt();
     }
 }

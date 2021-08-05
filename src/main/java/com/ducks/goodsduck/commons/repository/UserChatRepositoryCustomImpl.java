@@ -43,9 +43,9 @@ public class UserChatRepositoryCustomImpl implements UserChatRepositoryCustom {
     }
 
     @Override
-    public Tuple findSenderAndItemByChatIdAndUserId(String chatId, Long senderId) {
+    public User findSenderByChatIdAndUserId(String chatId, Long senderId) {
         return queryFactory
-                .select(userChat.user, userChat.item)
+                .select(userChat.user)
                 .from(userChat)
                 .where(userChat.chat.id.eq(chatId)
                         .and(userChat.user.id.eq(senderId)))
@@ -73,5 +73,15 @@ public class UserChatRepositoryCustomImpl implements UserChatRepositoryCustom {
                         .and(userChat.item.id.eq(itemId)))
                 .orderBy(userChat.id.desc())
                 .fetch();
+    }
+
+    @Override
+    public UserChat findBySenderIdAndChatRoomId(Long senderId, String chatRoomId) {
+        return queryFactory
+                .select(userChat)
+                .from(userChat)
+                .where(userChat.user.id.ne(senderId)
+                        .and(userChat.chat.id.eq(chatRoomId)))
+                .fetchOne();
     }
 }
