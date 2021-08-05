@@ -1,7 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
@@ -705,10 +704,8 @@ public class ItemService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
-                    ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
-                            .map(image -> new ImageDto(image))
-                            .orElseGet(() -> new ImageDto());
-                    return ItemSummaryDto.of(item, imageDto);
+                    String imageUrl = tuple.get(1, Image.class).getUrl();
+                    return ItemSummaryDto.of(item, imageUrl);
                 })
                 .collect(Collectors.toList());
 

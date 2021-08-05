@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
-import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Review;
@@ -17,7 +17,7 @@ public class OtherUserPageDto {
     private Integer itemCount;
     private Long reviewCount;
     private Integer stampCount;
-    private List<ItemSimpleDto> items;
+    private List<ItemSummaryDto> items;
     private List<ReviewResponse> reviews;
 
     public OtherUserPageDto(User user, Integer itemCount, Long reviewCount, List<Item> items, List<Review> reviews) {
@@ -26,7 +26,7 @@ public class OtherUserPageDto {
         this.reviewCount = reviewCount;
         this.stampCount = 10;
         this.items = items.stream()
-                .map(item -> new ItemSimpleDto(item))
+                .map(item -> new ItemSummaryDto(item))
                 .collect(Collectors.toList());
         this.reviews = reviews.stream()
                 .map(review -> new ReviewResponse(review))
