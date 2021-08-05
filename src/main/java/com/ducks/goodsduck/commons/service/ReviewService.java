@@ -25,12 +25,14 @@ public class ReviewService {
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final ItemRepository itemRepository;
+    private final ItemRepositoryCustom itemRepositoryCustom;
 
-    public ReviewService(ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository) {
+    public ReviewService(ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
         this.reviewRepository = reviewRepository;
         this.reviewRepositoryCustom = reviewRepositoryCustom;
         this.userChatRepositoryCustom = userChatRepositoryCustom;
         this.itemRepository = itemRepository;
+        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
     public Optional<Review> saveReview(Long senderId, ReviewRequest reviewRequest) throws IllegalAccessException {

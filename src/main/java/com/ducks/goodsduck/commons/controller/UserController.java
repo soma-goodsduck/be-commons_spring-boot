@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
+import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
@@ -16,11 +17,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -40,6 +41,7 @@ public class UserController {
     private final ItemService itemService;
     private final DeviceService deviceService;
     private final UserChatService userChatService;
+    private final JwtService jwtService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -108,14 +110,21 @@ public class UserController {
         return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
     }
 
+    @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
     @Transactional
-    public ApiResult<UserDto> getUser(HttpServletRequest request) {
+    public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt) {
 
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = userService.checkLoginStatus(jwt);
+        String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
+
         return OK(userService.find(userId)
-                .map(user -> new UserDto(user))
+                .map(user -> {
+                    UserDto userDto = new UserDto(user);
+                    userDto.setJwt(newJwt);
+                    return userDto;
+                })
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
     }
 
@@ -144,6 +153,22 @@ public class UserController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
         return OK(userChatService.findByItemId(userId, itemId));
+    }
+
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API (게시물 주인 jwt 필요)")
+    @GetMapping("/v2/users/items/{itemId}/chat")
+    @Transactional
+    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        Item tradeCompletedItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("Item not founded.");
+                });
+
+        List<UserChatResponse> userChats = userChatService.findByItemId(userId, itemId);
+
+        return OK(new TradeCompleteReponse(tradeCompletedItem, userChats));
     }
 
     @GetMapping("/v1/users/items/price-propose")
