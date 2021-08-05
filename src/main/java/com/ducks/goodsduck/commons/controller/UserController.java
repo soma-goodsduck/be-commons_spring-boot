@@ -16,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +39,7 @@ public class UserController {
     private final ItemService itemService;
     private final DeviceService deviceService;
     private final UserChatService userChatService;
+    private final JwtService jwtService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -108,14 +108,21 @@ public class UserController {
         return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
     }
 
+    @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
     @Transactional
-    public ApiResult<UserDto> getUser(HttpServletRequest request) {
+    public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt) {
 
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = userService.checkLoginStatus(jwt);
+        String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
+
         return OK(userService.find(userId)
-                .map(user -> new UserDto(user))
+                .map(user -> {
+                    UserDto userDto = new UserDto(user);
+                    userDto.setJwt(newJwt);
+                    return userDto;
+                })
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
     }
 

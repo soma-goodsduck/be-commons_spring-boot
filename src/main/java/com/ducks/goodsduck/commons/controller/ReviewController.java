@@ -3,9 +3,14 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.model.dto.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.ReviewResponse;
+import com.ducks.goodsduck.commons.model.dto.TradeCompleteReponse;
+import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.repository.ItemRepository;
+import com.ducks.goodsduck.commons.repository.ItemRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.ItemRepositoryCustomImpl;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
@@ -13,6 +18,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.NoResultException;
@@ -32,11 +38,15 @@ public class ReviewController {
     private final NotificationService notificationService;
 
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ItemRepositoryCustom itemRepositoryCustom;
 
-    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository) {
+    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
         this.reviewService = reviewService;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
+        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
     @GetMapping("/v1/users/reviews")
@@ -65,8 +75,15 @@ public class ReviewController {
 
     @GetMapping("/v1/items/{itemId}/users/reviews")
     @ApiOperation("특정 아이템 게시물 작성자에 대한 리뷰 목록 조회")
-    public ApiResult<List<ReviewResponse>> getReviews(@PathVariable("itemId") Long itemId) {
+    @Transactional
+    public ApiResult<TradeCompleteReponse> getReviews(@PathVariable("itemId") Long itemId) {
 
-        return OK(reviewService.getReviewsOfItemOwner(itemId));
+        List<ReviewResponse> reviewsOfItemOwner = reviewService.getReviewsOfItemOwner(itemId);
+        Item tradeCompletedItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("Item not founded.");
+                });
+
+        return OK(new TradeCompleteReponse(tradeCompletedItem, reviewsOfItemOwner));
     }
 }
