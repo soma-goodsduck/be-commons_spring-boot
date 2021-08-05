@@ -149,16 +149,8 @@ public class UserController {
 
     @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API (게시물 주인 jwt 필요)")
     @GetMapping("/v1/users/items/{itemId}/chat")
-    public ApiResult<List<UserChatResponse>> getUserChatListByItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
-        return OK(userChatService.findByItemId(userId, itemId));
-    }
-
-    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API (게시물 주인 jwt 필요)")
-    @GetMapping("/v2/users/items/{itemId}/chat")
     @Transactional
-    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+    public ApiResult<TradeCompleteReponse> getUserChatListByItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
         Item tradeCompletedItem = itemRepository.findById(itemId)
