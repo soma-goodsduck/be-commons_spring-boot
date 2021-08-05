@@ -449,7 +449,7 @@ public class ItemController {
         User receiveUser = userItem.getItem().getUser();
         Notification userItemNotification = new Notification(receiveUser, userItem);
 
-        notificationService.sendMessage(receiveUser.getId(), userItemNotification);
+        notificationService.sendMessage(userItemNotification);
 
         return OK(new UserItemResponse(userItem));
     }

@@ -25,6 +25,8 @@ public class Notification {
 
     private String senderNickName;
     private String senderImageUri;
+
+    // HINT: Notification.REVIEW 인 경우, 빈 문자열
     private String itemName;
     private NotificationType type;
 
@@ -40,7 +42,7 @@ public class Notification {
         this.itemName = priceProposeResponse.getItem().getName();
         this.type = NotificationType.PRICE_PROPOSE;
         this.price = priceProposeResponse.getProposedPrice();
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = priceProposeResponse.getCreatedAt();
     }
 
     public Notification(User user, UserItem userItem) {
@@ -53,6 +55,15 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Notification(Review review, User receiver) {
+        this.user = receiver;
+        this.senderNickName = review.getUser().getNickName();
+        this.senderImageUri = review.getUser().getImageUrl();
+        this.itemName = "";
+        this.type = NotificationType.REVIEW;
+        this.createdAt = review.getCreatedAt();
+    }
+
     public Notification(User user, String senderNickname, String senderImageUri, String itemName, NotificationType type) {
         this.user = user;
         this.senderNickName = senderNickname;
@@ -62,7 +73,7 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Notification(User user, String senderNickname, String senderImageUri, String itemName,   NotificationType type, Integer price) {
+    public Notification(User user, String senderNickname, String senderImageUri, String itemName, NotificationType type, Integer price) {
         this.user = user;
         this.senderNickName = senderNickname;
         this.senderImageUri = senderImageUri;

@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -298,11 +296,11 @@ public class UserService {
         }
 
         // 후기
-        List<Review> reviews = reviewRepositoryCustom.findAllByUserId(userId);
+        List<Review> reviews = reviewRepositoryCustom.findByUserId(userId);
 
         // 판매상품, 후기, 보증스탬프 개수
         Integer itemCount = items.size();
-        Long reviewCount = reviewRepositoryCustom.countByUserId(userId);
+        Long reviewCount = reviewRepositoryCustom.countBySenderId(userId);
 
         return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
     }

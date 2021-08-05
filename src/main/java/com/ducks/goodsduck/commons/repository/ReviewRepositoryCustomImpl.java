@@ -1,7 +1,6 @@
 package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.entity.*;
-import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
@@ -14,36 +13,23 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private QReview review = QReview.review;
-    private QItem item = QItem.item;
-    private QUser user = QUser.user;
 
     public ReviewRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
     @Override
-    public boolean existsByItemIdAndUserId(Long itemId, Long senderId) {
-        long fetchCount = queryFactory
+    public boolean existsBySenderIdAndReceiverId(Long senderId, Long receiverId) {
+        return queryFactory
                 .select(review)
                 .from(review)
-                .where(review.item.id.eq(itemId).and(
-                        review.user.id.eq(senderId)
-                )).fetchCount();
-        return fetchCount > 0L;
+                .where(review.user.id.eq(senderId).and(
+                        review.receiverId.eq(receiverId)
+                )).fetchCount() > 0L;
     }
 
     @Override
-    public List<Tuple> findInItems(List<Item> items) {
-        return queryFactory
-                .select(review, user)
-                .from(review)
-                .join(user).on(review.user.eq(user))
-                .where(review.item.in(items))
-                .fetch();
-    }
-
-    @Override
-    public List<Review> findAllByUserId(Long userId) {
+    public List<Review> findByUserId(Long userId) {
         return queryFactory
                 .select(review)
                 .from(review)
@@ -52,20 +38,29 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public Long countByUserId(Long userId) {
+    public Long countBySenderId(Long senderId) {
         return queryFactory
                 .select(review)
                 .from(review)
-                .where(review.user.id.eq(userId))
+                .where(review.user.id.eq(senderId))
                 .fetchCount();
     }
 
     @Override
-    public Long countInItems(List<Item> items) {
+    public List<Review> findByReveiverId(Long receiverId) {
         return queryFactory
                 .select(review)
                 .from(review)
-                .where(review.item.in(items))
+                .where(review.receiverId.eq(receiverId))
+                .fetch();
+    }
+
+    @Override
+    public Long countByReveiverId(Long receiverId) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.receiverId.eq(receiverId))
                 .fetchCount();
     }
 }
