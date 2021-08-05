@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
@@ -53,7 +52,7 @@ public class PriceProposeController {
         PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price."));
 
-        notificationService.sendMessage(priceProposeResponse.getReceiverId(), new Notification(user, priceProposeResponse));
+        notificationService.sendMessage(new Notification(user, priceProposeResponse));
 
         return OK(priceProposeResponse);
     }

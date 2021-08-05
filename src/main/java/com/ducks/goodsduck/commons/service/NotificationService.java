@@ -35,51 +35,32 @@ public class NotificationService {
         this.userRepository = userRepository;
     }
 
-    public void sendMessage(Long receiverUserId, Notification notification) throws IOException {
+    public void sendMessage(Notification notification) {
+
+        // 알림 데이터 저장 (DB)
+        notificationRepository.save(notification);
 
         try {
-            notificationRepository.save(notification);
-
-            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiverUserId);
+            // 사용자가 등록한 Device(FCM 토큰) 조회
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(notification.getUser().getId());
 
             if (registrationTokens.isEmpty()) {
                 log.debug("Device for notification not founded.");
                 return;
             }
-            var notificationResponse = new NotificationResponse(notification);
-            var notificationMessage = notificationResponse.getMessage();
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = MulticastMessage.builder()
-                    .setNotification(builder()
-                            .setTitle(notificationMessage.getMessageTitle())
-                            .setBody(notificationMessage.getMessageBody())
-                            .setImage(notificationMessage.getImageUri())
-                            .build())
-                    .addAllTokens(registrationTokens)
-                    .build();
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
-            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
-            if (response.getFailureCount() > 0) {
-                List<SendResponse> responses = response.getResponses();
-                List<String> failedTokens = new ArrayList<>();
-                for (var i = 0; i < responses.size(); i++) {
-                    if (!responses.get(i).isSuccessful()) {
-                        // The order of responses corresponds to the order of the registration tokens.
-                        failedTokens.add(registrationTokens.get(i));
-                    }
-                }
-                log.debug("List of tokens that caused failures: " + failedTokens);
-            }
-            log.debug(String.format("Completed successful messaging count: %d",  response.getSuccessCount()));
+            requestCloudMessagingToFirebase(registrationTokens, message);
 
         } catch (FirebaseMessagingException e) {
             log.debug(e.getMessage(), e);
-            throw new IOException(e.getMessage());
+//            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
-            throw new IOException(e.getMessage());
+//            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
         }
     }
 
@@ -113,40 +94,58 @@ public class NotificationService {
             notificationRepository.save(notification);
 
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
-            var notificationResponse = new NotificationResponse(notification);
-            var notificationMessage = notificationResponse.getMessage();
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = MulticastMessage.builder()
-                    .setNotification(builder()
-                            .setTitle(notificationMessage.getMessageTitle())
-                            .setBody(notificationMessage.getMessageBody())
-                            .setImage(notificationMessage.getImageUri())
-                            .build())
-                    .addAllTokens(registrationTokens)
-                    .build();
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
-            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
-            if (response.getFailureCount() > 0) {
-                List<SendResponse> responses = response.getResponses();
-                List<String> failedTokens = new ArrayList<>();
-                for (var i = 0; i < responses.size(); i++) {
-                    if (!responses.get(i).isSuccessful()) {
-                        // The order of responses corresponds to the order of the registration tokens.
-                        failedTokens.add(registrationTokens.get(i));
-                    }
-                }
-                log.debug("List of tokens that caused failures: " + failedTokens);
-            }
-            log.debug(String.format("Completed successful messaging count: %d",  response.getSuccessCount()));
+            requestCloudMessagingToFirebase(registrationTokens, message);
 
         } catch (FirebaseMessagingException e) {
             log.debug(e.getMessage(), e);
-            throw new IOException(e.getMessage());
+//            throw new IOException(e.getMessage());
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
-            throw new IOException(e.getMessage());
+//            throw new IOException(e.getMessage());
         }
+    }
+
+    private void requestCloudMessagingToFirebase(List<String> registrationTokens, MulticastMessage message) throws FirebaseMessagingException {
+        BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+        if (response.getFailureCount() > 0) {
+            List<SendResponse> responses = response.getResponses();
+            List<String> failedTokens = new ArrayList<>();
+            for (var i = 0; i < responses.size(); i++) {
+                if (!responses.get(i).isSuccessful()) {
+                    // The order of responses corresponds to the order of the registration tokens.
+                    failedTokens.add(registrationTokens.get(i));
+                }
+            }
+            log.debug("List of tokens that caused failures: " + failedTokens);
+        }
+        log.debug(String.format("Completed successful messaging count: %d", response.getSuccessCount()));
+    }
+
+    private MulticastMessage getMulticastMessage(Notification notification, List<String> registrationTokens) {
+        var notificationResponse = new NotificationResponse(notification);
+        var notificationMessage = notificationResponse.getMessage();
+
+        return MulticastMessage.builder()
+                .setNotification(builder()
+                        .setTitle(notificationMessage.getMessageTitle())
+                        .setBody(notificationMessage.getMessageBody())
+                        .build())
+                .setAndroidConfig(AndroidConfig.builder()
+                        .setNotification(AndroidNotification.builder()
+                                .setIcon(notificationMessage.getIconUri())
+                                .build())
+                        .build())
+                .setWebpushConfig(WebpushConfig.builder()
+                        .setFcmOptions(WebpushFcmOptions.builder()
+                                .setLink(notificationMessage.getMessageUri())
+                                .build())
+                        .build())
+                .addAllTokens(registrationTokens)
+                .build();
     }
 }
