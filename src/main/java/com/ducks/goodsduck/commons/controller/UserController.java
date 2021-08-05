@@ -163,6 +163,14 @@ public class UserController {
         return OK(new TradeCompleteReponse(tradeCompletedItem, userChats));
     }
 
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API V2 (게시물 주인 jwt 필요)")
+    @GetMapping("/v2/users/items/{itemId}/chat")
+    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        return OK(userChatService.findByItemIdV2(userId, itemId));
+    }
+
     @GetMapping("/v1/users/items/price-propose")
     @ApiOperation(value = "특정 유저가 받은 가격 제안 요청 목록 보기 API", notes = "SUGGESTED 상태인 가격 제안만 표시")
     public ApiResult<List<PriceProposeResponse>> getAllProposeToMe(HttpServletRequest request) {

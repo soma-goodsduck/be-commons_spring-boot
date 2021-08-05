@@ -468,4 +468,11 @@ public class ItemController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.getLikeItemsOfUser(userId));
     }
+
+    @GetMapping("/v2/items/like")
+    @ApiOperation("좋아요한 아이템 목록 보기 API V2")
+    public ApiResult<List<ItemSummaryDto>> getLikeItemsV2(HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userItemService.getLikeItemsOfUserV2(userId));
+    }
 }

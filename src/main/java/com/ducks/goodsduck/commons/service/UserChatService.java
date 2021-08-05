@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
@@ -142,8 +143,30 @@ public class UserChatService {
                 .stream()
                 .map(tuple -> {
                     UserChat userChat = tuple.get(0, UserChat.class);
-//                    User user = tuple.get(1, User.class);
                     return new UserChatResponse(userChat); })
                 .collect(Collectors.toList());
+    }
+
+    public TradeCompleteReponse findByItemIdV2(Long itemOwnerId, Long itemId) throws IllegalAccessException {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    log.debug("Input itemId is not valid. itemId: {}", itemId);
+                    throw new NoResultException("Item not founded");
+                });
+
+        // HINT: 해당 유저가 아이템 게시글 주인이 아닌 경우 접근 제한
+        if (!item.getUser().getId().equals(itemOwnerId)) {
+            log.debug("This user is not owner of this item. itemId: {}", itemId);
+            throw new IllegalAccessException("Cannot access except item owner.");
+        }
+
+        List<UserChatResponse> userChatResponses = userChatRepositoryCustom.findByItemIdExceptItemOwner(itemOwnerId, itemId)
+                .stream()
+                .map(tuple -> new UserChatResponse(
+                        tuple.get(0, UserChat.class)
+                ))
+                .collect(Collectors.toList());
+
+        return new TradeCompleteReponse(item, userChatResponses);
     }
 }

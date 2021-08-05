@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +36,7 @@ public class UserItemService {
 
     public List<ItemDto> getLikeItemsOfUser(Long userId) {
 
-        return userItemRepositoryCustom.findTupleByUserId(userId)
+        return userItemRepositoryCustom.findByUserId(userId)
                 .stream()
                 .map(tuple -> {
                     var item = tuple.get(1, Item.class);
@@ -50,6 +50,14 @@ public class UserItemService {
                     itemDto.likesOfMe();
                     return itemDto;
                 })
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemSummaryDto> getLikeItemsOfUserV2(Long userId) {
+
+        return userItemRepositoryCustom.findByUserIdV2(userId)
+                .stream()
+                .map(item -> ItemSummaryDto.of(item))
                 .collect(Collectors.toList());
     }
 
