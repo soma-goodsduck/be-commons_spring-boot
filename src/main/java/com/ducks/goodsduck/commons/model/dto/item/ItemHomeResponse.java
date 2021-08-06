@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class ItemHomeResponse {
     private String imageUrl;
     private Long price;
     private String tradeType;
-    private String tradeStatus;
+    private TradeStatus tradeStatus;
     private ItemDetailResponseIdol idolMember;
     private LocalDateTime itemCreatedAt;
     private Integer views;
@@ -28,7 +29,7 @@ public class ItemHomeResponse {
         this.imageUrl = item.getImages().get(0).getUrl();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
-        this.tradeStatus = item.getTradeStatus().getKorName();
+        this.tradeStatus = item.getTradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
         this.views = item.getViews();
@@ -44,7 +45,7 @@ public class ItemHomeResponse {
         this.imageUrl = imageUrl;
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
-        this.tradeStatus = item.getTradeStatus().getKorName();
+        this.tradeStatus = item.getTradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
         this.views = item.getViews();

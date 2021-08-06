@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -796,6 +797,12 @@ public class ItemService {
                 .collect(Collectors.toList());
 
         return tupleToList;
+    }
+
+    public ItemSummaryDto showDetailSummary(Long itemId) {
+        return ItemSummaryDto.of(itemRepository.findById(itemId)
+                .orElseThrow(() -> {throw new NoResultException("Item not founded.");
+                }));
     }
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {

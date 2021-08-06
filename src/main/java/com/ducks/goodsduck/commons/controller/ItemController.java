@@ -18,10 +18,7 @@ import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.service.ItemService;
-import com.ducks.goodsduck.commons.service.NotificationService;
-import com.ducks.goodsduck.commons.service.UserItemService;
-import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,6 +80,14 @@ public class ItemController {
         else {
             return OK(itemService.showDetailWithLike(userId, itemId));
         }
+    }
+
+    @NoCheckJwt
+    @ApiOperation(value = "아이템 상세보기 (요약)")
+    @GetMapping("/v1/items/{itemId}/summary")
+    public ApiResult<ItemSummaryDto> showItemDetailSummary(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+
+        return OK(itemService.showDetailSummary(itemId));
     }
 
     @NoCheckJwt

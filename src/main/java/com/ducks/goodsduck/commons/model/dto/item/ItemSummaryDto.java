@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,7 @@ public class ItemSummaryDto {
     private String name;
     private Long price;
     private String tradeType;
-    private String tradeStatus;
+    private TradeStatus tradeStatus;
     private LocalDateTime itemCreatedAt;
 
     public static ItemSummaryDto of (Item item, String imageUrl) {
@@ -32,7 +33,7 @@ public class ItemSummaryDto {
         this.name = item.getName();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
-        this.tradeStatus = item.getTradeStatus().getKorName();
+        this.tradeStatus = item.getTradeStatus();
         this.itemCreatedAt = item.getCreatedAt();
     }
 
@@ -41,7 +42,7 @@ public class ItemSummaryDto {
         this.name = item.getName();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
-        this.tradeStatus = item.getTradeStatus().getKorName();
+        this.tradeStatus = item.getTradeStatus();
         this.itemCreatedAt = item.getCreatedAt();
         this.imageUrl = imageUrl;
     }
