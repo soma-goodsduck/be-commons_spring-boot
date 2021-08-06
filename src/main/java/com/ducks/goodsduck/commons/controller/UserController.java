@@ -8,10 +8,7 @@ import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.service.ItemService;
-import com.ducks.goodsduck.commons.service.PriceProposeService;
-import com.ducks.goodsduck.commons.service.DeviceService;
-import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
@@ -21,9 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,6 +41,7 @@ public class UserController {
     private final PriceProposeService priceProposeService;
     private final ItemService itemService;
     private final DeviceService deviceService;
+    private final JwtService jwtService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -109,21 +110,30 @@ public class UserController {
         return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
     }
 
+    @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
     @Transactional
-    public ApiResult<UserDto> getUser(HttpServletRequest request) {
+    public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt, HttpServletResponse response) {
 
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = userService.checkLoginStatus(jwt);
+        String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
+
+        response.setHeader("jwt", newJwt);
+
         return OK(userService.find(userId)
-                .map(user -> new UserDto(user))
+                .map(user -> {
+                    UserDto userDto = new UserDto(user);
+                    userDto.setJwt(newJwt);
+                    return userDto;
+                })
                 .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
     }
 
     @ApiOperation("jwt를 통한 유저 ID 조회 API")
     @GetMapping("/v1/users/look-up-id")
     @Transactional
-    public ApiResult<UserSimpleDto> getUserIdByJwt(HttpServletRequest request) throws Exception {
+    public ApiResult<UserSimpleDto> getUserIdByJwt(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userRepository.findById(userId).map(user -> new UserSimpleDto(user))
                 .orElseThrow(() -> new Exception("not find user id")));

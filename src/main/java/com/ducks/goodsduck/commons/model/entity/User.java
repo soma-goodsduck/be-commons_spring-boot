@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 @Getter @Setter
@@ -53,7 +54,15 @@ public class User {
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.role = UserRole.USER;
-        this.bcryptId = BCrypt.hashpw(this.phoneNumber, BCrypt.gensalt(5));
+        this.bcryptId = createBcryptId();
+    }
+
+    public String createBcryptId() {
+        Random random = new Random();
+        int number = random.nextInt(26) + 65;
+
+        String tempBcryptId = BCrypt.hashpw(this.phoneNumber, BCrypt.gensalt(5));
+        return tempBcryptId.replace('/', (char)number);
     }
 
     public void addSocialAccount(SocialAccount socialAccount) {
