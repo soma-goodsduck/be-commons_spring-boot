@@ -17,6 +17,8 @@ public class ItemSimpleDto {
         this.id = item.getId();
         this.name = item.getName();
         this.price = item.getPrice();
-        this.imageUrl = item.getImages().get(0).getUrl();
+        if(!item.getImages().isEmpty()) {
+            this.imageUrl = item.getImages().get(0).getUrl();
+        }
     }
 }

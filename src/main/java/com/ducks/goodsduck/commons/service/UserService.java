@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -274,7 +276,7 @@ public class UserService {
         Long count = userRepositoryCustom.findByNickname(nickname);
 
         if(count >= 1L) {
-            throw new DuplicateKeyException("This nickname already existed");
+            return false;
         } else {
             return true;
         }
@@ -288,13 +290,16 @@ public class UserService {
         // 판매상품
         List<Item> items = user.getItems();
         List<Item> showItems = new ArrayList<>();
+        List<Item> sortedItems = items.stream()
+                .sorted((item1, item2) -> item2.getId().compareTo(item1.getId()))
+                .collect(Collectors.toList());
 
-        if(items.size() > 3) {
-            showItems.add(items.get(0));
-            showItems.add(items.get(1));
-            showItems.add(items.get(2));
+        if(sortedItems.size() > 3) {
+            showItems.add(sortedItems.get(0));
+            showItems.add(sortedItems.get(1));
+            showItems.add(sortedItems.get(2));
         } else {
-            showItems = items;
+            showItems = sortedItems;
         }
 
         // 후기

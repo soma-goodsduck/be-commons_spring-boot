@@ -7,6 +7,7 @@ import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,8 +18,8 @@ public class OtherUserPageDto {
     private Integer itemCount;
     private Long reviewCount;
     private Integer stampCount;
-    private List<ItemSimpleDto> items;
-    private List<ReviewResponse> reviews;
+    private List<ItemSimpleDto> items = new ArrayList<>();
+    private List<ReviewResponse> reviews = new ArrayList<>();
 
     public OtherUserPageDto(User user, Integer itemCount, Long reviewCount, List<Item> items, List<Review> reviews) {
         this.user = new UserSimpleDto(user);

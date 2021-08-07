@@ -209,6 +209,11 @@ public class ItemService {
             item.setDescription(itemUpdateRequest.getDescription());
             item.setPrice(itemUpdateRequest.getPrice());
             item.setTradeType(itemUpdateRequest.getTradeType());
+            if(itemUpdateRequest.getTradeType().equals(TradeType.BUY)) {
+                item.setTradeStatus(TradeStatus.BUYING);
+            } else {
+                item.setTradeStatus(TradeStatus.SELLING);
+            }
             item.setGradeStatus(itemUpdateRequest.getGradeStatus());
             IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
             item.setIdolMember(idolMember);
