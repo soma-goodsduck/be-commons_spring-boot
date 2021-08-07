@@ -300,7 +300,7 @@ public class UserService {
 
         // 판매상품, 후기, 보증스탬프 개수
         Integer itemCount = items.size();
-        Long reviewCount = reviewRepositoryCustom.countBySenderId(userId);
+        Long reviewCount = reviewRepositoryCustom.countByReveiverId(userId);
 
         return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
     }
