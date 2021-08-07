@@ -7,7 +7,7 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepositoryCustom {
-    boolean existsBySenderIdAndReceiverId(Long senderId, Long receiverId);
+    boolean existsByItemIdAndSenderIdAndReceiverId(Long itemId, Long senderId, Long receiverId);
     Long countBySenderId(Long senderId);
     List<Review> findByUserId(Long userId);
     List<Review> findByReveiverId(Long receiverId);

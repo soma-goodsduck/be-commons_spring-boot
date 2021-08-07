@@ -25,14 +25,12 @@ public class ReviewService {
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final ItemRepository itemRepository;
-    private final ItemRepositoryCustom itemRepositoryCustom;
 
-    public ReviewService(ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
+    public ReviewService(ReviewRepository reviewRepository, ReviewRepositoryCustomImpl reviewRepositoryCustom, UserChatRepositoryCustomImpl userChatRepositoryCustom, ItemRepository itemRepository) {
         this.reviewRepository = reviewRepository;
         this.reviewRepositoryCustom = reviewRepositoryCustom;
         this.userChatRepositoryCustom = userChatRepositoryCustom;
         this.itemRepository = itemRepository;
-        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
     public Optional<Review> saveReview(Long senderId, ReviewRequest reviewRequest) throws IllegalAccessException {
@@ -40,6 +38,7 @@ public class ReviewService {
         String chatRoomId = reviewRequest.getChatRoomId();
         UserChat receiverChat = userChatRepositoryCustom.findBySenderIdAndChatRoomId(senderId, chatRoomId);
         Long receiverId = receiverChat.getUser().getId();
+        Long itemId = reviewRequest.getItemId();
 
         // HINT: 자신에게 남기는 셀프 리뷰 불가능
         if (senderId.equals(receiverId)) {
@@ -47,18 +46,22 @@ public class ReviewService {
         }
 
         // HINT: 리뷰 중복 방지
-        if (reviewRepositoryCustom.existsBySenderIdAndReceiverId(senderId, receiverId)) {
+        if (reviewRepositoryCustom.existsByItemIdAndSenderIdAndReceiverId(itemId, senderId, receiverId)) {
             throw new IllegalAccessException("Review of this trade already exists.");
         }
 
         User sender = userChatRepositoryCustom.findSenderByChatIdAndUserId(chatRoomId, senderId);
+        Item tradeCompletedItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("Item not founded.");
+                });
 
         // HINT: 채팅에 참여한 사용자에 한해서 리뷰 작성 가능
         if (sender == null) {
             throw new IllegalAccessException("Reviewer must be in chat room.");
         }
 
-        return Optional.ofNullable(reviewRepository.save(new Review(sender, receiverId, reviewRequest.getContent(), reviewRequest.getScore())));
+        return Optional.ofNullable(reviewRepository.save(new Review(sender, tradeCompletedItem, receiverId, reviewRequest.getContent(), reviewRequest.getScore())));
     }
 
     public List<ReviewResponse> getReviewsOfItemOwner(Long itemId) {

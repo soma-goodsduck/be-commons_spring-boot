@@ -19,12 +19,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public boolean existsBySenderIdAndReceiverId(Long senderId, Long receiverId) {
+    public boolean existsByItemIdAndSenderIdAndReceiverId(Long itemId, Long senderId, Long receiverId) {
         return queryFactory
                 .select(review)
                 .from(review)
-                .where(review.user.id.eq(senderId).and(
-                        review.receiverId.eq(receiverId)
+                .where(review.item.id.eq(itemId).and(
+                        review.user.id.eq(senderId).and(
+                        review.receiverId.eq(receiverId))
                 )).fetchCount() > 0L;
     }
 

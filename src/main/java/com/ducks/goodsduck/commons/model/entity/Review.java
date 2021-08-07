@@ -24,14 +24,19 @@ public class Review {
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ITEM_ID")
+    private Item item;
+
     private Long receiverId;
 
     private String content;
     private Integer score;
     private LocalDateTime createdAt;
 
-    public Review(User user, Long receiverId, String content, Integer score) {
+    public Review(User user, Item item, Long receiverId, String content, Integer score) {
         this.user = user;
+        this.item = item;
         this.receiverId = receiverId;
         this.content = content;
         this.score = score;
