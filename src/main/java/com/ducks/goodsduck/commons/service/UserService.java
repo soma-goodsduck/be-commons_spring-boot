@@ -296,7 +296,7 @@ public class UserService {
         }
 
         // 후기
-        List<Review> reviews = reviewRepositoryCustom.findByUserId(userId);
+        List<Review> reviews = reviewRepositoryCustom.findByReveiverId(userId);
 
         // 판매상품, 후기, 보증스탬프 개수
         Integer itemCount = items.size();
