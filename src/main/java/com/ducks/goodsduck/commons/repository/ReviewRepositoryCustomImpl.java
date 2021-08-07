@@ -53,6 +53,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .select(review)
                 .from(review)
                 .where(review.receiverId.eq(receiverId))
+                .orderBy(review.id.desc())
                 .fetch();
     }
 
