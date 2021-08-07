@@ -7,11 +7,13 @@ import lombok.Data;
 public class ItemDetailResponseItemOwner {
 
     private Long userId;
+    private String bcryptId;
     private String nickName;
     private String imageUrl;
 
     public ItemDetailResponseItemOwner(User user) {
         this.userId = user.getId();
+        this.bcryptId = user.getBcryptId();
         this.nickName = user.getNickName();
         this.imageUrl = user.getImageUrl();
     }

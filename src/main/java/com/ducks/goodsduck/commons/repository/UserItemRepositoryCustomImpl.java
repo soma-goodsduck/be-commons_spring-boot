@@ -15,6 +15,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
 
     private QUser user = QUser.user;
     private QItem item = QItem.item;
+    private QImage image = QImage.image;
     private QUserItem userItem = QUserItem.userItem;
     private QCategoryItem categoryItem = QCategoryItem.categoryItem;
     private QIdolMember idolMember = QIdolMember.idolMember;
@@ -32,7 +33,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findTupleByUserId(Long userId) {
+    public List<Tuple> findByUserId(Long userId) {
         return queryFactory.select(userItem, item, categoryItem, idolMember, idolGroup)
                 .from(userItem)
                 .join(userItem.item, item)
@@ -41,6 +42,16 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
                 .join(idolMember.idolGroup, idolGroup)
                 .join(userItem.user, user)
                 .where(userItem.user.id.eq(userId))
+                .fetch();
+    }
+
+    @Override
+    public List<Item> findByUserIdV2(Long userId) {
+        return queryFactory.select(userItem.item)
+                .from(userItem)
+                .join(userItem.item.images, image).fetchJoin()
+                .where(userItem.user.id.eq(userId))
+                .distinct()
                 .fetch();
     }
 

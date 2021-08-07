@@ -3,13 +3,23 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.model.dto.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.ReviewResponse;
+import com.ducks.goodsduck.commons.model.entity.Notification;
+import com.ducks.goodsduck.commons.model.entity.Review;
+import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.repository.ItemRepository;
+import com.ducks.goodsduck.commons.repository.ItemRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.ItemRepositoryCustomImpl;
+import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -23,9 +33,18 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final NotificationService notificationService;
 
-    public ReviewController(ReviewService reviewService) {
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ItemRepositoryCustom itemRepositoryCustom;
+
+    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
         this.reviewService = reviewService;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
+        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
     @GetMapping("/v1/users/reviews")
@@ -40,7 +59,15 @@ public class ReviewController {
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
                                          @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        reviewService.saveReview(userId, reviewRequest);
+        Review savedReview = reviewService.saveReview(userId, reviewRequest)
+                .orElseThrow(() -> {
+                    throw new IllegalStateException("Error occurred during save review.");
+                });
+
+        User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
+            throw new NoResultException("User not founded.");
+        });
+        notificationService.sendMessage(new Notification(savedReview, receiver));
         return OK(true);
     }
 

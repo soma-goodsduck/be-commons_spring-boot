@@ -1,7 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -338,20 +338,18 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈 (V2)
-    public Slice<ItemHomeResponseV2> getItemListV2(Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> getItemListV2(Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllV2(pageable, keyword);
-        List<ItemHomeResponseV2> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     Image image = tuple.get(3, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -402,7 +400,7 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 (V2)
-    public Slice<ItemHomeResponseV2> getItemListUserV2(Long userId, Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> getItemListUserV2(Long userId, Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
@@ -412,19 +410,17 @@ public class ItemService {
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV2(userId, userIdolGroups, pageable, keyword);
 
-        List<ItemHomeResponseV2> tupleToList =  listOfTuple
+        List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
                     Image image = tuple.get(4, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
                     if(userItem != null) {
                         itemHomeResponse.likesOfMe();
                     }
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -477,21 +473,19 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈 필터링 (아이돌 그룹) V2
-    public Slice<ItemHomeResponseV2> filterByIdolGroupV2(Long idolGroupId, Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> filterByIdolGroupV2(Long idolGroupId, Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupV2(idolGroupId, pageable, keyword);
 
-        List<ItemHomeResponseV2> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     Image image = tuple.get(3, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -539,25 +533,23 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 필터링 (아이돌그룹) V2
-    public Slice<ItemHomeResponseV2> filterByIdolGroupV2(Long userId, Long idolGroupId, Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> filterByIdolGroupV2(Long userId, Long idolGroupId, Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV2(userId, idolGroupId, pageable, keyword);
 
-        List<ItemHomeResponseV2> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
                     Image image = tuple.get(4, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
                     if(userItem != null) {
                         itemHomeResponse.likesOfMe();
                     }
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -605,21 +597,19 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 홈 필터링 (ALL) V2
-    public Slice<ItemHomeResponseV2> filterByAllV2(ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> filterByAllV2(ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(itemFilterDto, pageable, keyword);
 
-        List<ItemHomeResponseV2> tupleToList = listOfTuple
+        List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
                     Image image = tuple.get(3, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -667,25 +657,23 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 필터링 (ALL) V2
-    public Slice<ItemHomeResponseV2> filterByAllV2(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
+    public Slice<ItemHomeResponse> filterByAllV2(Long userId, ItemFilterDto itemFilterDto, Integer pageNumber, String keyword) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(userId, itemFilterDto, pageable, keyword);
 
-        List<ItemHomeResponseV2> tupleToList =  listOfTuple
+        List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0,Item.class);
                     UserItem userItem = tuple.get(1, UserItem.class);
                     Image image = tuple.get(4, Image.class);
 
-                    ItemHomeResponseV2 itemHomeResponse = new ItemHomeResponseV2(item);
+                    ItemHomeResponse itemHomeResponse = new ItemHomeResponse(item, image.getUrl());
                     if(userItem != null) {
                         itemHomeResponse.likesOfMe();
                     }
-
-                    itemHomeResponse.setImageUrl(image.getUrl());
 
                     return itemHomeResponse;
                 })
@@ -722,10 +710,8 @@ public class ItemService {
                 .stream()
                 .map(tuple -> {
                     Item item = tuple.get(0, Item.class);
-                    ImageDto imageDto = Optional.ofNullable(tuple.get(1, Image.class))
-                            .map(image -> new ImageDto(image))
-                            .orElseGet(() -> new ImageDto());
-                    return ItemSummaryDto.of(item, imageDto);
+                    String imageUrl = tuple.get(1, Image.class).getUrl();
+                    return ItemSummaryDto.of(item, imageUrl);
                 })
                 .collect(Collectors.toList());
 
@@ -735,7 +721,7 @@ public class ItemService {
         Long countOfLikes = userItemRepository.countByUserId(userId);
 
         // 후기 Count
-        Long countOfReceivedReviews = reviewRepositoryCustom.countInItems(itemsByUserId);
+        Long countOfReceivedReviews = reviewRepositoryCustom.countByReveiverId(userId);
 
         // 가격제시 Count
         Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);
@@ -816,6 +802,12 @@ public class ItemService {
                 .collect(Collectors.toList());
 
         return tupleToList;
+    }
+
+    public ItemSummaryDto showDetailSummary(Long itemId) {
+        return ItemSummaryDto.of(itemRepository.findById(itemId)
+                .orElseThrow(() -> {throw new NoResultException("Item not founded.");
+                }));
     }
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
