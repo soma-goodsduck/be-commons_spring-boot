@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.management.RuntimeErrorException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -44,10 +45,6 @@ public class ImageUploadService {
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
 
-    public String getFilePath(String fileName) {
-        return localFilePath + fileName;
-    }
-
     public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
 
         List<Image> images = new ArrayList<>();
@@ -62,7 +59,7 @@ public class ImageUploadService {
         return images;
     }
 
-    /** S3에 이미지 업로드 + 리사이징 **/
+    /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
     public Image uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
 
         // S3 셋팅
@@ -103,10 +100,13 @@ public class ImageUploadService {
             rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
 
             BufferedImage resizedImage = rescale.filter(image, null);
+            BufferedImage watermarkedImage = getWatermarkedImage(resizedImage);
 
-            uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
+            uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
         } else {
-            uploadImageToS3(s3Client, uploadName, ext, image, imageType);
+            BufferedImage watermarkedImage = getWatermarkedImage(image);
+
+            uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
         }
 
         if(imageType.equals(ImageType.ITEM)) {
@@ -119,78 +119,6 @@ public class ImageUploadService {
             return null;
         }
     }
-
-    // TODO : 추후 확인 후 삭제 예정
-//    public List<ImageDto> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
-//
-//        List<ImageDto> imageDtos = new ArrayList<>();
-//
-//        for (MultipartFile multipartFile : multipartFiles) {
-//            if(!multipartFile.isEmpty()) {
-//                ImageDto imageDto = uploadImage(multipartFile, imageType);
-//                imageDtos.add(imageDto);
-//            }
-//        }
-//
-//        return imageDtos;
-//    }
-
-//    public ImageDto uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
-//
-//        // S3 셋팅
-//        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-//                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-//                .withRegion(region)
-//                .build();
-//
-//        if(multipartFile.isEmpty()) {
-//            return null;
-//        }
-//
-//        String originName = multipartFile.getOriginalFilename();
-//        String uploadName = createUploadName(originName);
-//        String ext = extractExt(originName);
-//        Long bytes = multipartFile.getSize();
-//
-//        BufferedImage image = ImageIO.read(multipartFile.getInputStream());
-//
-//        // 1MB 이상에서만 리사이징
-//        if(bytes >= 1048576) {
-//
-//            int width = image.getWidth();
-//            int height = image.getHeight();
-//            int newWidth = width;
-//            int newHeight = height;
-//
-//            if(width > height) {
-//                newHeight = 500;
-//                newWidth = getNewWidth(newHeight, width, height);
-//            } else {
-//                newWidth = 500;
-//                newHeight = getNewHeight(newWidth, width, height);
-//            }
-//
-//            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
-//            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
-//
-//            BufferedImage resizedImage = rescale.filter(image, null);
-//
-//            uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
-//        } else {
-//            uploadImageToS3(s3Client, uploadName, ext, image, imageType);
-//        }
-//
-//        if(imageType.equals(ImageType.ITEM)) {
-//            return new ImageDto(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
-//        } else if(imageType.equals(ImageType.PROFILE)) {
-//            return new ImageDto(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
-//        } else if(imageType.equals(ImageType.CHAT)) {
-//            return new ImageDto(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
-//        } else {
-//            return null;
-//        }
-//    }
 
     private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image, ImageType imageType) throws IOException {
 
@@ -223,6 +151,34 @@ public class ImageUploadService {
         }
     }
 
+    private BufferedImage getWatermarkedImage(BufferedImage image) {
+
+        BufferedImage watermarkedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+        Graphics graphics = watermarkedImage.getGraphics();
+        graphics.drawImage(image, 0, 0, null);
+
+        graphics.setFont(new Font("SansSerif", Font.BOLD, 15));
+        graphics.setColor(new Color(255, 255, 255, 70));
+
+        StringBuilder sb = new StringBuilder();
+        sb.appendCodePoint(169) ;
+        sb.append(" GOODSDUCK");
+        String watermark = sb.toString();
+        String username = "마크크크";
+
+        // 워터마크 1Line Center
+//        graphics.drawString(watermark, image.getWidth()/2 - 80, image.getHeight()/2);
+
+        // 워터마크 2Line Center
+        graphics.drawString(watermark, image.getWidth()/2 - 60, image.getHeight()/2 - 10);
+        graphics.drawString(username, image.getWidth()/2 - 45, image.getHeight()/2 + 10);
+
+        graphics.dispose();
+
+        return watermarkedImage;
+    }
+
     private Integer getNewWidth(int newHeight, int width, int height) {
         return newHeight * width / height;
     }
@@ -248,6 +204,10 @@ public class ImageUploadService {
         String ext = orginName.substring(idx + 1);
 
         return ext;
+    }
+
+    public String getFilePath(String fileName) {
+        return localFilePath + fileName;
     }
 
     /** local에 이미지 업로드 **/
@@ -307,4 +267,51 @@ public class ImageUploadService {
 //
 //        return new ImageDto(orginName, uploadName);
 //    }
+
+    // TODO : 주석예정
+    /** local에 이미지 업로드 + 리사이징 + 워터마크 **/
+    public ImageDto uploadImageWithWatermark(MultipartFile multipartFile) throws IOException {
+
+        if(multipartFile.isEmpty()) {
+            return null;
+        }
+
+        String orginName = multipartFile.getOriginalFilename();
+        String uploadName = createUploadName(orginName);
+        String ext = extractExt(orginName);
+        Long bytes = multipartFile.getSize();
+
+        BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+
+        // 1MB 이상에서만 리사이징
+        if(bytes >= 1048576) {
+
+            int width = image.getWidth();
+            int height = image.getHeight();
+            int newWidth = width;
+            int newHeight = height;
+
+            if (width > height) {
+                newHeight = 500;
+                newWidth = getNewWidth(newHeight, width, height);
+            } else {
+                newWidth = 500;
+                newHeight = getNewHeight(newWidth, width, height);
+            }
+
+            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
+            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
+
+            BufferedImage resizedImage = rescale.filter(image, null);
+            BufferedImage watermarkedImage = getWatermarkedImage(resizedImage);
+
+            ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));
+        } else {
+            BufferedImage watermarkedImage = getWatermarkedImage(image);
+
+            ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));
+        }
+
+        return new ImageDto(orginName, uploadName);
+    }
 }

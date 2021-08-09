@@ -80,42 +80,6 @@ public class ItemService {
         }
     }
 
-    // TODO : 추후 확인 후 삭제 예정
-//    public Long upload(ItemUploadRequest itemUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException {
-//
-//        try {
-//            /** 이미지 업로드 처리 **/
-//            List<ImageDto> imageDtos = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
-//
-//            Item item = new Item(itemUploadRequest);
-//
-//            /** Item-User 연관관계 삽입 **/
-//            User findUser = userRepository.findById(userId).get();
-//            item.setUser(findUser);
-//
-//            /** Item-IdolMember 연관관계 삽입 **/
-//            IdolMember idolMember = idolMemberRepository.findById(itemUploadRequest.getIdolMember()).get();
-//            item.setIdolMember(idolMember);
-//
-//            /** Item-Category 연관관계 삽입 **/
-//            CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
-//            item.setCategoryItem(categoryItem);
-//
-//            itemRepository.save(item);
-//
-//            /** Image-Item 연관관계 삽입 **/
-//            for (ImageDto imageDto : imageDtos) {
-//                Image image = new Image(imageDto);
-//                item.addImage(image);
-//                imageRepository.save(image);
-//            }
-//
-//            return item.getId();
-//        } catch (Exception e) {
-//            return -1L;
-//        }
-//    }
-
     public ItemDetailResponse showDetail(Long itemId) {
 
         Item item = itemRepository.findById(itemId).get();

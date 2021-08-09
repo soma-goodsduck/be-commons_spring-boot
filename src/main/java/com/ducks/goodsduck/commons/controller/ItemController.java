@@ -1,14 +1,10 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
-import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.CategoryItemDto;
-import com.ducks.goodsduck.commons.model.dto.UserItemResponse;
-import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
+import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
-import com.ducks.goodsduck.commons.model.dto.GradeStatusDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -18,10 +14,7 @@ import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.service.ItemService;
-import com.ducks.goodsduck.commons.service.NotificationService;
-import com.ducks.goodsduck.commons.service.UserItemService;
-import com.ducks.goodsduck.commons.service.UserService;
+import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +50,18 @@ public class ItemController {
     private final UserRepository userRepository;
     private final CategoryItemRepository categoryItemRepository;
 
+    private final ImageUploadService imageUploadService;
+    
+    @NoCheckJwt
+    @ApiOperation(value = "(삭제 예정) 워터마크 테스트 API")
+    @PostMapping("/v1/check/watermark")
+    public Long checkWatermark(@RequestParam MultipartFile multipartFile) throws IOException {
+
+        imageUploadService.uploadImageWithWatermark(multipartFile);
+        return 1L;
+    }
+
+    @NoCheckJwt
     @ApiOperation(value = "아이템 등록하기")
     @PostMapping("/v1/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
@@ -65,6 +70,8 @@ public class ItemController {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 8L;
+
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
 
