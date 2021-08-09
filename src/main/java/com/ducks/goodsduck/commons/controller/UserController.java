@@ -2,8 +2,10 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
+import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.ItemRepository;
@@ -15,13 +17,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class UserController {
     private final PriceProposeService priceProposeService;
     private final ItemService itemService;
     private final DeviceService deviceService;
+    private final UserChatService userChatService;
     private final JwtService jwtService;
 
     private final UserRepository userRepository;
@@ -149,6 +152,30 @@ public class UserController {
         TradeStatus status = valueOf(tradeStatus.toUpperCase());
 
         return OK(itemService.findMyItem(userId, status));
+    }
+
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API (게시물 주인 jwt 필요)")
+    @GetMapping("/v1/users/items/{itemId}/chat")
+    @Transactional
+    public ApiResult<TradeCompleteReponse> getUserChatListByItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        Item tradeCompletedItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("Item not founded.");
+                });
+
+        List<UserChatResponse> userChats = userChatService.findByItemId(userId, itemId);
+
+        return OK(new TradeCompleteReponse(tradeCompletedItem, userChats));
+    }
+
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API V2 (게시물 주인 jwt 필요)")
+    @GetMapping("/v2/users/items/{itemId}/chat")
+    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        return OK(userChatService.findByItemIdV2(userId, itemId));
     }
 
     @GetMapping("/v1/users/items/price-propose")

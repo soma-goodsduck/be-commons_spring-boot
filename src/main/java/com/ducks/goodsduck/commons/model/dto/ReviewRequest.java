@@ -10,4 +10,5 @@ public class ReviewRequest {
     private Long itemId;
     private String chatRoomId;
     private String content;
+    private Integer score;
 }

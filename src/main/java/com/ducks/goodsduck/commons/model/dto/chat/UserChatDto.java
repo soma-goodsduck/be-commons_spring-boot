@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto.chat;
 
-import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 public class UserChatDto {
 
     private List<UserSimpleDto> users = new ArrayList<>();
-    private ItemSimpleDto item;
+    private ItemSummaryDto item;
 
     public UserChatDto(List<User> users, Item item) {
         this.users = users.stream()
                     .map(user -> new UserSimpleDto(user))
                     .collect(Collectors.toList());
-        this.item = new ItemSimpleDto(item);
+        this.item = new ItemSummaryDto(item);
     }
 }

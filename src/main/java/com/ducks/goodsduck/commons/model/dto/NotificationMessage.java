@@ -12,12 +12,12 @@ public class NotificationMessage {
     private String messageTitle;
     private String messageBody;
     private String messageUri;
-    private String imageUri;
+    private String iconUri;
 
-    public NotificationMessage(String messageTitle, String messageBody, String messageUri, String imageUri) {
+    public NotificationMessage(String messageTitle, String messageBody, String messageUri, String iconUri) {
         this.messageTitle = messageTitle;
         this.messageBody = messageBody;
         this.messageUri = messageUri;
-        this.imageUri = imageUri;
+        this.iconUri = iconUri;
     }
 }

@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
-import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
@@ -18,7 +18,7 @@ public class PriceProposeResponse {
     private Long priceProposeId;
     private Long receiverId;
     private UserSimpleDto proposer;
-    private ItemSimpleDto item;
+    private ItemSummaryDto item;
     private int proposedPrice;
     private PriceProposeStatus status;
     private LocalDateTime createdAt;
@@ -27,7 +27,7 @@ public class PriceProposeResponse {
         this.priceProposeId = pricePropose.getId();
         this.receiverId = pricePropose.getItem().getUser().getId();
         this.proposer = new UserSimpleDto();
-        this.item = new ItemSimpleDto();
+        this.item = new ItemSummaryDto();
         this.proposedPrice = pricePropose.getPrice();
         this.status = pricePropose.getStatus();
         this.createdAt = pricePropose.getCreatedAt();
@@ -37,7 +37,7 @@ public class PriceProposeResponse {
         this.priceProposeId = pricePropose.getId();
         this.receiverId = item.getUser().getId();
         this.proposer = new UserSimpleDto(user);
-        this.item = new ItemSimpleDto(item);
+        this.item = new ItemSummaryDto(item);
         this.proposedPrice = pricePropose.getPrice();
         this.status = pricePropose.getStatus();
         this.createdAt = pricePropose.getCreatedAt();

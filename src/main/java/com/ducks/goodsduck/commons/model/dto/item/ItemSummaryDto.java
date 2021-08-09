@@ -1,9 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
-import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
-import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,15 +12,15 @@ import java.time.LocalDateTime;
 public class ItemSummaryDto {
 
     private Long itemId;
+    private String imageUrl;
     private String name;
     private Long price;
-    private TradeType tradeType;
+    private String tradeType;
     private TradeStatus tradeStatus;
     private LocalDateTime itemCreatedAt;
-    private ImageDto image;
 
-    public static ItemSummaryDto of (Item item, ImageDto image) {
-        return new ItemSummaryDto(item, image);
+    public static ItemSummaryDto of (Item item, String imageUrl) {
+        return new ItemSummaryDto(item, imageUrl);
     }
 
     public static ItemSummaryDto of (Item item) {
@@ -31,20 +29,23 @@ public class ItemSummaryDto {
 
     public ItemSummaryDto(Item item) {
         this.itemId = item.getId();
+        if(!item.getImages().isEmpty()) {
+            this.imageUrl = item.getImages().get(0).getUrl();
+        }
         this.name = item.getName();
         this.price = item.getPrice();
-        this.tradeType = item.getTradeType();
+        this.tradeType = item.getTradeType().getKorName();
         this.tradeStatus = item.getTradeStatus();
         this.itemCreatedAt = item.getCreatedAt();
     }
 
-    public ItemSummaryDto(Item item, ImageDto image) {
+    public ItemSummaryDto(Item item, String imageUrl) {
         this.itemId = item.getId();
         this.name = item.getName();
         this.price = item.getPrice();
-        this.tradeType = item.getTradeType();
+        this.tradeType = item.getTradeType().getKorName();
         this.tradeStatus = item.getTradeStatus();
         this.itemCreatedAt = item.getCreatedAt();
-        this.image = image;
+        this.imageUrl = imageUrl;
     }
 }
