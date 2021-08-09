@@ -200,7 +200,7 @@ Project Link (Organization Page) : [https://github.com/soma-goodsduck](https://g
 [issues-shield]: https://img.shields.io/github/issues/soma-goodsduck/be-commons_spring-boot.svg?style=for-the-badge
 [issues-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/issues
 [license-shield]: https://img.shields.io/github/license/soma-goodsduck/be-commons_spring-boot.svg?style=for-the-badge
-[license-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/blob/master/LICENSE.txt
+[license-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/othneildrew
 [product-screenshot]: images/screenshot.png
