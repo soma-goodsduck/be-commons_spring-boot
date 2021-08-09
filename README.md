@@ -23,32 +23,22 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
+ 
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/soma-goodsduck/be-commons_spring-boot">
+  <a href="https://github.com/soma-goodsduck/goodsduck_front">
     <img src="https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/icon/logo.svg" alt="Logo" width="400" height="80">
   </a>
-
-<h3 align="center">굿즈덕 플랫폼 - 백엔드 레포지토리</h3>
 
   <p align="center">
     굿즈를 모으는 덕후들을 위한 서비스
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://www.goods-duck.com">View Demo</a>
-    ·
-    <a href="https://github.com/soma-goodsduck/be-commons_spring-boot/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/soma-goodsduck/be-commons_spring-boot/issues">Request Feature</a>
+    <a href="https://www.goods-duck.com/"><strong>goods-duck.com »</strong></a>
   </p>
 </p>
 
-
-
+<br>
 <!-- TABLE OF CONTENTS -->
 <details open="open">
   <summary>Table of Contents</summary>
@@ -62,16 +52,12 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
-      </ul>
+        <li><a href="#setting-environment-variables">Setting Environment Variables</a></li>
+      </ul> 
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -80,7 +66,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<img src="https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/image/goodsduck_readme.png" alt="Logo" width="800" height="400">
 
 최근 국내에는 중고거래 시장이 활성화 되었으며, 좋은 서비스를 제공하는 플랫폼들이 다수 존재합니다. 하지만, 아이돌을 덕질을 하는 팬(덕후)들을 위한 거래 플랫폼은 많지 않습니다. 이에 저희 덕스(Ducks) 팀은 덕후들을 만족시키기 위한 플랫폼을 기획하였습니다.
 
@@ -100,8 +86,6 @@ This section should list any major frameworks that you built your project using.
 * Spring boot version 2.4.8
 * MySQL
 * Intellij
-* Spring Data JPA (need?)
-* QueryDSL (need?)
 
 
 
@@ -124,20 +108,6 @@ This section should list any major frameworks that you built your project using.
 #### AWS S3
 #### FCM (Firebase Cloud Messaging)
 
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-기능에 대한 내용들은 [open issues](https://github.com/soma-goodsduck/be-commons_spring-boot/issues) 를 통해서 확인해주세요.
-
 
 
 <!-- CONTRIBUTING -->
@@ -153,38 +123,18 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 
 
-<!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+[MIT](./LICENSE)
 
+<div align="center">
 
+<sub><sup>Project by <a href="https://github.com/2dowon">@2dowon</a> <a href="https://github.com/Ting-Kim">@Ting-Kim</a> <a href="https://github.com/W0nee">@W0nee</a></sup></sub>
 
-<!-- CONTACT -->
-## Contact
+</div>
 
-김태호 - ting_916@naver.com <br>
-박경원 - kwpark96@naver.com <br>
-이도원 - dwon424@gmail.com <br>
-
-Project Link (Organization Page) : [https://github.com/soma-goodsduck](https://github.com/soma--goodsduck)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
-
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 
 
@@ -201,6 +151,3 @@ Project Link (Organization Page) : [https://github.com/soma-goodsduck](https://g
 [issues-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/issues
 [license-shield]: https://img.shields.io/github/license/soma-goodsduck/be-commons_spring-boot.svg?&style=for-the-badge
 [license-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/blob/main/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
