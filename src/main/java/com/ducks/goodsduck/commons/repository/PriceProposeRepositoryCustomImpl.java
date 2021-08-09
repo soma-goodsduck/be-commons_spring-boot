@@ -40,6 +40,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .from(pricePropose)
                 .where(pricePropose.item.id.eq(itemId)
                 .and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
+                .orderBy(pricePropose.id.desc())
                 .fetch();
     }
 
@@ -62,6 +63,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .where(pricePropose.item.in(items).and(
                         pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
                 ))
+                .orderBy(pricePropose.id.desc())
                 .fetch();
     }
 
@@ -74,6 +76,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .where(pricePropose.item.id.eq(itemId).and(
                         pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
                 ))
+                .orderBy(pricePropose.id.desc())
                 .fetch();
     }
 
@@ -84,6 +87,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .where(pricePropose.user.id.eq(userId).and(
                         pricePropose.status.in(PriceProposeStatus.SUGGESTED, PriceProposeStatus.REFUSED)
                 ))
+                .orderBy(pricePropose.id.desc())
                 .fetch();
     }
 
