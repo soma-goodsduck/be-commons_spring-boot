@@ -94,21 +94,23 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
-    @ApiOperation("프로필 사진 업로드 API")
-    @PutMapping("/v1/users/profile-image")
-    public ApiResult<Long> uploadProfileImage(@RequestParam(required = false) MultipartFile multipartFile,
-                                              HttpServletRequest request) throws IOException {
+    // TODO : 삭제 예정 (FE 사용 X)
+//    @ApiOperation("(삭제 예정) 프로필 사진 업로드 API")
+//    @PutMapping("/v1/users/profile-image")
+//    public ApiResult<Long> uploadProfileImage(@RequestParam(required = false) MultipartFile multipartFile,
+//                                              HttpServletRequest request) throws IOException {
+//
+//        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+//        return OK(userService.uploadProfileImage(userId, multipartFile));
+//    }
 
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.uploadProfileImage(userId, multipartFile));
-    }
-
-    @ApiOperation("유저 닉네임 수정 API")
-    @PutMapping("/v1/users/nickname")
-    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
-    }
+    // TODO : 삭제 예정 (FE 사용 X)
+//    @ApiOperation("(삭제 예정) 유저 닉네임 수정 API")
+//    @PutMapping("/v1/users/nickname")
+//    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
+//        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+//        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
+//    }
 
     @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")

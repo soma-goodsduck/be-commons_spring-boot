@@ -36,7 +36,7 @@ import java.util.UUID;
 public class ImageUploadService {
 
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
-    
+
     private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
     private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.itemBucket", PropertyUtil.getProperty("cloud.aws.s3.itemBucket"));
     private final String profileS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.profileBucket", PropertyUtil.getProperty("cloud.aws.s3.profileBucket"));
@@ -45,13 +45,13 @@ public class ImageUploadService {
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
 
-    public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType) throws IOException {
+    public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException {
 
         List<Image> images = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
             if(!multipartFile.isEmpty()) {
-                Image image = uploadImage(multipartFile, imageType);
+                Image image = uploadImage(multipartFile, imageType, nickname);
                 images.add(image);
             }
         }
@@ -60,7 +60,7 @@ public class ImageUploadService {
     }
 
     /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
-    public Image uploadImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
+    public Image uploadImage(MultipartFile multipartFile, ImageType imageType, String nickname) throws IOException {
 
         // S3 셋팅
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -100,13 +100,22 @@ public class ImageUploadService {
             rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
 
             BufferedImage resizedImage = rescale.filter(image, null);
-            BufferedImage watermarkedImage = getWatermarkedImage(resizedImage);
 
-            uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+            if(!imageType.equals(ImageType.PROFILE)) {
+                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+            } else {
+                uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
+            }
+
         } else {
-            BufferedImage watermarkedImage = getWatermarkedImage(image);
 
-            uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+            if(!imageType.equals(ImageType.PROFILE)) {
+                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+            } else {
+                uploadImageToS3(s3Client, uploadName, ext, image, imageType);
+            }
         }
 
         if(imageType.equals(ImageType.ITEM)) {
@@ -151,7 +160,7 @@ public class ImageUploadService {
         }
     }
 
-    private BufferedImage getWatermarkedImage(BufferedImage image) {
+    private BufferedImage getWatermarkedImage(BufferedImage image, String nickname) {
 
         BufferedImage watermarkedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -159,20 +168,19 @@ public class ImageUploadService {
         graphics.drawImage(image, 0, 0, null);
 
         graphics.setFont(new Font("SansSerif", Font.BOLD, 15));
-        graphics.setColor(new Color(255, 255, 255, 70));
+        graphics.setColor(new Color(255, 255, 255, 40));
 
         StringBuilder sb = new StringBuilder();
         sb.appendCodePoint(169) ;
         sb.append(" GOODSDUCK");
         String watermark = sb.toString();
-        String username = "마크크크";
 
         // 워터마크 1Line Center
 //        graphics.drawString(watermark, image.getWidth()/2 - 80, image.getHeight()/2);
 
         // 워터마크 2Line Center
         graphics.drawString(watermark, image.getWidth()/2 - 60, image.getHeight()/2 - 10);
-        graphics.drawString(username, image.getWidth()/2 - 45, image.getHeight()/2 + 10);
+        graphics.drawString(nickname, image.getWidth()/2 - 45, image.getHeight()/2 + 10);
 
         graphics.dispose();
 
@@ -268,7 +276,7 @@ public class ImageUploadService {
 //        return new ImageDto(orginName, uploadName);
 //    }
 
-    // TODO : 주석예정
+    // TODO : 주석예정 (테스트용)
     /** local에 이미지 업로드 + 리사이징 + 워터마크 **/
     public ImageDto uploadImageWithWatermark(MultipartFile multipartFile) throws IOException {
 
@@ -303,11 +311,11 @@ public class ImageUploadService {
             rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
 
             BufferedImage resizedImage = rescale.filter(image, null);
-            BufferedImage watermarkedImage = getWatermarkedImage(resizedImage);
+            BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, "makkk");
 
             ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));
         } else {
-            BufferedImage watermarkedImage = getWatermarkedImage(image);
+            BufferedImage watermarkedImage = getWatermarkedImage(image, "makkk");
 
             ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));
         }

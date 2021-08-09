@@ -50,8 +50,7 @@ public class ItemController {
     private final UserRepository userRepository;
     private final CategoryItemRepository categoryItemRepository;
 
-    private final ImageUploadService imageUploadService;
-    
+    private final ImageUploadService imageUploadService; // TODO : 워터마크 테스트용 추후 삭제
     @NoCheckJwt
     @ApiOperation(value = "(삭제 예정) 워터마크 테스트 API")
     @PostMapping("/v1/check/watermark")
@@ -61,7 +60,6 @@ public class ItemController {
         return 1L;
     }
 
-    @NoCheckJwt
     @ApiOperation(value = "아이템 등록하기")
     @PostMapping("/v1/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
@@ -70,8 +68,6 @@ public class ItemController {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 8L;
-
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
 
@@ -100,18 +96,18 @@ public class ItemController {
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
-    // HINT : 수정, 삭제는 itemDetail 불러올 때 이미 권한 여부 체크
-    @NoCheckJwt
     @ApiOperation(value = "아이템 수정 V2")
     @PutMapping("/v2/items/{itemId}")
     public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
                                       @RequestParam String stringItemDto,
-                                      @RequestParam(required = false) List<MultipartFile> multipartFiles) throws JsonProcessingException {
+                                      @RequestParam(required = false) List<MultipartFile> multipartFiles,
+                                      HttpServletRequest request) throws JsonProcessingException {
+
         ItemUpdateRequestV2 itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequestV2.class);
-        return OK(itemService.editV2(itemId, itemUpdateRequest, multipartFiles));
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(itemService.editV2(itemId, itemUpdateRequest, multipartFiles, userId));
     }
 
-    @NoCheckJwt
     @ApiOperation(value = "아이템 삭제")
     @DeleteMapping("/v1/items/{itemId}")
     public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {

@@ -59,8 +59,9 @@ public class ChatController {
 
     @ApiOperation("채팅방 이미지 업로드 API")
     @PostMapping("/v1/users/chat-image")
-    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile) throws IOException {
-        return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT));
+    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile, HttpServletRequest request) throws IOException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT, userId));
     }
 
     @ApiOperation("채팅 전송 시 알림 요청 API")

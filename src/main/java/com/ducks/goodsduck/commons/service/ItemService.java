@@ -66,7 +66,7 @@ public class ItemService {
             item.setCategoryItem(categoryItem);
 
             /** 이미지 업로드 처리 & Image-Item 연관관계 삽입 **/
-            List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
+            List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, findUser.getNickName());
             for (Image image : images) {
                 item.addImage(image);
                 imageRepository.save(image);
@@ -155,7 +155,7 @@ public class ItemService {
         }
     }
 
-    public Long editV2(Long itemId, ItemUpdateRequestV2 itemUpdateRequest, List<MultipartFile> multipartFiles) {
+    public Long editV2(Long itemId, ItemUpdateRequestV2 itemUpdateRequest, List<MultipartFile> multipartFiles, Long userId) {
 
         try {
             /**
@@ -187,7 +187,7 @@ public class ItemService {
             /**
              * 기존 이미지 수정 (Url)
              * case1. 기존 이미지 유지한 경우 -> 따로 변경할 필요없음
-             * case2. 기존 이미지 전부 삭제한 경우
+             * case2. 기존 이미지 전부 삭제한 경우 (null, empty)
              * case3. 기존 이미지 1개 이상 남기고 삭제한 경우
              *
              * 새로운 이미지 수정 (파일)
@@ -198,7 +198,7 @@ public class ItemService {
             List<String> updateImageUrls = itemUpdateRequest.getImageUrls();
 
             // case2
-            if(updateImageUrls == null) {
+            if(updateImageUrls.isEmpty()) {
                 List<Image> deleteImages = new ArrayList<>();
                 Iterator<Image> iter = existImages.iterator();
                 while(iter.hasNext()) {
@@ -236,7 +236,8 @@ public class ItemService {
 
             // case5
             if(multipartFiles != null) {
-                List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM);
+                User user = userRepository.findById(userId).get();
+                List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, user.getNickName());
                 for (Image image : images) {
                     item.addImage(image);
                     imageRepository.save(image);

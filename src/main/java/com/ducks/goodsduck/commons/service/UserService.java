@@ -173,11 +173,11 @@ public class UserService {
         try {
             User user = userRepository.findById(userId).get();
 
-            // TODO : ImageDto -> Image 쳌
             // 프로필 사진 수정
             if(multipartFile != null) {
-                Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+                Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE, user.getNickName());
                 user.setImageUrl(image.getUrl());
+                System.out.println(image.getUrl());
             }
 
             // 닉네임 수정
@@ -202,31 +202,32 @@ public class UserService {
         }
     }
 
-    public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
+    // TODO : 추후 삭제 예정 (FE 사용X)
+//    public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
+//
+//        try {
+//            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
+//
+//            User user = userRepository.findById(userId).get();
+//            user.setImageUrl(image.getUrl());
+//
+//            return userId;
+//        } catch (Exception e) {
+//            return -1L;
+//        }
+//    }
 
-        // TODO : ImageDto -> Image 쳌
-        try {
-            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
-
-            User user = userRepository.findById(userId).get();
-            user.setImageUrl(image.getUrl());
-
-            return userId;
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
-
-    public Long updateNickname(Long userId, String newNickname) {
-        User user = userRepository.findById(userId).get();
-
-        try {
-            user.setNickName(newNickname);
-            return userId;
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
+    // TODO : 추후 삭제 예정 (FE 사용X)
+//    public Long updateNickname(Long userId, String newNickname) {
+//        User user = userRepository.findById(userId).get();
+//
+//        try {
+//            user.setNickName(newNickname);
+//            return userId;
+//        } catch (Exception e) {
+//            return -1L;
+//        }
+//    }
 
     public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
 
@@ -250,8 +251,9 @@ public class UserService {
         }
     }
 
-    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType) throws IOException {
-        return imageUploadService.uploadImage(multipartFile, ImageType.CHAT).getUrl();
+    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException {
+        User user = userRepository.findById(userId).get();
+        return imageUploadService.uploadImage(multipartFile, ImageType.CHAT, user.getNickName()).getUrl();
     }
 
     public void updateLastLoginAt(Long userId) {
