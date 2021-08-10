@@ -95,6 +95,57 @@ This section should list any major frameworks that you built your project using.
 2. 레포지토리를 clone 한다.
 3. 필요한 환경 변수 및 파일에 대해 설정한다.
 
+### Setting Environment Variables
+
+```sh
+# application-[name].yml
+# You need to set environment varialbes
+
+# localmysql
+spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+spring.jpa.hibernate.ddl-auto: update
+spring.jpa.open-in-view: false
+spring.jpa.properties.hibernate.format_sql: true
+spring.jpa.properties.hibernate.default_batch_fetch_size: 100
+spring.datasource.sql-script-encoding: UTF-8
+spring.datasource.initialization-mode: embedded
+spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+spring.datasource.url:
+spring.datasource.username:
+spring.datasource.password:
+spring.logging.level.org.hibernate.SQL: DEBUG
+
+# oauth2
+spring.security.oauth2.client.registration.naver.client-id:
+spring.security.oauth2.client.registration.naver.client-secret:
+spring.security.oauth2.client.registration.naver.redirect-uri:
+spring.security.oauth2.client.registration.naver.authorization-grant-type: authorization_code
+spring.security.oauth2.client.registration.naver.scope:	name,email
+spring.security.oauth2.client.registration.naver.client-name: Naver
+spring.security.oauth2.client.registration.kakao.client-id:
+spring.security.oauth2.client.registration.kakao.redirect-uri: https://www.goods-duck.com/auth/kakao/callback
+spring.security.oauth2.client.registration.kakao.authorization-grant-type: authorization_code
+spring.security.oauth2.client.provider.naver.authorization-uri:	https://nid.naver.com/oauth2.0/authorize
+spring.security.oauth2.client.provider.naver.token-uri:	https://nid.naver.com/oauth2.0/token
+spring.security.oauth2.client.provider.naver.user-info-uri: https://openapi.naver.com/v1/nid/me
+spring.security.oauth2.client.provider.naver.user-name-attribute: response
+spring.security.oauth2.client.provider.kakao.user-info-uri: https://kapi.kakao.com/v2/user/me
+spring.security.oauth2.client.provider.kakao.token-uri:	https://kauth.kakao.com/oauth/token
+spring.security.jwt.expire-time:
+spring.security.jwt.secret-key:
+
+# s3
+spring.servlet.multipart.max-file-size: 10MB
+spring.servlet.multipart.max-request-size: 10MB
+spring.servlet.multipart.file.path.local:
+cloud.aws.stack.auto: false
+cloud.aws.region.static:
+cloud.aws.credentials.accessKey:
+cloud.aws.credentials.secretKey:
+cloud.aws.s3.itemBucket:
+cloud.aws.s3.profileBucket:
+cloud.aws.s3.chatBucket:
+
 #### DataBase (MySQL)
 
 #### 소셜 로그인(OAuth)
