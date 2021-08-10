@@ -21,6 +21,12 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
+![springboot-shield]
+![mysql-shield]
+![aws-shield]
+![s3-shield]
+![firebase-shield]
+
  
 <!-- PROJECT LOGO -->
 <br />
@@ -52,7 +58,11 @@
       <ul>
         <li><a href="#installation">Installation</a></li>
         <li><a href="#setting-environment-variables">Setting Environment Variables</a></li>
+        <li><a href="#run-the-application">Run the application</a></li>
       </ul> 
+    </li>
+    <li>
+      <a href="#used-tech-stack">Used Tech Stack</a>
     </li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -77,29 +87,36 @@
 
 ### Built With
 
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* Windows / macOS
-* Java version 11.0.11 / JVM
+* MacOS (Big Sur 11.4)
+* Java version 11.0.11
 * Gradle
 * Spring boot version 2.4.8
-* MySQL
-* Intellij
+* MySQL 5.7
+* (IDE) Intellij Community Edition 2021.01
 
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
+> This backend application is design with React project. ([goodsduck-front repository](https://github.com/soma-goodsduck/goodsduck_front))  
+
 ### Installation
-1. Intellij를 설치한다.
-2. 레포지토리를 clone 한다.
-3. 필요한 환경 변수 및 파일에 대해 설정한다.
+1. Install the <a href="https://www.jetbrains.com/ko-kr/idea/download/">Intellij</a> (IDE)
+2. Install <a href="https://dev.mysql.com/downloads/mysql/5.7.html">MySQL</a> database. 
+3. Clone the repository.
+4. Set the environment variables and files.
+    - MySQL
+    - OAuth2 ([Naver](https://developers.naver.com/docs/login/devguide/devguide.md#%EB%84%A4%EC%9D%B4%EB%B2%84%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C), [Kakao](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api))
+    - FCM (Firebase Cloud Messaging)
+5. Run the application.
 
 ### Setting Environment Variables
 
-```sh
+```yaml
 # application-[name].yml
 # You need to set environment varialbes
+# (if you want to run this application in AWS EC2, you can manage this Environment Variables with AWS Secrets Manager)
 
 # localmysql
 spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -145,32 +162,75 @@ cloud.aws.credentials.secretKey:
 cloud.aws.s3.itemBucket:
 cloud.aws.s3.profileBucket:
 cloud.aws.s3.chatBucket:
+```
 
-#### DataBase (MySQL)
+### Setting FCM (Firebase Cloud Messaging)
 
-#### 소셜 로그인(OAuth)
-- NAVER ([Document](https://developers.naver.com/docs/login/devguide/devguide.md#%EB%84%A4%EC%9D%B4%EB%B2%84%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C))
+If you want to use feature of alarm(messaging), you have to set something for firebase.
+(please refer this firebase guide. ([Link](https://firebase.google.com/docs/cloud-messaging/auth-server?hl=ko)))
 
-- KAKAO ([Document](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api))
+- put your `secret-key file(json)` of service account in `<project-root-path>/src/main/resources/<your-secret-key-filename.json>`
+- add this variables in `application.yml` file 
+```yaml
+# application.yml
 
-#### AWS Secrets Manager
-#### AWS S3
-#### FCM (Firebase Cloud Messaging)
+firebase:
+  config-path: <your-secret-key-filename.json>
+  database-url: <your-firebase-database-url>
+```
+
+<!-- Run the application -->
+## Run the application
+
+- It is needed that running application with environment property files. You have to edit configuration in Intellij (IDE).
+
+<img src="https://github.com/soma-goodsduck/static_storage/blob/main/images/intellij_run_edit-configuration.png?raw=true" alt="Logo" width="700" height="350">
+
+- When you open build.gradle, you may see this gradle mark. please click that for loading gradle changes.
+
+<img src="https://github.com/soma-goodsduck/static_storage/blob/main/images/intellij_load-gradle-changes.png?raw=true" alt="Logo" width="500" height="350">
+
+- Then, open gradle tab on right side and execute gradle task of `compileQuerysl`.
+
+<img src="https://github.com/soma-goodsduck/static_storage/blob/main/images/intellij_execute-gradle-task-compileQuerydsl.png?raw=true?raw=true" alt="Logo" width="420" height="500">
+
+- Before run spring-boot application, please turn on the MySQL Server.
+   - In the terminal, run a command `mysql.server start`.
 
 
+- It's done. Now, you can run application for running `CommonsApplication.java`!   
+
+<!-- Used Tech Stack -->
+## Used Tech Stack
+
+- JWT
+- OAuth2
+- Web MVC Pattern
+- Spring Data JPA
+- QueryDSL
+- FCM (Firebase Cloud Messaging)
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
-컨트리뷰션은 오픈소스 커뮤니티를 모두가 참여하여 배울 수 있는 멋진 공간으로 만들어주는 활동입니다. 어떤 컨트리뷰션이라도 달아주시면 **굉장히 감사하겠습니다.** 
+This repository managed based on forked pull request strategy
 
-1. 프로젝트를 포크(Fork) 해주세요.
-2. 피처 브랜치(Branch)를 생성하고 동시에 checkout합니다. (`git checkout -b feature/AmazingFeature`)
-3. 변경사항을 커밋(Commit)합니다. (`git commit -m 'Add some AmazingFeature'`)
-4. 브랜치를 remote에 푸시(Push)합니다. (`git push origin feature/AmazingFeature`)
-5. 풀 리퀘스트(Pull Request)를 열어주세요.
+```sh
+# Fork this repository to yours.
+$ git clone [YOUR_REPOSITORY_URL]
+$ cd be-commons_spring-boot
 
+# Open with Intellij IDE.
 
+$ git checkout -b [feature/YOUR_REPOSITORY]
+# (Working...)
+
+$ git commit [...]
+$ git push origin [feature/YOUR_REPOSITORY]
+
+# Enroll pull-request!
+# in https://github.com/soma-goodsduck/be-commons_spring-boot/pulls
+```
 
 ## License
 
@@ -200,3 +260,8 @@ cloud.aws.s3.chatBucket:
 [issues-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/issues
 [license-shield]: https://img.shields.io/github/license/soma-goodsduck/be-commons_spring-boot.svg?&style=for-the-badge
 [license-url]: https://github.com/soma-goodsduck/be-commons_spring-boot/blob/main/LICENSE
+[firebase-shield]: https://img.shields.io/badge/Firebase-FFCA28.svg?&style=for-the-badge&logo=Firebase&logoColor=white
+[s3-shield]: https://img.shields.io/badge/AmazonS3-569A31.svg?&style=for-the-badge&logo=AmazonS3&logoColor=white
+[aws-shield]: https://img.shields.io/badge/AmazonAWS-232F3E.svg?&style=for-the-badge&logo=AmazonAWS&logoColor=white
+[mysql-shield]: https://img.shields.io/badge/MySQL-569A31.svg?&style=for-the-badge&logo=MySQL&logoColor=white
+[springboot-shield]: https://img.shields.io/badge/SpringBoot-6DB33F.svg?&style=for-the-badge&logo=SpringBoot&logoColor=white
