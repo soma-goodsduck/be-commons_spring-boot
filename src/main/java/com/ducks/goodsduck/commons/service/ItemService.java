@@ -39,10 +39,14 @@ public class ItemService {
     private final ImageRepository imageRepository;
     private final ImageRepositoryCustom imageRepositoryCustom;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
+    private final UserChatRepository userChatRepository;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
     private final CategoryItemRepository categoryItemRepository;
     private final UserItemRepository userItemRepository;
+    private final UserItemRepositoryCustom userItemRepositoryCustom;
+    private final PriceProposeRepository priceProposeRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
 
@@ -262,7 +266,32 @@ public class ItemService {
             itemsOfUser.remove(deleteItem);
             imageRepository.deleteInBatch(deleteImages);
             itemRepository.delete(deleteItem);
-            
+
+            // pricePropose 연관 삭제
+            List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(itemId);
+            priceProposeRepository.deleteInBatch(deletePriceProposes);
+
+            // userChat 연관 삭제
+            List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(itemId);
+            userChatRepository.deleteInBatch(deleteUserChats);
+
+            // chat 연관 삭제
+            List<Chat> deleteChats = new ArrayList<>();
+            for (UserChat deleteUserChat : deleteUserChats) {
+                deleteChats.add(deleteUserChat.getChat());
+            }
+            chatRepository.deleteInBatch(deleteChats);
+
+            // review 연관 삭제
+            List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(itemId);
+            for (Review deleteItemOfReview : deleteItemOfReviews) {
+                deleteItemOfReview.deleteItem();
+            }
+
+            // userItem 연관 삭제
+            List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(itemId);
+            userItemRepository.deleteInBatch(deleteUserItems);
+
             return 1L;
         } catch (Exception e) {
             return -1L;

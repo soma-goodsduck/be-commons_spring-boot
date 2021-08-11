@@ -80,7 +80,7 @@ public class ImageUploadService {
 
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
-        // 1MB 이상에서만 리사이징
+        // FEAT : 파일이 1MB 이상일 경우 리사이징
         if(bytes >= 1048576) {
 
             int width = image.getWidth();

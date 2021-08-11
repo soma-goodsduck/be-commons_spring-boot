@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review {
 
@@ -41,5 +40,9 @@ public class Review {
         this.content = content;
         this.score = score;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+    }
+
+    public void deleteItem() {
+        this.item = null;
     }
 }

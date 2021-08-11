@@ -12,4 +12,6 @@ public interface ReviewRepositoryCustom {
     List<Review> findByUserId(Long userId);
     List<Review> findByReveiverId(Long receiverId);
     Long countByReveiverId(Long receiverId);
+
+    List<Review> findByItemId(Long itemId);
 }
