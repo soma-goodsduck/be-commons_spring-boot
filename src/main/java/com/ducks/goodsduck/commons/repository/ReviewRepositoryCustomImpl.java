@@ -65,4 +65,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .where(review.receiverId.eq(receiverId))
                 .fetchCount();
     }
+
+    @Override
+    public List<Review> findByItemId(Long itemId) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.item.id.eq(itemId))
+                .fetch();
+    }
 }

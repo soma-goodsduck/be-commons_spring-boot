@@ -13,4 +13,6 @@ public interface UserItemRepositoryCustom {
     List<Tuple> findByUserId(Long userId);
     List<Item> findByUserIdV2(Long userId);
     Tuple findTupleByUserIdAndItemId(Long userId, Long itemId);
+
+    List<UserItem> findByItemId(Long itemId);
 }

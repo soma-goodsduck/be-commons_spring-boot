@@ -64,4 +64,13 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
                         item.id.eq(itemId)
                 )).fetchOne();
     }
+
+    @Override
+    public List<UserItem> findByItemId(Long itemId) {
+        return queryFactory
+                .select(userItem)
+                .from(userItem)
+                .where(userItem.item.id.eq(itemId))
+                .fetch();
+    }
 }
