@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class ItemFilterDto {
 
+    private Long idolGroupId;
     private List<Long> idolMembersId = new ArrayList<>();
     private TradeType tradeType;
     private Long categoryItemId;
@@ -17,7 +18,8 @@ public class ItemFilterDto {
     private Long minPrice;
     private Long maxPrice;
 
-    public ItemFilterDto(List<Long> idolMembersId, TradeType tradeType, Long categoryItemId, GradeStatus gradeStatus, Long minPrice, Long maxPrice) {
+    public ItemFilterDto(Long idolGroupId, List<Long> idolMembersId, TradeType tradeType, Long categoryItemId, GradeStatus gradeStatus, Long minPrice, Long maxPrice) {
+        this.idolGroupId = idolGroupId;
         this.idolMembersId = idolMembersId;
         this.tradeType = tradeType;
         this.categoryItemId = categoryItemId;

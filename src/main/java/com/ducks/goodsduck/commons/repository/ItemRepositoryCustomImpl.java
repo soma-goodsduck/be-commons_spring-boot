@@ -165,7 +165,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable) {
+    public List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -197,7 +197,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
+    public List<Tuple> findAllByFilterV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -239,8 +239,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findAllByFilterWithUserItemV3(ItemFilterDto itemFilterDto, Long itemId) {
+    public List<Item> findAllByFilterV3(ItemFilterDto itemFilterDto, Long itemId) {
 
+        Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
         Long categoryItemId = itemFilterDto.getCategoryItemId();
@@ -254,13 +255,15 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             for (Long idolMemberId : idolMembersId) {
                 builder.or(item.idolMember.id.eq(idolMemberId));
             }
+        } else {
+            builder.and(item.idolMember.idolGroup.id.eq(idolGroupId));
         }
 
         if(itemId != 0) {
             builder.and(item.id.lt(itemId));
         }
 
-        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
         if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
@@ -417,7 +420,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
+    public List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -450,7 +453,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
+    public List<Tuple> findAllByFilterV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -492,8 +495,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+    public List<Tuple> findAllByFilterV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
+        Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
         Long categoryItemId = itemFilterDto.getCategoryItemId();
@@ -507,13 +511,15 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             for (Long idolMemberId : idolMembersId) {
                 builder.or(item.idolMember.id.eq(idolMemberId));
             }
+        } else {
+            builder.and(item.idolMember.idolGroup.id.eq(idolGroupId));
         }
 
         if(itemId != 0) {
             builder.and(item.id.lt(itemId));
         }
 
-        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
         if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
