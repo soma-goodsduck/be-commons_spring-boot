@@ -416,6 +416,7 @@ public class ItemController {
         }
     }
 
+    @NoCheckJwt
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
     @GetMapping("/v1/items/category")
     @Transactional
