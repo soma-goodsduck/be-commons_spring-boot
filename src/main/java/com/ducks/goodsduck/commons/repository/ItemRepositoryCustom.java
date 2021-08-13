@@ -28,9 +28,9 @@ public interface ItemRepositoryCustom {
     List<Item> findAllByIdolGroupV3(Long idolGroupId, Long itemId);
 
     // 비회원 홈 (전체필터링)
-    List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable);
-    List<Tuple> findAllByFilterWithUserItemV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
-    List<Item> findAllByFilterWithUserItemV3(ItemFilterDto itemFilterDto, Long itemId);
+    List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Tuple> findAllByFilterV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
+    List<Item> findAllByFilterV3(ItemFilterDto itemFilterDto, Long itemId);
 
     // 회원 홈
     List<Tuple> findAllByUserIdolGroupsWithUserItem(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
@@ -43,9 +43,9 @@ public interface ItemRepositoryCustom {
     List<Tuple> findAllByIdolGroupWithUserItemV3(Long userId, Long idolGroupId, Long itemId);
 
     // 회원 홈 (전체필터링)
-    List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
-    List<Tuple> findAllByFilterWithUserItemV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
-    List<Tuple> findAllByFilterWithUserItemV3(Long userId, ItemFilterDto itemFilterDto, Long itemId);
+    List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
+    List<Tuple> findAllByFilterV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
+    List<Tuple> findAllByFilterV3(Long userId, ItemFilterDto itemFilterDto, Long itemId);
 
     Tuple findItemAndUserByItemId(Long itemId);
 

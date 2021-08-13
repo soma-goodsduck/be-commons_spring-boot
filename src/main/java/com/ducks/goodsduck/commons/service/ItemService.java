@@ -585,7 +585,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Item> items = itemRepositoryCustom.findAllByFilterWithUserItem(itemFilterDto, pageable);
+        List<Item> items = itemRepositoryCustom.findAllByFilter(itemFilterDto, pageable);
 
         List<ItemHomeResponse> itemToList =  items
                 .stream()
@@ -600,7 +600,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(itemFilterDto, pageable, keyword);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV2(itemFilterDto, pageable, keyword);
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
@@ -620,7 +620,7 @@ public class ItemService {
     // FEAT: 비회원용 홈 필터링 (ALL) V3
     public List<ItemHomeResponse> filterByAllV3(ItemFilterDto itemFilterDto, Long itemId) {
 
-        List<Item> items = itemRepositoryCustom.findAllByFilterWithUserItemV3(itemFilterDto, itemId);
+        List<Item> items = itemRepositoryCustom.findAllByFilterV3(itemFilterDto, itemId);
 
         List<ItemHomeResponse> itemToList =  items
                 .stream()
@@ -635,7 +635,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItem(userId, itemFilterDto, pageable);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilter(userId, itemFilterDto, pageable);
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
@@ -660,7 +660,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV2(userId, itemFilterDto, pageable, keyword);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV2(userId, itemFilterDto, pageable, keyword);
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -684,7 +684,7 @@ public class ItemService {
     // FEAT : 회원용 홈 필터링 (ALL) V3
     public List<ItemHomeResponse> filterByAllV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterWithUserItemV3(userId, itemFilterDto, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV3(userId, itemFilterDto, itemId);
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()

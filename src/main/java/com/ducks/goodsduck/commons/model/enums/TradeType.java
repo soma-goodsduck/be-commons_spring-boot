@@ -15,3 +15,4 @@ public enum TradeType {
         return korName;
     }
 }
+

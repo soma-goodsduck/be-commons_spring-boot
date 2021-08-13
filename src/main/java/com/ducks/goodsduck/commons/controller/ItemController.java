@@ -122,83 +122,6 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 in 홈")
-    @GetMapping("/v1/items")
-    @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> getItems(@RequestParam Integer pageNumber, @RequestHeader("jwt") String jwt) {
-
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.getItemList(pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈
-        else {
-            User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.getItemList(userId, pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
-        }
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
-    @GetMapping("/v2/items")
-    @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> getItems(@RequestHeader("jwt") String jwt,
-                                                                    @RequestParam("pageNumber") Integer pageNumber,
-                                                                    @RequestParam(value = "keyword", required = false) String keyword) {
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈
-        else {
-            User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.getItemListUserV2(userId, pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
-        }
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 in 홈 (V3 NoOffSet)")
-    @GetMapping("/v3/items")
-    @Transactional
-    public ItemHomeResponseResult<List<ItemHomeResponse>> getItems(@RequestParam("itemId") Long itemId,
-                                                                   @RequestHeader("jwt") String jwt) {
-
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext= false;
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = itemService.getItemListV3(itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return ItemHomeResponseResult.OK(hasNext, null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈
-        else {
-            User user = userRepository.findById(userId).get();
-            List<ItemHomeResponse> itemList = itemService.getItemListV3(userId, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return ItemHomeResponseResult.OK(hasNext, new ItemDetailResponseUser(user), itemList);
-        }
-    }
-
-    @NoCheckJwt
     @ApiOperation(value = "아이템 검색 (회원/비회원)")
     @GetMapping("/v1/items/search")
     @Transactional
@@ -234,49 +157,36 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈")
-    @GetMapping("/v1/items/filter")
+    @ApiOperation(value = "아이템 리스트 가져오기 in 홈 (V3 NoOffSet)")
+    @GetMapping("/v3/items")
     @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                   @RequestParam Integer pageNumber,
-                                                                                   @RequestHeader("jwt") String jwt) {
+    public ItemHomeResponseResult<List<ItemHomeResponse>> getItems(@RequestParam("itemId") Long itemId,
+                                                                   @RequestHeader("jwt") String jwt) {
 
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
         Long userId = userService.checkLoginStatus(jwt);
 
-        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
+        // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(idolGroupId, pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+            List<ItemHomeResponse> itemList = itemService.getItemListV3(itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return ItemHomeResponseResult.OK(hasNext, null, itemList);
         }
-        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
+        // HINT : 회원에게 보여줄 홈
         else {
             User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(userId, idolGroupId, pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
-        }
-    }
+            List<ItemHomeResponse> itemList = itemService.getItemListV3(userId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
 
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
-    @GetMapping("/v2/items/filter")
-    @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithIdolGroupV2(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                     @RequestParam Integer pageNumber,
-                                                                                     @RequestParam(value = "keyword", required = false) String keyword,
-                                                                                     @RequestHeader("jwt") String jwt) {
-
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
-        if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroupV2(idolGroupId, pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
-        else {
-            User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroupV2(userId, idolGroupId, pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+            return ItemHomeResponseResult.OK(hasNext, new ItemDetailResponseUser(user), itemList);
         }
     }
 
@@ -316,69 +226,11 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈")
-    @GetMapping("/v1/items/filters")
-    @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
-                                                                             @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                                                             @RequestParam(value = "category", required = false) Long categoryItemId,
-                                                                             @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
-                                                                             @RequestParam(value = "minPrice", required = false) Long minPrice,
-                                                                             @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                             @RequestParam Integer pageNumber,
-                                                                             @RequestHeader("jwt") String jwt) {
-
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
-        if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.filterByAll(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈 + 모든 필터링
-        else {
-            User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.filterByAll(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
-        }
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
-    @GetMapping("/v2/items/filters")
-    @Transactional
-    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithAllV2(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
-                                                                               @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                                                               @RequestParam(value = "category", required = false) Long categoryItemId,
-                                                                               @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
-                                                                               @RequestParam(value = "minPrice", required = false) Long minPrice,
-                                                                               @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                               @RequestParam(value = "keyword", required = false) String keyword,
-                                                                               @RequestParam Integer pageNumber,
-                                                                               @RequestHeader("jwt") String jwt) {
-
-        Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
-        if(userId.equals(-1L)) {
-            Slice<ItemHomeResponse> itemList = itemService.filterByAllV2(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice),
-                    pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
-        }
-        // HINT : 회원에게 보여줄 홈 + 모든 필터링
-        else {
-            User user = userRepository.findById(userId).get();
-            Slice<ItemHomeResponse> itemList = itemService.filterByAllV2(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice),
-                    pageNumber, keyword);
-            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
-        }
-    }
-
-    @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")
     @Transactional
-    public ItemHomeResponseResult<List<ItemHomeResponse>> filterItemWithAllV3(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+    public ItemHomeResponseResult<List<ItemHomeResponse>> filterItemWithAllV3(@RequestParam(value = "idolGroup") Long idolGroupId,
+                                                                              @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
                                                                               @RequestParam(value = "tradeType", required = false) TradeType tradeType,
                                                                               @RequestParam(value = "category", required = false) Long categoryItemId,
                                                                               @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
@@ -393,7 +245,7 @@ public class ItemController {
         // HINT : 비회원에게 보여줄 홈 + 모든 필터링
         if(userId.equals(-1L)) {
             List<ItemHomeResponse> itemList = itemService.filterByAllV3(
-                    new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
+                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -405,7 +257,7 @@ public class ItemController {
         else {
             User user = userRepository.findById(userId).get();
             List<ItemHomeResponse> itemList = itemService.filterByAllV3(userId,
-                    new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
+                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -486,4 +338,153 @@ public class ItemController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.getLikeItemsOfUserV2(userId));
     }
+
+    //    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 in 홈")
+//    @GetMapping("/v1/items")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> getItems(@RequestParam Integer pageNumber, @RequestHeader("jwt") String jwt) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.getItemList(pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.getItemList(userId, pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
+//
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
+//    @GetMapping("/v2/items")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> getItems(@RequestHeader("jwt") String jwt,
+//                                                                    @RequestParam("pageNumber") Integer pageNumber,
+//                                                                    @RequestParam(value = "keyword", required = false) String keyword) {
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.getItemListV2(pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.getItemListUserV2(userId, pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
+
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈")
+//    @GetMapping("/v1/items/filter")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
+//                                                                                   @RequestParam Integer pageNumber,
+//                                                                                   @RequestHeader("jwt") String jwt) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(idolGroupId, pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroup(userId, idolGroupId, pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
+//
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹 필터링 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
+//    @GetMapping("/v2/items/filter")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithIdolGroupV2(@RequestParam("idolGroup") Long idolGroupId,
+//                                                                                     @RequestParam Integer pageNumber,
+//                                                                                     @RequestParam(value = "keyword", required = false) String keyword,
+//                                                                                     @RequestHeader("jwt") String jwt) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroupV2(idolGroupId, pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.filterByIdolGroupV2(userId, idolGroupId, pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
+
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈")
+//    @GetMapping("/v1/items/filters")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithAll(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+//                                                                             @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+//                                                                             @RequestParam(value = "category", required = false) Long categoryItemId,
+//                                                                             @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+//                                                                             @RequestParam(value = "minPrice", required = false) Long minPrice,
+//                                                                             @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+//                                                                             @RequestParam Integer pageNumber,
+//                                                                             @RequestHeader("jwt") String jwt) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.filterByAll(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈 + 모든 필터링
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.filterByAll(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), pageNumber);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
+//
+//    @NoCheckJwt
+//    @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈 (V2_쿼리 성능 보완 및 검색 기능 추가)")
+//    @GetMapping("/v2/items/filters")
+//    @Transactional
+//    public ItemHomeResponseResult<Slice<ItemHomeResponse>> filterItemWithAllV2(@RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+//                                                                               @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+//                                                                               @RequestParam(value = "category", required = false) Long categoryItemId,
+//                                                                               @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+//                                                                               @RequestParam(value = "minPrice", required = false) Long minPrice,
+//                                                                               @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+//                                                                               @RequestParam(value = "keyword", required = false) String keyword,
+//                                                                               @RequestParam Integer pageNumber,
+//                                                                               @RequestHeader("jwt") String jwt) {
+//
+//        Long userId = userService.checkLoginStatus(jwt);
+//
+//        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
+//        if(userId.equals(-1L)) {
+//            Slice<ItemHomeResponse> itemList = itemService.filterByAllV2(new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice),
+//                    pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), null, itemList);
+//        }
+//        // HINT : 회원에게 보여줄 홈 + 모든 필터링
+//        else {
+//            User user = userRepository.findById(userId).get();
+//            Slice<ItemHomeResponse> itemList = itemService.filterByAllV2(userId, new ItemFilterDto(idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice),
+//                    pageNumber, keyword);
+//            return ItemHomeResponseResult.OK(itemList.hasNext(), new ItemDetailResponseUser(user), itemList);
+//        }
+//    }
 }

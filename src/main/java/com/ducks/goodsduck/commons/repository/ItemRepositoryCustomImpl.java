@@ -165,7 +165,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findAllByFilterWithUserItem(ItemFilterDto itemFilterDto, Pageable pageable) {
+    public List<Item> findAllByFilter(ItemFilterDto itemFilterDto, Pageable pageable) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -197,7 +197,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
+    public List<Tuple> findAllByFilterV2(ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -239,8 +239,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findAllByFilterWithUserItemV3(ItemFilterDto itemFilterDto, Long itemId) {
+    public List<Item> findAllByFilterV3(ItemFilterDto itemFilterDto, Long itemId) {
 
+        Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
         Long categoryItemId = itemFilterDto.getCategoryItemId();
@@ -254,6 +255,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             for (Long idolMemberId : idolMembersId) {
                 builder.or(item.idolMember.id.eq(idolMemberId));
             }
+        } else {
+            builder.and(item.idolMember.idolGroup.id.eq(idolGroupId));
         }
 
         if(itemId != 0) {
@@ -417,7 +420,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItem(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
+    public List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -450,7 +453,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
+    public List<Tuple> findAllByFilterV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword) {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
@@ -492,8 +495,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterWithUserItemV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+    public List<Tuple> findAllByFilterV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
+        Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
         Long categoryItemId = itemFilterDto.getCategoryItemId();
@@ -507,6 +511,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             for (Long idolMemberId : idolMembersId) {
                 builder.or(item.idolMember.id.eq(idolMemberId));
             }
+        } else {
+            builder.and(item.idolMember.idolGroup.id.eq(idolGroupId));
         }
 
         if(itemId != 0) {
