@@ -74,7 +74,7 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/v1/items/{itemId}")
-    public ApiResult<ItemDetailResponse> showItemDetail(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+    public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
 
@@ -92,7 +92,6 @@ public class ItemController {
     @ApiOperation(value = "아이템 상세보기 (요약)")
     @GetMapping("/v1/items/{itemId}/summary")
     public ApiResult<ItemSummaryDto> showItemDetailSummary(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
-
         return OK(itemService.showDetailSummary(itemId));
     }
 
@@ -416,6 +415,7 @@ public class ItemController {
         }
     }
 
+    @NoCheckJwt
     @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
     @GetMapping("/v1/items/category")
     @Transactional

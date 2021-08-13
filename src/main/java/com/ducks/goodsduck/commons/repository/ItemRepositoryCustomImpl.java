@@ -260,7 +260,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             builder.and(item.id.lt(itemId));
         }
 
-        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
         if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
@@ -513,7 +513,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             builder.and(item.id.lt(itemId));
         }
 
-        if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
+        if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
         if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }

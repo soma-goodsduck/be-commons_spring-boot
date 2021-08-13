@@ -99,14 +99,14 @@ public class ItemService {
 
     public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
 
+        User loginUser = userRepository.findById(userId).get();
+        if(loginUser == null) {
+            return showDetail(itemId);
+        }
+
         Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
         item.increaseView();
-
-        User loginUser = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("User not founded.");
-                });
 
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
         itemDetailResponse.setLoginUser(new UserSimpleDto(loginUser));
@@ -258,14 +258,16 @@ public class ItemService {
 
         try {
             Item deleteItem = itemRepository.findById(itemId).get();
-            List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
 
+            // image 삭제
+            // TODO : List<Image> deleteImages = deleteItem.getImages();
+            List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
+            imageRepository.deleteInBatch(deleteImages);
+
+            // user-image 삭제
             User user = deleteItem.getUser();
             List<Item> itemsOfUser = user.getItems();
-
             itemsOfUser.remove(deleteItem);
-            imageRepository.deleteInBatch(deleteImages);
-            itemRepository.delete(deleteItem);
 
             // pricePropose 연관 삭제
             List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(itemId);
@@ -275,7 +277,7 @@ public class ItemService {
             List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(itemId);
             userChatRepository.deleteInBatch(deleteUserChats);
 
-            // chat 연관 삭제
+            // chat 삭제
             List<Chat> deleteChats = new ArrayList<>();
             for (UserChat deleteUserChat : deleteUserChats) {
                 deleteChats.add(deleteUserChat.getChat());
@@ -291,6 +293,9 @@ public class ItemService {
             // userItem 연관 삭제
             List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(itemId);
             userItemRepository.deleteInBatch(deleteUserItems);
+
+            // item 삭제
+            itemRepository.delete(deleteItem);
 
             return 1L;
         } catch (Exception e) {
