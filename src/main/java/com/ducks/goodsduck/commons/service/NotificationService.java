@@ -135,12 +135,14 @@ public class NotificationService {
         var notificationMessage = notificationResponse.getMessage();
 
         return MulticastMessage.builder()
-                .setNotification(builder()
-                        .setTitle(notificationMessage.getMessageTitle())
-                        .setBody(notificationMessage.getMessageBody())
-                        .build())
+//                .setNotification(builder()
+//                        .setTitle(notificationMessage.getMessageTitle())
+//                        .setBody(notificationMessage.getMessageBody())
+//                        .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
+                                .setTitle(notificationMessage.getMessageTitle()) //
+                                .setBody(notificationMessage.getMessageBody())  //
                                 .setIcon(notificationMessage.getIconUri())
                                 .build())
                         .build())
