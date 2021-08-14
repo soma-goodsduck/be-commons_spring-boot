@@ -43,14 +43,15 @@ public class PriceProposeController {
                                                         HttpServletRequest request) throws IOException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
-        // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
 
         PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price."));
+
+        // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
+        User user = userRepository.findById(priceProposeResponse.getReceiverId())
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
 
         notificationService.sendMessage(new Notification(user, priceProposeResponse));
 
