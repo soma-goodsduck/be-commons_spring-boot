@@ -58,6 +58,10 @@ public class UserService {
 
         // 비회원 체크
         JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
+
+        // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
+        log.debug(userInfoFromNaver);
+
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
 
