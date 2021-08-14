@@ -34,8 +34,8 @@ public class NotificationResponse {
         String title = String.format("굿즈덕 %s 알림", type);
         String itemTitle = notification.getItemName();
         String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
-                itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(12).concat("..."));
-        String messageUri = "https://www.goods-duck.com"; // TODO
+                itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(0, 12).concat("..."));
+        String messageUri = "/price-proposes"; // TODO
         String iconUri = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
         switch (type) {
             case PRICE_PROPOSE:
