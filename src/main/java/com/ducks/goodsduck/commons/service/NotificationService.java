@@ -101,7 +101,7 @@ public class NotificationService {
 
             // HINT: 알림 Message 구성
             MulticastMessage message = getMulticastMessage(notification, registrationTokens)
-                    .putData("charRoomId", notificationRequest.getChatRoomId())
+                    .putData("chatRoomId", notificationRequest.getChatRoomId())
                     .build();
 
             log.debug("firebase message is : " + message);
