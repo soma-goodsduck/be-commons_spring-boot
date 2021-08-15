@@ -19,14 +19,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -36,7 +33,7 @@ import static com.ducks.goodsduck.commons.model.enums.TradeStatus.valueOf;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Slf4j
-@Api(tags = "회원 가입 및 유저 관련 APIs")
+@Api(tags = "유저 관련 APIs")
 public class UserController {
 
     private final UserService userService;
@@ -45,6 +42,7 @@ public class UserController {
     private final DeviceService deviceService;
     private final UserChatService userChatService;
     private final JwtService jwtService;
+    private final NotificationService notificationService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -200,6 +198,13 @@ public class UserController {
         return OK(
                 new DeviceResponse(savedDevice.getUuid())
         );
+    }
+
+    @GetMapping("/v1/users/notifications")
+    @ApiOperation("사용자가 받은 알림 목록 조회 API")
+    public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(notificationService.getNotificationsOfUserId(userId));
     }
 
     // TODO : 개발중 (경원)

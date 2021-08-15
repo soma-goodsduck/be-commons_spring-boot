@@ -35,23 +35,27 @@ public class NotificationResponse {
         String itemTitle = notification.getItemName();
         String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
                 itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(0, 12).concat("..."));
-        String messageUri = "/price-proposes"; // TODO
+        String messageUri = ""; // TODO
         String iconUri = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
         switch (type) {
             case PRICE_PROPOSE:
                 body = body.concat(String.format("에 %s을 했어요. [%d원]", type.getKorName(), price));
+                messageUri = messageUri.concat("/price-proposes");
                 break;
 
             case USER_ITEM:
                 body = body.concat(String.format("를 %s했어요.", type.getKorName()));
+                messageUri = messageUri.concat("/notification");
                 break;
 
             case CHAT:
                 body = body.concat(String.format("에 %s를 보냈어요.", type.getKorName()));
+                messageUri = messageUri.concat("/chatting");
                 break;
 
             case REVIEW:
                 body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
+                messageUri = messageUri.concat("/reviews");
                 break;
 
             default:
