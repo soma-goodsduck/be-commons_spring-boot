@@ -4,10 +4,10 @@ import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
-import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -158,5 +158,12 @@ public class NotificationService {
                                 .build())
                         .build())
                 .addAllTokens(registrationTokens);
+    }
+
+    public List<NotificationResponse> getNotificationsOfUserId(Long userId) {
+        return notificationRepository.findByUserId(userId, Sort.by(Sort.Direction.DESC, "id"))
+                .stream()
+                .map(notification -> new NotificationResponse(notification))
+                .collect(Collectors.toList());
     }
 }
