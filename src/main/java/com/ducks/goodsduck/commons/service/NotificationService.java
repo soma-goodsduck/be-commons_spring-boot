@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
+import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,8 @@ public class NotificationService {
             }
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+                    .build();
             log.debug("firebase message is : " + message);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
@@ -98,7 +100,11 @@ public class NotificationService {
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+                    .putData("charRoomId", notificationRequest.getChatRoomId())
+                    .build();
+
+            log.debug("firebase message is : " + message);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
@@ -130,7 +136,7 @@ public class NotificationService {
         log.debug(String.format("Completed successful messaging count: %d", response.getSuccessCount()));
     }
 
-    private MulticastMessage getMulticastMessage(Notification notification, List<String> registrationTokens) {
+    private MulticastMessage.Builder getMulticastMessage(Notification notification, List<String> registrationTokens) {
         var notificationResponse = new NotificationResponse(notification);
         var notificationMessage = notificationResponse.getMessage();
 
@@ -151,7 +157,6 @@ public class NotificationService {
                                 .setLink(notificationMessage.getMessageUri())
                                 .build())
                         .build())
-                .addAllTokens(registrationTokens)
-                .build();
+                .addAllTokens(registrationTokens);
     }
 }
