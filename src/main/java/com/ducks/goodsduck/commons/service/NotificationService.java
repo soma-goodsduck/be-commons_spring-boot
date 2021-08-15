@@ -157,7 +157,8 @@ public class NotificationService {
                                 .setLink(notificationMessage.getMessageUri())
                                 .build())
                         .build())
-                .addAllTokens(registrationTokens);
+                .addAllTokens(registrationTokens)
+                .putData("type", notification.getType().toString());
     }
 
     public List<NotificationResponse> getNotificationsOfUserId(Long userId) {
