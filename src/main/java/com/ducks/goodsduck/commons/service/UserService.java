@@ -1,7 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
-import com.ducks.goodsduck.commons.model.dto.item.ItemSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
@@ -11,12 +10,12 @@ import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,16 +43,18 @@ public class UserService {
     private final UserIdolGroupRepository userIdolGroupRepository;
     private final UserItemRepository userItemRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final ImageRepository imageRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
+    private final UserImageRepository userImageRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state) {
 
-        AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callTokenApi(code, state);
+        AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callAccessToken(code, state);
 
         // 소셜로그인 정보
-        String userInfoFromNaver = oauthNaverService.callGetUserByAccessToken(authorizationNaverDto.getAccess_token());
+        String userInfoFromNaver = oauthNaverService.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 
         // 비회원 체크
         JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
@@ -63,7 +63,7 @@ public class UserService {
 
         return socialAccountRepository.findById(userSocialAccountId)
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
-                .map( socialAccount -> {
+                .map(socialAccount -> {
                     User user = socialAccount.getUser();
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
@@ -72,7 +72,7 @@ public class UserService {
                     return userDto;
                 })
                 // socialAccount가 등록되어 있지 않은 경우, userDto(ANONUMOUS) 반환
-                .orElseGet( () -> {
+                .orElseGet(() -> {
                     UserDto userDto = new UserDto();
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setRole(UserRole.ANONYMOUS);
@@ -84,10 +84,10 @@ public class UserService {
     // 카카오로 인증받기
     public UserDto oauth2AuthorizationKakao(String code) {
 
-        AuthorizationKakaoDto authorizationKakaoDto = oauthKakaoService.callTokenApi(code);
+        AuthorizationKakaoDto authorizationKakaoDto = oauthKakaoService.callAccessToken(code);
 
         // 소셜로그인 정보
-        String userInfoFromKakao = oauthKakaoService.callGetUserByAccessToken(authorizationKakaoDto.getAccess_token());
+        String userInfoFromKakao = oauthKakaoService.callUserInfoByAccessToken(authorizationKakaoDto.getAccess_token());
 
         // 비회원 체크
         JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
@@ -139,6 +139,7 @@ public class UserService {
         String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId());
 
         UserDto userDto = new UserDto(user);
+        userDto.setSocialType(userSignUpRequest.getSocialAccountType());
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
         userDto.setJwt(jwt);
         return userDto;
@@ -172,10 +173,20 @@ public class UserService {
             User user = userRepository.findById(userId).get();
 
             // 프로필 사진 수정
-            if(multipartFile != null) {
+            if (multipartFile != null) {
+
+                // 현재 프로필 사진이 있으면 삭제
+                if (user.getImageUrl() != null) {
+                    Image nowImage = imageRepository.findByUrl(user.getImageUrl());
+                    imageRepository.delete(nowImage);
+                }
+
                 Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE, user.getNickName());
+                ProfileImage profileImage = new ProfileImage(image);
+                profileImage.setUser(user);
+
                 user.setImageUrl(image.getUrl());
-                System.out.println(image.getUrl());
+                imageRepository.save(profileImage);
             }
 
             // 닉네임 수정
@@ -264,23 +275,49 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public List<UserDto> findAll(){
+    public List<UserDto> findAll() {
         return userRepository.findAll()
                 .stream()
                 .map(user -> new UserDto(user))
                 .collect(Collectors.toList());
     }
 
+    public UserDto checkPhoneNumber(String phoneNumber) {
+
+        User user = userRepository.findByPhoneNumber(phoneNumber);
+
+        if(user != null) {
+            SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
+            UserDto userDto = new UserDto(user);
+            userDto.setSocialType(socialAccount.getType());
+            userDto.setSocialAccountId(socialAccount.getId());
+            return userDto;
+        } else {
+            return UserDto.createUserDto(UserRole.ANONYMOUS);
+        }
+    }
+
     public Boolean checkNickname(String nickname) {
 
-        Long count = userRepositoryCustom.findByNickname(nickname);
-
-        if(count >= 1L) {
+        User user = userRepository.findByNickName(nickname);
+        if(user != null) {
             return false;
         } else {
             return true;
         }
     }
+
+    public Boolean checkEmail(String email) {
+
+        User user = userRepository.findByEmail(email);
+
+        if(user != null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 
     public OtherUserPageDto showOtherUserPage(String bcryptId) {
 
@@ -294,7 +331,7 @@ public class UserService {
                 .sorted((item1, item2) -> item2.getId().compareTo(item1.getId()))
                 .collect(Collectors.toList());
 
-        if(sortedItems.size() > 3) {
+        if (sortedItems.size() > 3) {
             showItems.add(sortedItems.get(0));
             showItems.add(sortedItems.get(1));
             showItems.add(sortedItems.get(2));

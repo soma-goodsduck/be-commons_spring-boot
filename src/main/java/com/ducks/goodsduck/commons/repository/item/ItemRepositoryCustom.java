@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.repository;
+package com.ducks.goodsduck.commons.repository.item;
 
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -13,9 +13,11 @@ import java.util.List;
 @Repository
 public interface ItemRepositoryCustom {
     Tuple findByItemId(Long itemId);
-    Tuple findByIdWithUserItem(Long userId, Long itemId);
     List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
     long updateTradeStatus(Long itemId, TradeStatus status);
+    
+    // 좋아요 확인
+    Tuple findByIdWithUserItem(Long userId, Long itemId);
 
     // 비회원 홈
     List<Item> findAll(Pageable pageable);

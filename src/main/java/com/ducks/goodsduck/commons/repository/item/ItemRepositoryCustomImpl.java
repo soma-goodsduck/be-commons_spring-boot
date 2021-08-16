@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.repository;
+package com.ducks.goodsduck.commons.repository.item;
 
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.*;
@@ -34,7 +34,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private final QIdolGroup idolGroup = QIdolGroup.idolGroup;
     private final QCategoryItem categoryItem = QCategoryItem.categoryItem;
     private final QImage image = QImage.image;
-    private final QImage subImage = new QImage("subImage");
+    private final QItemImage itemImage = QItemImage.itemImage;
+    private final QItemImage subImage = new QItemImage("subImage");
     private final QPricePropose pricePropose = QPricePropose.pricePropose;
 
     public ItemRepositoryCustomImpl(EntityManager em) {
@@ -76,7 +77,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item, idolGroup, idolMember, image, categoryItem)
                 .from(item)
-                .leftJoin(image).on(image.item.id.eq(item.id))
+//                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -130,9 +131,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, idolGroup, idolMember, image, categoryItem)
+                .select(item, idolGroup, idolMember, categoryItem)
                 .from(item)
-                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -224,9 +224,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
         return queryFactory
-                .select(item, idolGroup, idolMember, image, categoryItem)
+                .select(item, idolGroup, idolMember, categoryItem)
                 .from(item)
-                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -350,10 +349,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, userItem, idolGroup, idolMember, image, categoryItem)
+                .select(item, userItem, idolGroup, idolMember, categoryItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -388,7 +386,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -479,10 +476,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
         return queryFactory
-                .select(item, userItem, idolGroup, idolMember, image, categoryItem)
+                .select(item, userItem, idolGroup, idolMember, categoryItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.categoryItem, categoryItem)
@@ -529,6 +525,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .join(item.idolMember.idolGroup, idolGroup)
                 .where(builder)
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
@@ -569,9 +566,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         }
 
         // TODO: 페이징 기능 적용
-        return queryFactory.select(item, image)
+        return queryFactory.select(item, itemImage)
                 .from(item)
-                .leftJoin(image).on(image.item.id.eq(item.id))
+                .leftJoin(itemImage).on(itemImage.item.id.eq(item.id))
                 .where(item.user.id.eq(userId).and(
                         conditionOfTradeStatus
                                 .and(isHaveImage(subImage).in(1L, null))
@@ -651,11 +648,11 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .otherwise(0);
     }
 
-    private JPQLQuery<Long> isHaveImage(QImage subImage) {
+    private JPQLQuery<Long> isHaveImage(QItemImage subImage) {
         return JPAExpressions.select(subImage.count().add(1))
                 .from(subImage)
                 .where(subImage.id.lt(image.id).and(
-                        subImage.item.eq(image.item)
+                        subImage.item.eq(itemImage.item)
                 ));
     }
 }

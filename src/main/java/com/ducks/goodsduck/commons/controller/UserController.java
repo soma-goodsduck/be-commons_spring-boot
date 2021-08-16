@@ -3,12 +3,15 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
+import com.ducks.goodsduck.commons.model.dto.checkSame.EmailCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.checkSame.NicknameCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
-import com.ducks.goodsduck.commons.repository.ItemRepository;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -19,14 +22,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -50,14 +50,14 @@ public class UserController {
     private final ItemRepository itemRepository;
 
     @NoCheckJwt
-    @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 API")
+    @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/naver")
     public ApiResult<UserDto> authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
         return OK(userService.oauth2AuthorizationNaver(code, state));
     }
 
     @NoCheckJwt
-    @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 API")
+    @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/kakao")
     public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) {
         return OK(userService.oauth2AuthorizationKakao(code));
@@ -72,8 +72,8 @@ public class UserController {
 
     @ApiOperation("프로필 통합 수정 API")
     @PutMapping("/v1/users/profile")
-    public ApiResult<Boolean> updateProfile(@RequestParam(required = false) MultipartFile multipartFile,
-                                            @RequestParam String stringProfileDto,
+    public ApiResult<Boolean> updateProfile(@RequestParam String stringProfileDto,
+                                            @RequestParam(required = false) MultipartFile multipartFile,
                                             HttpServletRequest request) throws Exception {
 
         UpdateProfileRequest updateProfileRequest = new ObjectMapper().readValue(stringProfileDto, UpdateProfileRequest.class);
@@ -82,10 +82,24 @@ public class UserController {
     }
 
     @NoCheckJwt
+    @ApiOperation("전화번호 중복 확인 API")
+    @PostMapping("/v1/users/phone-number-check")
+    public ApiResult<UserDto> checkSamePhoneNumber(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
+        return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
+    }
+
+    @NoCheckJwt
     @ApiOperation("닉네임 중복 확인 API")
     @PostMapping("/v1/users/nickname-check")
-    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameRequest nicknameRequest) {
-        return OK(userService.checkNickname(nicknameRequest.getNickName()));
+    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest) {
+        return OK(userService.checkNickname(nicknameCheckRequest.getNickName()));
+    }
+
+    @NoCheckJwt
+    @ApiOperation("이메일 중복 확인 API")
+    @PostMapping("/v1/users/email-check")
+    public ApiResult<Boolean> checkSameEmail(@RequestBody EmailCheckRequest emailCheckRequest) {
+        return OK(userService.checkEmail(emailCheckRequest.getEmail()));
     }
 
     @ApiOperation(value = "좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")

@@ -4,7 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
-import com.ducks.goodsduck.commons.repository.ItemRepository;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.UserRepository;

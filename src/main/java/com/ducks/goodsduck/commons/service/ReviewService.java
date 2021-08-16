@@ -7,6 +7,7 @@ import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

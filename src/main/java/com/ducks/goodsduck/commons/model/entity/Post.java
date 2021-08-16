@@ -20,7 +20,8 @@ public class Post {
     private Long id;
     private String title;
     private String content;
-    private Integer views;
+    private Integer viewCount;
+    private Integer likeCount;
     private Integer commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -29,30 +30,42 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idol_group_id")
     private IdolGroup idolGroup;
 
     @OneToMany(mappedBy = "post")
     private List<PostImage> images = new ArrayList<>();
 
-    // TODO : 좋아요 속성 추가
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments = new ArrayList<>();
 
     public Post(PostUploadRequest postUploadRequest) {
         this.title = postUploadRequest.getTitle();
         this.content = postUploadRequest.getContent();
-        this.views = 0;
+        this.viewCount = 0;
+        this.likeCount = 0;
         this.commentCount = 0;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.updatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
 
-    public void addImage(PostImage postImage) {
-        postImage.setPost(this);
-        this.images.add(postImage);
+    public void addImage(PostImage image) {
+        image.setPost(this);
+        this.images.add(image);
     }
 
     public void increaseView() {
-        this.views++;
+        this.viewCount++;
+    }
+
+    public Post like() {
+        this.likeCount++;
+        return this;
+    }
+
+    public Post dislike() {
+        this.likeCount--;
+        return this;
     }
 }

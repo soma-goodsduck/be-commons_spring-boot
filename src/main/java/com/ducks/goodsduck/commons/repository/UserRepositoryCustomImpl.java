@@ -16,13 +16,4 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public UserRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
-
-    @Override
-    public Long findByNickname(String nickname) {
-        return queryFactory
-                .select(user.count())
-                .from(user)
-                .where(user.nickName.eq(nickname))
-                .fetchCount();
-    }
 }

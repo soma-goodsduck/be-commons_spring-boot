@@ -6,6 +6,8 @@ import com.ducks.goodsduck.commons.model.entity.PricePropose;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.querydsl.core.Tuple;
 import com.sun.jdi.request.DuplicateRequestException;
 import org.springframework.stereotype.Service;

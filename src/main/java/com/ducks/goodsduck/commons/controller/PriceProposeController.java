@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
@@ -35,13 +36,17 @@ public class PriceProposeController {
     private final NotificationService notificationService;
     private final UserRepository userRepository;
 
+    @NoCheckJwt // TODO : 삭제
     @PostMapping("/v1/items/{itemId}/price-propose")
     @Transactional
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
     public ApiResult<PriceProposeResponse> proposePrice(@PathVariable("itemId") Long itemId,
                                                         @RequestBody PriceProposeRequest priceProposeRequest,
                                                         HttpServletRequest request) throws IOException {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 4L;
+        System.out.println(priceProposeRequest);
 
         // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
         User user = userRepository.findById(userId)

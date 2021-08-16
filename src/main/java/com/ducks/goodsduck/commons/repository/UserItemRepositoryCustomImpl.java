@@ -49,7 +49,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
     public List<Item> findByUserIdV2(Long userId) {
         return queryFactory.select(userItem.item)
                 .from(userItem)
-                .join(userItem.item.images, image).fetchJoin()
+//                .join(userItem.item.images, image).fetchJoin()
                 .where(userItem.user.id.eq(userId))
                 .distinct()
                 .fetch();

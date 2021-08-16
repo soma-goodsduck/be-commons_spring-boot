@@ -4,9 +4,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+//@NoArgsConstructor
 public class PostUploadRequest {
 
     private String title;
     private String content;
+    private Long idolGroupId;
 }

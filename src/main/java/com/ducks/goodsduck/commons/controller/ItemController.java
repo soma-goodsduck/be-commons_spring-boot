@@ -60,6 +60,8 @@ public class ItemController {
         return 1L;
     }
 
+    // TODO : 삭제
+    @NoCheckJwt
     @ApiOperation(value = "아이템 등록하기")
     @PostMapping("/v1/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
@@ -68,6 +70,8 @@ public class ItemController {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 4L;
+
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
 
@@ -77,6 +81,7 @@ public class ItemController {
     public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
+        userId = 3L;
 
         // HINT : 비회원에게 보여줄 상세보기
         if(userId.equals(-1L)) {
@@ -95,7 +100,6 @@ public class ItemController {
         return OK(itemService.showDetailSummary(itemId));
     }
 
-    @NoCheckJwt
     @ApiOperation(value = "아이템 수정")
     @PutMapping("/v1/items/{itemId}")
     public ApiResult<Long> editItem(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto) throws JsonProcessingException {
@@ -103,6 +107,8 @@ public class ItemController {
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
+    // TODO : 삭제
+    @NoCheckJwt
     @ApiOperation(value = "아이템 수정 V2")
     @PutMapping("/v2/items/{itemId}")
     public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
@@ -112,6 +118,8 @@ public class ItemController {
 
         ItemUpdateRequestV2 itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequestV2.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 2L;
+
         return OK(itemService.editV2(itemId, itemUpdateRequest, multipartFiles, userId));
     }
 
@@ -225,6 +233,7 @@ public class ItemController {
         }
     }
 
+    // TODO : 거래완료 필터링에서 제거
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")
@@ -302,26 +311,32 @@ public class ItemController {
 
         return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
-
+    @NoCheckJwt // TODO : 삭제
     @PostMapping("/v1/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
     public ApiResult<UserItemResponse> doLikeItem(@PathVariable("itemId") Long itemId,
                                                   HttpServletRequest request) throws IOException {
+
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 2L;
         UserItem userItem = userItemService.doLike(userId, itemId);
+
         User receiveUser = userItem.getItem().getUser();
         Notification userItemNotification = new Notification(receiveUser, userItem);
-
         notificationService.sendMessage(userItemNotification);
 
         return OK(new UserItemResponse(userItem));
     }
 
+    @NoCheckJwt // TODO : 삭제
     @DeleteMapping("/v1/items/{itemId}/like")
     @ApiOperation("좋아요 취소 요청 API")
     public ApiResult cancleLikeItem(@PathVariable("itemId") Long itemId,
                                     HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        userId = 2L;
+
         return OK(userItemService.cancelLikeItem(userId, itemId));
     }
 

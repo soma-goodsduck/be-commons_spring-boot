@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
@@ -10,6 +9,8 @@ import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class ItemService {
     private final PriceProposeRepository priceProposeRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
+    private final ItemImageRepository itemImageRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -72,8 +74,9 @@ public class ItemService {
             /** 이미지 업로드 처리 & Image-Item 연관관계 삽입 **/
             List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, findUser.getNickName());
             for (Image image : images) {
-                item.addImage(image);
-                imageRepository.save(image);
+                ItemImage itemImage = new ItemImage(image);
+                item.addImage(itemImage);
+                imageRepository.save(itemImage);
             }
 
             itemRepository.save(item);
@@ -115,25 +118,26 @@ public class ItemService {
             itemDetailResponse.likesOfMe();
         }
 
+        // 아이템 주인인 경우
         if (item.getUser().getId().equals(userId)) {
+            // 받은 가격 제안 정보 조회
+            List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
+            itemDetailResponse.addProposedList(priceProposes);
+            
+            // 내 아이템 체크
             itemDetailResponse.myItem();
-            return itemDetailResponse;
-        }
+        } else {
+            // 가격 제안 유무 체크
+            PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
+            if(pricePropose != null) {
+                itemDetailResponse.addMyPricePropose(pricePropose);
+            }
 
-        // HINT: 가격 제안 정보 조회
-        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
-        itemDetailResponse.addProposedList(priceProposes);
-        
-        // HINT: 가격 제안 유무 체크
-        PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
-        if(pricePropose != null) {
-            itemDetailResponse.addMyPricePropose(pricePropose);
-        }
-
-        // HINT: 채팅방 정보
-        Chat chat = userChatRepositoryCustom.findByUserIdAndItemId(userId, itemId);
-        if(chat != null) {
-            itemDetailResponse.setChatId(chat.getId());
+            // 채팅방 정보
+            Chat chat = userChatRepositoryCustom.findByUserIdAndItemId(userId, itemId);
+            if(chat != null) {
+                itemDetailResponse.setChatId(chat.getId());
+            }
         }
 
         return itemDetailResponse;
@@ -192,21 +196,21 @@ public class ItemService {
              * 기존 이미지 수정 (Url)
              * case1. 기존 이미지 유지한 경우 -> 따로 변경할 필요없음
              * case2. 기존 이미지 전부 삭제한 경우 (null, empty)
-             * case3. 기존 이미지 1개 이상 남기고 삭제한 경우
+             * case3. 기존 이미지 일부 삭제한 경우
              *
              * 새로운 이미지 수정 (파일)
              * case4. 새로운 이미지 추가하지 않은 경우 -> 따로 변경할 필요없음
              * case5. 새로운 이미지 추가한 경우
              */
-            List<Image> existImages = item.getImages();
+            List<ItemImage> existImages = item.getImages();
             List<String> updateImageUrls = itemUpdateRequest.getImageUrls();
 
             // case2
             if(updateImageUrls.isEmpty()) {
                 List<Image> deleteImages = new ArrayList<>();
-                Iterator<Image> iter = existImages.iterator();
+                Iterator<ItemImage> iter = existImages.iterator();
                 while(iter.hasNext()) {
-                    Image existImage = iter.next();
+                    ItemImage existImage = iter.next();
                     deleteImages.add(existImage);
                     iter.remove();
                 }
@@ -225,7 +229,7 @@ public class ItemService {
                     }
 
                     List<Image> deleteImages = new ArrayList<>();
-                    Iterator<Image> iter = existImages.iterator();
+                    Iterator<ItemImage> iter = existImages.iterator();
                     while(iter.hasNext()) {
                         Image existImage = iter.next();
                         if(imageMap.get(existImage.getId()) == null) {
@@ -243,8 +247,9 @@ public class ItemService {
                 User user = userRepository.findById(userId).get();
                 List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, user.getNickName());
                 for (Image image : images) {
-                    item.addImage(image);
-                    imageRepository.save(image);
+                    ItemImage itemImage = new ItemImage(image);
+                    item.addImage(itemImage);
+                    itemImageRepository.save(itemImage);
                 }
             }
 
@@ -259,15 +264,14 @@ public class ItemService {
         try {
             Item deleteItem = itemRepository.findById(itemId).get();
 
-            // image 삭제
-            // TODO : List<Image> deleteImages = deleteItem.getImages();
-            List<Image> deleteImages = imageRepository.findAllByItemId(itemId);
-            imageRepository.deleteInBatch(deleteImages);
-
-            // user-image 삭제
+            // user's item 목록 삭제
             User user = deleteItem.getUser();
             List<Item> itemsOfUser = user.getItems();
             itemsOfUser.remove(deleteItem);
+
+            // image 연관 삭제
+            List<ItemImage> deleteImages = deleteItem.getImages();
+            itemImageRepository.deleteInBatch(deleteImages);
 
             // pricePropose 연관 삭제
             List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(itemId);

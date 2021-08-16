@@ -17,9 +17,9 @@ public class PostDetailResponse {
     private String content;
     private List<PostDetailResponseImage> images = new ArrayList<>();
     private LocalDateTime postCreatedAt;
-    private Integer views;
-//    private Integer likesItemCount;
-//    private Boolean isLike;
+    private Integer viewCount;
+    private Integer likeCount;
+    private Boolean isLike;
     private Boolean isOwner;
 
     public PostDetailResponse(Post post) {
@@ -31,8 +31,14 @@ public class PostDetailResponse {
                 .map(image -> new PostDetailResponseImage(image))
                 .collect(Collectors.toList());
         this.postCreatedAt = post.getCreatedAt();
-        this.views = post.getViews();
+        this.viewCount = post.getViewCount();
+        this.likeCount = post.getLikeCount();
+        this.isLike = false;
         this.isOwner = false;
+    }
+
+    public void likesOfMe() {
+        isLike = true;
     }
 
     public void myItem() {

@@ -43,7 +43,7 @@ public class Item {
     private GradeStatus gradeStatus;
 
     @OneToMany(mappedBy = "item")
-    private List<Image> images = new ArrayList<>();
+    private List<ItemImage> images = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -79,7 +79,7 @@ public class Item {
         return this.images.get(0);
     }
 
-    public void addImage(Image image) {
+    public void addImage(ItemImage image) {
         image.setItem(this);
         this.images.add(image);
     }

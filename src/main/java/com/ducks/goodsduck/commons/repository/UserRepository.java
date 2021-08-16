@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByBcryptId(String bcryptId);
+    User findByPhoneNumber(String phoneNumber);
+    User findByNickName(String nickName);
+    User findByEmail(String email);
 }

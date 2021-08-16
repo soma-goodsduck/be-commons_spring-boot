@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.model.entity;
 
-import com.ducks.goodsduck.commons.model.enums.SocialType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,20 +10,22 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SocialAccount {
+public class UserPost {
 
-    @Id @Column(name = "social_account_id")
-    private String id;
-
-    @Enumerated(EnumType.STRING)
-    private SocialType type;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_post_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    public SocialAccount(String id, SocialType type) {
-        this.id = id;
-        this.type = type;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    public UserPost(User user, Post post) {
+        this.user = user;
+        this.post = post;
     }
 }
