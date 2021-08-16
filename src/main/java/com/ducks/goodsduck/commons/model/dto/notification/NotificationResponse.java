@@ -13,10 +13,14 @@ public class NotificationResponse {
 
     /** 메시지 구성 요소 */
     private String senderNickName;
-    private String senderImageUri;
+    private String senderImageUrl;
+    private Long itemId;
     private String itemName;
+    private String itemImageUri;
     private NotificationType type;
     private Integer price;
+    private Long reviewId;
+    private Long priceProposeId;
     private LocalDateTime createdAt;
     private boolean isRead;
 
@@ -25,10 +29,14 @@ public class NotificationResponse {
 
     public NotificationResponse(Notification notification) {
         this.senderNickName = notification.getSenderNickName();
-        this.senderImageUri = notification.getSenderImageUri();
+        this.senderImageUrl = notification.getSenderImageUrl();
+        this.itemId = notification.getItemId();
         this.itemName = notification.getItemName();
+        this.itemImageUri = notification.getItemImageUrl();
         this.type = notification.getType();
         this.price = notification.getPrice();
+        this.reviewId = notification.getReviewId();
+        this.priceProposeId = notification.getPriceProposeId();
         this.createdAt = notification.getCreatedAt();
         this.isRead = notification.getReadAt() == null ? false : true;
         String title = String.format("굿즈덕 %s 알림", type);
@@ -40,12 +48,12 @@ public class NotificationResponse {
         switch (type) {
             case PRICE_PROPOSE:
                 body = body.concat(String.format("에 %s을 했어요. [%d원]", type.getKorName(), price));
-                messageUri = messageUri.concat("/price-proposes");
+                messageUri = messageUri.concat(String.format("/price/%d", itemId));
                 break;
 
             case USER_ITEM:
                 body = body.concat(String.format("를 %s했어요.", type.getKorName()));
-                messageUri = messageUri.concat("/notification");
+                messageUri = messageUri.concat(String.format("/item/%d", itemId));
                 break;
 
             case CHAT:
@@ -57,6 +65,10 @@ public class NotificationResponse {
                 body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
                 messageUri = messageUri.concat("/reviews");
                 break;
+
+            case REVIEW_FIRST:
+                body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 %s를 남겨보세요!", senderNickName, type.getKorName(), type.getKorName());
+                messageUri = messageUri.concat(String.format("/review/%d", itemId));
 
             default:
                 body = body.concat(String.format("에 알림을 보냈어요."));

@@ -66,7 +66,7 @@ public class ReviewController {
         User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
             throw new NoResultException("User not founded.");
         });
-        notificationService.sendMessage(new Notification(savedReview, receiver));
+        notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
         return OK(true);
     }
 
