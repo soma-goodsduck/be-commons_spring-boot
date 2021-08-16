@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.TradeCompleteReponse;
+import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;

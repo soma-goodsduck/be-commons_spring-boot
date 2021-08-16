@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.review;
 
 import com.ducks.goodsduck.commons.model.entity.Review;
 import lombok.Data;

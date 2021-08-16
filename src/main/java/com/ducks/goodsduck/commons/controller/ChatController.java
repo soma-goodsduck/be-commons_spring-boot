@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRequestDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;

@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
-import com.ducks.goodsduck.commons.model.dto.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.repository.*;

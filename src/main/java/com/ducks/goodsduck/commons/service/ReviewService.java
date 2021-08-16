@@ -1,7 +1,8 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.ReviewRequest;
-import com.ducks.goodsduck.commons.model.dto.ReviewResponse;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewBackResponse;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -83,5 +84,15 @@ public class ReviewService {
                 .stream()
                 .map(review -> new ReviewResponse(review))
                 .collect(Collectors.toList());
+    }
+
+    public ReviewBackResponse getReviewFromCounterWithItem(Long receiverId, Long itemId) {
+        String chatRoomId = userChatRepositoryCustom.findByUserIdAndItemId(receiverId, itemId).getId();
+        Item tradeItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("No item founded.");
+                });
+        Review reviewOfCounter = reviewRepositoryCustom.findByReveiverIdAndItemId(receiverId, itemId);
+        return new ReviewBackResponse(tradeItem, reviewOfCounter, chatRoomId);
     }
 }
