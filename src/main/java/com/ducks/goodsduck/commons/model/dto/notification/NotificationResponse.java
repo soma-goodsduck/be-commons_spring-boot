@@ -16,7 +16,6 @@ public class NotificationResponse {
     private String senderImageUrl;
     private Long itemId;
     private String itemName;
-    private String itemImageUri;
     private NotificationType type;
     private Integer price;
     private Long reviewId;
@@ -32,7 +31,6 @@ public class NotificationResponse {
         this.senderImageUrl = notification.getSenderImageUrl();
         this.itemId = notification.getItemId();
         this.itemName = notification.getItemName();
-        this.itemImageUri = notification.getItemImageUrl();
         this.type = notification.getType();
         this.price = notification.getPrice();
         this.reviewId = notification.getReviewId();
@@ -68,7 +66,7 @@ public class NotificationResponse {
 
             case REVIEW_FIRST:
                 body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 %s를 남겨보세요!", senderNickName, type.getKorName(), type.getKorName());
-                messageUri = messageUri.concat(String.format("/review/%d", itemId));
+                messageUri = messageUri.concat(String.format("/review-back/%d", itemId));
 
             default:
                 body = body.concat(String.format("에 알림을 보냈어요."));
