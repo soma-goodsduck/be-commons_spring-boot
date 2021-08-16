@@ -1,8 +1,8 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.ReviewRequest;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.ReviewResponse;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -16,7 +16,6 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.NoResultException;

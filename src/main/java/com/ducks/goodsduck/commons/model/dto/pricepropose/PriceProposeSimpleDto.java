@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.pricepropose;
 
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;

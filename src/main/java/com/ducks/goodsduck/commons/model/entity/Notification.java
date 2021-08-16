@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import lombok.AccessLevel;
 import lombok.Getter;

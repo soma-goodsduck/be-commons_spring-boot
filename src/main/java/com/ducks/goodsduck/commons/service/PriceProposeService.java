@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
 import com.ducks.goodsduck.commons.model.entity.User;

@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.notification;
 
 import lombok.Builder;
 import lombok.Data;

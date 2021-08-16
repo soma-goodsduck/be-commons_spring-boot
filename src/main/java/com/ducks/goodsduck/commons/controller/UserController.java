@@ -3,6 +3,8 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
