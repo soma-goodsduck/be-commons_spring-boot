@@ -87,6 +87,12 @@ public class ReviewService {
     }
 
     public ReviewBackResponse getReviewFromCounterWithItem(Long receiverId, Long itemId) {
+        if (reviewRepository.existsByItemIdAndUserId(itemId, receiverId)) {
+            ReviewBackResponse emptyReviewBackResponse = new ReviewBackResponse();
+            emptyReviewBackResponse.exist();
+            return emptyReviewBackResponse;
+        }
+
         String chatRoomId = userChatRepositoryCustom.findByUserIdAndItemId(receiverId, itemId).getId();
         Item tradeItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> {

@@ -13,6 +13,11 @@ public class ReviewBackResponse {
     private ItemSummaryDto item;
     private ReviewResponse review;
     private String chatRoomId;
+    private Boolean isExist = false;
+
+    public void exist() {
+        this.isExist = true;
+    }
 
     public ReviewBackResponse(Item item, Review review, String chatRoomId) {
         this.item = ItemSummaryDto.of(item);

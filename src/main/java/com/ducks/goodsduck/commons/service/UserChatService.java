@@ -29,6 +29,7 @@ public class UserChatService {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final PriceProposeRepository priceProposeRepository;
+    private final ReviewRepository reviewRepository;
 
     public Boolean createWithImmediateTrade(String chatId, Long userId, Long itemId) {
 
@@ -148,6 +149,13 @@ public class UserChatService {
     }
 
     public TradeCompleteReponse findByItemIdV2(Long itemOwnerId, Long itemId) throws IllegalAccessException {
+        // HINT: 해당 유저가 굿즈에 대한 리뷰를 남긴 적이 있으면 TradeCompleteResponse.exist = false 넣어서 반환
+        if (reviewRepository.existsByItemIdAndUserId(itemId, itemOwnerId)) {
+            TradeCompleteReponse emptyTradeCompleteReponse = new TradeCompleteReponse();
+            emptyTradeCompleteReponse.exist();
+            return emptyTradeCompleteReponse;
+        }
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> {
                     log.debug("Input itemId is not valid. itemId: {}", itemId);

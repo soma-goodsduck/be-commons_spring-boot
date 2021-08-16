@@ -15,6 +15,7 @@ public class TradeCompleteReponse {
 
     private ItemSummaryDto item;
     private List<UserChatResponse> chatRooms;
+    private Boolean isExist = false;
 
     public TradeCompleteReponse(Item item, List<UserChatResponse> chatRooms) {
         this.item = ItemSummaryDto.of(item);
@@ -22,5 +23,9 @@ public class TradeCompleteReponse {
         // HINT: 리뷰 작성 단계에 프론트 단에서의 UI 처리를 위한 설정값
         this.item.setTradeStatus(TradeStatus.REVIEW);
         this.chatRooms = chatRooms;
+    }
+
+    public void exist() {
+        this.isExist = true;
     }
 }
