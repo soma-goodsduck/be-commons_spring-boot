@@ -544,7 +544,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
+    public List<Item> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status) {
 
         List<TradeStatus> statusList = new ArrayList<>();
         statusList.add(status);
@@ -565,17 +565,31 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         }
 
-        // TODO: 페이징 기능 적용
-        return queryFactory.select(item, itemImage)
+        return queryFactory
+                .select(item)
                 .from(item)
-                .leftJoin(itemImage).on(itemImage.item.id.eq(item.id))
-                .where(item.user.id.eq(userId).and(
-                        conditionOfTradeStatus
-                                .and(isHaveImage(subImage).in(1L, null))
-                ))
-                .orderBy(getStatusCompareExpression().desc())
-                .orderBy(item.createdAt.desc())
+                .where(item.user.id.eq(userId).and(conditionOfTradeStatus))
                 .fetch();
+
+//        return queryFactory.select(item, itemImage)
+//                .from(item)
+//                .leftJoin(itemImage).on(itemImage.item.id.eq(item.id))
+//                .where(item.user.id.eq(userId).and(
+//                        conditionOfTradeStatus
+//                                .and(isHaveImage(subImage).in(1L, null))
+//                ))
+//                .orderBy(getStatusCompareExpression().desc())
+//                .orderBy(item.createdAt.desc())
+//                .fetch();
+    }
+
+    private JPQLQuery<Long> isHaveImage(QItemImage subImage) {
+        return JPAExpressions
+                .select(subImage.count().add(1))
+                .from(subImage)
+                .where(subImage.id.lt(image.id).and(
+                        subImage.item.eq(itemImage.item)
+                ));
     }
 
     @Override
@@ -646,13 +660,5 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .when(item.tradeStatus.eq(RESERVING)).then(30)
                 .when(item.tradeStatus.eq(COMPLETE)).then(10)
                 .otherwise(0);
-    }
-
-    private JPQLQuery<Long> isHaveImage(QItemImage subImage) {
-        return JPAExpressions.select(subImage.count().add(1))
-                .from(subImage)
-                .where(subImage.id.lt(image.id).and(
-                        subImage.item.eq(itemImage.item)
-                ));
     }
 }

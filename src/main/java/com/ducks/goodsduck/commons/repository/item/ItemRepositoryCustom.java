@@ -13,8 +13,11 @@ import java.util.List;
 @Repository
 public interface ItemRepositoryCustom {
     Tuple findByItemId(Long itemId);
-    List<Tuple> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
     long updateTradeStatus(Long itemId, TradeStatus status);
+
+
+    // 마이 페이지 거래내역
+    List<Item> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
     
     // 좋아요 확인
     Tuple findByIdWithUserItem(Long userId, Long itemId);
