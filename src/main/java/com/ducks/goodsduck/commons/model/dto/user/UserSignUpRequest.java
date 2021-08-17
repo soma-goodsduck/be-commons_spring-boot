@@ -15,10 +15,10 @@ import java.util.List;
 @Data
 public class UserSignUpRequest {
 
-    private String socialAccountId;
-    private SocialType socialAccountType;
-    private String nickName;
     private String email;
     private String phoneNumber;
+    private String nickName;
     private List<Long> likeIdolGroupsId = new ArrayList<>();
+    private String socialAccountId;
+    private SocialType socialAccountType;
 }

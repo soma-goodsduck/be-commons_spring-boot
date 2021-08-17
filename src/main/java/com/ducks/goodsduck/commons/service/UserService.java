@@ -120,6 +120,11 @@ public class UserService {
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
 
+        if(userSignUpRequest.getPhoneNumber() == null || userSignUpRequest.getEmail() == null ||
+                userSignUpRequest.getNickName() == null || userSignUpRequest.getLikeIdolGroupsId() == null) {
+            throw new IllegalStateException("No sing-up info in UserController.singUp");
+        }
+
         SocialAccount socialAccount = socialAccountRepository.save(
                 new SocialAccount(userSignUpRequest.getSocialAccountId(),
                                   userSignUpRequest.getSocialAccountType())
