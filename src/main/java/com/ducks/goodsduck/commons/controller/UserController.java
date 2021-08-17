@@ -171,14 +171,13 @@ public class UserController {
         return OK(userRepository.findById(userId).map(user -> new UserSimpleDto(user))
                 .orElseThrow(() -> new Exception("not find user id")));
     }
-
+    
     @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
     @GetMapping("/v1/users/items")
     public ApiResult<MypageResponse> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status = valueOf(tradeStatus.toUpperCase());
-
         return OK(itemService.findMyItem(userId, status));
     }
 

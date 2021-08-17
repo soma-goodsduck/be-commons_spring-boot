@@ -709,13 +709,10 @@ public class ItemService {
     }
 
     public MypageResponse findMyItem(Long userId, TradeStatus status) {
+
         List<ItemSummaryDto> myItems = itemRepositoryCustom.findAllByUserIdAndTradeStatus(userId, status)
                 .stream()
-                .map(tuple -> {
-                    Item item = tuple.get(0, Item.class);
-                    String imageUrl = tuple.get(1, Image.class).getUrl();
-                    return ItemSummaryDto.of(item, imageUrl);
-                })
+                .map(item -> ItemSummaryDto.of(item, item.getImages().get(0).getUrl()))
                 .collect(Collectors.toList());
 
         List<Item> itemsByUserId = itemRepository.findByUserId(userId);

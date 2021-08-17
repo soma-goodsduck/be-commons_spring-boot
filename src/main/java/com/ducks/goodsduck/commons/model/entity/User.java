@@ -28,6 +28,7 @@ public class User {
     private String email;
     private String phoneNumber;
     private String imageUrl;
+    private Integer level;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
@@ -46,10 +47,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<>();
 
-    // TODO : 없애도 될듯
-    @OneToMany(mappedBy = "user")
-    private List<SocialAccount> socialAccounts = new ArrayList<>();
-
+//    // TODO : 삭제 예정
+//    @OneToMany(mappedBy = "user")
+//    private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
@@ -71,7 +71,7 @@ public class User {
 
     public void addSocialAccount(SocialAccount socialAccount) {
         socialAccount.setUser(this);
-        socialAccounts.add(socialAccount);
+//        socialAccounts.add(socialAccount);
     }
 
     public void addUserIdolGroup(UserIdolGroup userIdolGroup) {
