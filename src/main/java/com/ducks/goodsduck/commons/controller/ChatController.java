@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
