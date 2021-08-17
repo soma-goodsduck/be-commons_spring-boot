@@ -301,14 +301,13 @@ public class ItemController {
 
         return OK(itemService.updateTradeStatus(userId, item_id, status));
     }
-    @NoCheckJwt // TODO : 삭제
+
     @PostMapping("/v1/items/{itemId}/like")
     @ApiOperation("특정 아이템 좋아요 요청 API")
     public ApiResult<UserItemResponse> doLikeItem(@PathVariable("itemId") Long itemId,
                                                   HttpServletRequest request) throws IOException {
 
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 2L;
         UserItem userItem = userItemService.doLike(userId, itemId);
 
         User receiveUser = userItem.getItem().getUser();
@@ -318,15 +317,12 @@ public class ItemController {
         return OK(new UserItemResponse(userItem));
     }
 
-    @NoCheckJwt // TODO : 삭제
     @DeleteMapping("/v1/items/{itemId}/like")
     @ApiOperation("좋아요 취소 요청 API")
     public ApiResult cancleLikeItem(@PathVariable("itemId") Long itemId,
                                     HttpServletRequest request) {
         
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 2L;
-
         return OK(userItemService.cancelLikeItem(userId, itemId));
     }
 
