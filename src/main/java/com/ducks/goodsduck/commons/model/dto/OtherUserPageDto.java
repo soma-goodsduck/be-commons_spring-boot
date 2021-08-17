@@ -1,13 +1,13 @@
 package com.ducks.goodsduck.commons.model.dto;
 
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,8 +1,9 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.dto.ReviewRequest;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewBackResponse;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.ReviewResponse;
+import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -35,15 +36,11 @@ public class ReviewController {
     private final NotificationService notificationService;
 
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
-    private final ItemRepositoryCustom itemRepositoryCustom;
 
-    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustomImpl itemRepositoryCustom) {
+    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository) {
         this.reviewService = reviewService;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-        this.itemRepositoryCustom = itemRepositoryCustom;
     }
 
     @GetMapping("/v1/users/reviews")
@@ -66,7 +63,7 @@ public class ReviewController {
         User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
             throw new NoResultException("User not founded.");
         });
-        notificationService.sendMessage(new Notification(savedReview, receiver));
+        notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
         return OK(true);
     }
 
@@ -75,5 +72,12 @@ public class ReviewController {
     public ApiResult<List<ReviewResponse>> getReviews(@PathVariable("itemId") Long itemId) {
 
         return OK(reviewService.getReviewsOfItemOwner(itemId));
+    }
+
+    @GetMapping("/v1/items/{itemId}/review-back")
+    @ApiOperation("특정 아이템 게시물 작성자가 보낸 리뷰 정보 조회")
+    public ApiResult<ReviewBackResponse> getReviewFromCounter(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(reviewService.getReviewFromCounterWithItem(userId, itemId));
     }
 }

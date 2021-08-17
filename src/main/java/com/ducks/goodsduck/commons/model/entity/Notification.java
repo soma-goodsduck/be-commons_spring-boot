@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,23 +24,30 @@ public class Notification {
     private User user;
 
     private String senderNickName;
-    private String senderImageUri;
-
-    // HINT: Notification.REVIEW 인 경우, 빈 문자열
-    private String itemName;
+    private String senderImageUrl;
     private NotificationType type;
 
-    // HINT: Notification.PRICE_PROPOSE 인 경우만 필요
+    private Long itemId;
+    private String itemName;
+
+    // HINT: REVIEW 인 경우만 필요
+    private Long reviewId;
+
+    // HINT: PRICE_PROPOSE 인 경우만 필요
+    private Long priceProposeId;
     private Integer price;
+
     private LocalDateTime createdAt;
     private LocalDateTime readAt;
 
     public Notification(User user, PriceProposeResponse priceProposeResponse) {
         this.user = user;
         this.senderNickName = priceProposeResponse.getProposer().getNickName();
-        this.senderImageUri = priceProposeResponse.getProposer().getImageUrl();
+        this.senderImageUrl = priceProposeResponse.getProposer().getImageUrl();
+        this.itemId = priceProposeResponse.getItem().getItemId();
         this.itemName = priceProposeResponse.getItem().getName();
         this.type = NotificationType.PRICE_PROPOSE;
+        this.priceProposeId = priceProposeResponse.getPriceProposeId();
         this.price = priceProposeResponse.getProposedPrice();
         this.createdAt = priceProposeResponse.getCreatedAt();
     }
@@ -49,34 +56,38 @@ public class Notification {
         this.user = user;
         User proposer = userItem.getUser();
         this.senderNickName = proposer.getNickName();
-        this.senderImageUri = proposer.getImageUrl();
+        this.senderImageUrl = proposer.getImageUrl();
+        this.itemId = userItem.getItem().getId();
         this.itemName = userItem.getItem().getName();
         this.type = NotificationType.USER_ITEM;
         this.createdAt = LocalDateTime.now();
     }
 
-    public Notification(Review review, User receiver) {
+    public Notification(Review review, User receiver, NotificationType reviewType) {
         this.user = receiver;
         this.senderNickName = review.getUser().getNickName();
-        this.senderImageUri = review.getUser().getImageUrl();
-        this.itemName = "";
-        this.type = NotificationType.REVIEW;
+        this.senderImageUrl = review.getUser().getImageUrl();
+        this.reviewId = review.getId();
+        this.itemId = review.getItem().getId();
+        this.itemName = review.getItem().getName();
+        this.type = reviewType;
         this.createdAt = review.getCreatedAt();
     }
 
-    public Notification(User user, String senderNickname, String senderImageUri, String itemName, NotificationType type) {
+    public Notification(User user, String senderNickname, String senderImageUrl, String itemName, NotificationType type) {
         this.user = user;
         this.senderNickName = senderNickname;
-        this.senderImageUri = senderImageUri;
+        this.senderImageUrl = senderImageUrl;
         this.itemName = itemName;
         this.type = type;
         this.createdAt = LocalDateTime.now();
     }
 
-    public Notification(User user, String senderNickname, String senderImageUri, String itemName, NotificationType type, Integer price) {
+    public Notification(User user, String senderNickname, String senderImageUrl, Long itemId, String itemName, NotificationType type, Integer price) {
         this.user = user;
         this.senderNickName = senderNickname;
-        this.senderImageUri = senderImageUri;
+        this.senderImageUrl = senderImageUrl;
+        this.itemId = itemId;
         this.itemName = itemName;
         this.type = type;
         this.price = price;

@@ -6,6 +6,9 @@ import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.checkSame.EmailCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.checkSame.NicknameCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -37,7 +40,7 @@ import static com.ducks.goodsduck.commons.model.enums.TradeStatus.valueOf;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Slf4j
-@Api(tags = "회원 가입 및 유저 관련 APIs")
+@Api(tags = "유저 관련 APIs")
 public class UserController {
 
     private final UserService userService;
@@ -46,6 +49,7 @@ public class UserController {
     private final DeviceService deviceService;
     private final UserChatService userChatService;
     private final JwtService jwtService;
+    private final NotificationService notificationService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -222,6 +226,13 @@ public class UserController {
         return OK(
                 new DeviceResponse(savedDevice.getUuid())
         );
+    }
+
+    @GetMapping("/v1/users/notifications")
+    @ApiOperation("사용자가 받은 알림 목록 조회 API")
+    public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(notificationService.getNotificationsOfUserId(userId));
     }
 
     // TODO : 개발중 (경원)

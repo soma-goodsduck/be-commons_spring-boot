@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto.item;
 
-import com.ducks.goodsduck.commons.model.dto.PriceProposeSimpleDto;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;

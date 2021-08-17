@@ -1,12 +1,13 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.NotificationRequest;
-import com.ducks.goodsduck.commons.model.dto.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.repository.*;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +51,13 @@ public class NotificationService {
             }
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+                    .build();
+            log.debug("firebase message is : " + message);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
+
 
         } catch (FirebaseMessagingException e) {
             log.debug(e.getMessage(), e);
@@ -96,26 +100,32 @@ public class NotificationService {
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
 
             // HINT: 알림 Message 구성
-            MulticastMessage message = getMulticastMessage(notification, registrationTokens);
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+                    .putData("chatRoomId", notificationRequest.getChatRoomId())
+                    .build();
+
+            log.debug("firebase message is : " + message);
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
 
         } catch (FirebaseMessagingException e) {
-            log.debug(e.getMessage(), e);
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e);
 //            throw new IOException(e.getMessage());
         } catch (Exception e) {
-            log.debug(e.getMessage(), e);
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e);
 //            throw new IOException(e.getMessage());
         }
     }
 
     private void requestCloudMessagingToFirebase(List<String> registrationTokens, MulticastMessage message) throws FirebaseMessagingException {
         BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+        log.debug("batch response of firebase is :" + response);
         if (response.getFailureCount() > 0) {
             List<SendResponse> responses = response.getResponses();
             List<String> failedTokens = new ArrayList<>();
             for (var i = 0; i < responses.size(); i++) {
+                log.debug("firebase responses is: " + responses.get(i));
                 if (!responses.get(i).isSuccessful()) {
                     // The order of responses corresponds to the order of the registration tokens.
                     failedTokens.add(registrationTokens.get(i));
@@ -126,7 +136,7 @@ public class NotificationService {
         log.debug(String.format("Completed successful messaging count: %d", response.getSuccessCount()));
     }
 
-    private MulticastMessage getMulticastMessage(Notification notification, List<String> registrationTokens) {
+    private MulticastMessage.Builder getMulticastMessage(Notification notification, List<String> registrationTokens) {
         var notificationResponse = new NotificationResponse(notification);
         var notificationMessage = notificationResponse.getMessage();
 
@@ -137,6 +147,8 @@ public class NotificationService {
                         .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
+                                .setTitle(notificationMessage.getMessageTitle()) //
+                                .setBody(notificationMessage.getMessageBody())  //
                                 .setIcon(notificationMessage.getIconUri())
                                 .build())
                         .build())
@@ -146,6 +158,13 @@ public class NotificationService {
                                 .build())
                         .build())
                 .addAllTokens(registrationTokens)
-                .build();
+                .putData("type", notification.getType().toString());
+    }
+
+    public List<NotificationResponse> getNotificationsOfUserId(Long userId) {
+        return notificationRepository.findByUserId(userId, Sort.by(Sort.Direction.DESC, "id"))
+                .stream()
+                .map(notification -> new NotificationResponse(notification))
+                .collect(Collectors.toList());
     }
 }

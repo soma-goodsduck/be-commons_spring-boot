@@ -4,7 +4,8 @@ public enum NotificationType {
     PRICE_PROPOSE("가격 제안"),
     USER_ITEM("찜"),
     CHAT("채팅"),
-    REVIEW("거래 리뷰");
+    REVIEW("거래 리뷰"),
+    REVIEW_FIRST("선 거래 리뷰");
 
     private String korName;
 

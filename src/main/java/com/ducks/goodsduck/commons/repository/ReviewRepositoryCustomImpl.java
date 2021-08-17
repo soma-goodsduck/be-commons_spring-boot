@@ -74,4 +74,14 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .where(review.item.id.eq(itemId))
                 .fetch();
     }
+
+    @Override
+    public Review findByReveiverIdAndItemId(Long receiverId, Long itemId) {
+        return queryFactory
+                .select(review)
+                .from(review)
+                .where(review.receiverId.eq(receiverId).and(
+                        review.item.id.eq(itemId)))
+                .fetchOne();
+    }
 }

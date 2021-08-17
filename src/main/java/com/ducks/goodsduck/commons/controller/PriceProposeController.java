@@ -4,8 +4,8 @@ import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.PriceProposeRequest;
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeRequest;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
@@ -48,14 +48,15 @@ public class PriceProposeController {
         userId = 4L;
         System.out.println(priceProposeRequest);
 
-        // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
 
         PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price."));
+
+        // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
+        User user = userRepository.findById(priceProposeResponse.getReceiverId())
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
 
         notificationService.sendMessage(new Notification(user, priceProposeResponse));
 
@@ -83,7 +84,7 @@ public class PriceProposeController {
                                  @PathVariable("priceProposeId") Long priceProposeId,
                                  @RequestBody PriceProposeRequest priceProposeRequest,
                                  HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updatePropose(userId, priceProposeId, priceProposeRequest.getPrice()));
     }
 
@@ -92,7 +93,7 @@ public class PriceProposeController {
     public ApiResult refusePropose(@PathVariable("itemId") Long itemId,
                                    @PathVariable("priceProposeId") Long priceProposeId,
                                    HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updateProposeStatus(userId, itemId, priceProposeId, PriceProposeStatus.REFUSED));
     }
 
@@ -101,7 +102,7 @@ public class PriceProposeController {
     public ApiResult acceptPropose(@PathVariable("itemId") Long itemId,
                                    @PathVariable("priceProposeId") Long priceProposeId,
                                    HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.updateProposeStatus(userId, itemId, priceProposeId, PriceProposeStatus.ACCEPTED));
     }
 
@@ -109,7 +110,14 @@ public class PriceProposeController {
     @ApiOperation(value = "특정 게시글에 대한 가격 제안 요청 목록 보기 API", notes = "SUGGESTED 상태인 가격 제안만 표시")
     public ApiResult<List<PriceProposeResponse>> getAllPropose(@PathVariable("itemId") Long itemId,
                                                                HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(priceProposeService.findAllProposeByItem(userId, itemId));
+    }
+
+    @GetMapping("/v1/items/{itemId}/price-propose/{priceProposeId}")
+    @ApiOperation(value = "특정 가격 제시에 대한 상태 유효 검사", notes = "SUGGESTED/ACCEPTED 상태를 유효한 것으로 인식")
+    public ApiResult checkStatusOfPricePropose(@PathVariable("itemId") Long itemId,
+                                                                     @PathVariable("priceProposeId") Long priceProposeId) {
+        return OK(priceProposeService.checkStatus(priceProposeId));
     }
 }

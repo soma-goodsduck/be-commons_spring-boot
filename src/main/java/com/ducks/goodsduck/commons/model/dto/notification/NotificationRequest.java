@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto;
+package com.ducks.goodsduck.commons.model.dto.notification;
 
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import lombok.Data;

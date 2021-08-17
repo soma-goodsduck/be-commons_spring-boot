@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -17,6 +17,8 @@ import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.enums.PriceProposeStatus.*;
 
 @Service
 @Transactional
@@ -73,13 +75,13 @@ public class PriceProposeService {
         // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우, SUGGESTED 상태가 아닌 경우는 처리하지 않는다.
         if (!findPricePropose.getUser().getId().equals(userId)) {
             throw new IllegalAccessException("Propose of price is not given by this user.");
-        } else if (!findPricePropose.getStatus().equals(PriceProposeStatus.SUGGESTED)) {
+        } else if (!findPricePropose.getStatus().equals(SUGGESTED)) {
             throw new IllegalArgumentException();
         }
 
         priceProposeRepository.delete(findPricePropose);
 
-        findPricePropose.setStatus(PriceProposeStatus.CANCELED);
+        findPricePropose.setStatus(CANCELED);
 
         return Optional.ofNullable(new PriceProposeResponse(findPricePropose));
 
@@ -157,5 +159,19 @@ public class PriceProposeService {
         }
 
         return false;
+    }
+
+    public Boolean checkStatus(Long priceProposeId) {
+        PricePropose pricePropose = priceProposeRepository.findById(priceProposeId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("No pricePropose founded.");
+                });
+
+        if (pricePropose.getStatus().equals(CANCELED) ||
+                pricePropose.getStatus().equals(REFUSED)) {
+            return false;
+        }
+
+        return true;
     }
 }
