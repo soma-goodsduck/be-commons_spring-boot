@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.exception;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,12 @@ public class GeneralExceptionHandler {
     public ResponseEntity<ApiResult<?>> handleInvalidInputDataException(Exception e) {
         log.debug("Bad request exception occured: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CoolsmsException.class)
+    public ResponseEntity<ApiResult<?>> handleCoolSmsException(CoolsmsException e) {
+        log.debug("Error occured during sending CoolSMS (code: {}): {} ", e.getCode(), e.getMessage(), e);
+        return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({Exception.class, RuntimeException.class})

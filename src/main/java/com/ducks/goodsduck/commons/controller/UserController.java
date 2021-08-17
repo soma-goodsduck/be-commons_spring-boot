@@ -32,6 +32,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.valueOf;
@@ -50,6 +51,7 @@ public class UserController {
     private final UserChatService userChatService;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final SmsAuthenticationService smsAuthenticationService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -232,6 +234,23 @@ public class UserController {
     public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(notificationService.getNotificationsOfUserId(userId));
+    }
+
+    @NoCheckJwt
+    @PostMapping("/v1/authenticate")
+    @ApiOperation("SMS 인증 문자 전송")
+    public ApiResult sendAuthenticationSms(@RequestBody Map<String, String> smsAuthenticationInfo) throws Exception {
+        String phoneNumber = smsAuthenticationInfo.get("phoneNumber");
+        return OK(smsAuthenticationService.sendSmsOfAuthentication(phoneNumber));
+    }
+
+    @NoCheckJwt
+    @GetMapping("/v1/authenticate")
+    @ApiOperation("SMS 인증 번호에 대한 검증")
+    public ApiResult authenticateBySms(@RequestBody Map<String, String> smsAuthenticationInfo) {
+        String phoneNumber = smsAuthenticationInfo.get("phoneNumber");
+        String authenticationNumber = smsAuthenticationInfo.get("authenticationNumber");
+        return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
     }
 
     // TODO : 개발중 (경원)
