@@ -9,6 +9,8 @@ import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -32,7 +34,6 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Map;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.valueOf;
@@ -237,19 +238,19 @@ public class UserController {
     }
 
     @NoCheckJwt
-    @PostMapping("/v1/authenticate")
+    @PostMapping("/v1/sms")
     @ApiOperation("SMS 인증 문자 전송")
-    public ApiResult sendAuthenticationSms(@RequestBody Map<String, String> smsAuthenticationInfo) throws Exception {
-        String phoneNumber = smsAuthenticationInfo.get("phoneNumber");
+    public ApiResult sendAuthenticationSms(@RequestBody SmsTransmitRequest smsTransmitRequest) throws Exception {
+        String phoneNumber = smsTransmitRequest.getPhoneNumber();
         return OK(smsAuthenticationService.sendSmsOfAuthentication(phoneNumber));
     }
 
     @NoCheckJwt
-    @GetMapping("/v1/authenticate")
+    @PostMapping("/v1/sms/authentication")
     @ApiOperation("SMS 인증 번호에 대한 검증")
-    public ApiResult authenticateBySms(@RequestBody Map<String, String> smsAuthenticationInfo) {
-        String phoneNumber = smsAuthenticationInfo.get("phoneNumber");
-        String authenticationNumber = smsAuthenticationInfo.get("authenticationNumber");
+    public ApiResult authenticateBySms(@RequestBody SmsAuthenticationRequest smsAuthenticationRequest) {
+        String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
+        String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
         return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
     }
 
