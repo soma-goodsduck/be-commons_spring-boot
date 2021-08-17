@@ -71,7 +71,7 @@ public class ItemService {
             CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
             item.setCategoryItem(categoryItem);
 
-            /** 이미지 업로드 처리 & Image-Item 연관관계 삽입 **/
+            /** 이미지 업로드 처리 & Item-Image 연관관계 삽입 **/
             List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, findUser.getNickName());
             for (Image image : images) {
                 ItemImage itemImage = new ItemImage(image);
@@ -210,7 +210,7 @@ public class ItemService {
                 List<Image> deleteImages = new ArrayList<>();
                 Iterator<ItemImage> iter = existImages.iterator();
                 while(iter.hasNext()) {
-                    ItemImage existImage = iter.next();
+                    Image existImage = iter.next();
                     deleteImages.add(existImage);
                     iter.remove();
                 }
@@ -249,7 +249,7 @@ public class ItemService {
                 for (Image image : images) {
                     ItemImage itemImage = new ItemImage(image);
                     item.addImage(itemImage);
-                    itemImageRepository.save(itemImage);
+                    imageRepository.save(itemImage);
                 }
             }
 

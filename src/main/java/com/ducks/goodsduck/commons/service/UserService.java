@@ -8,6 +8,7 @@ import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
+import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
@@ -282,20 +283,32 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDto checkPhoneNumber(String phoneNumber) {
+    public SocialType checkPhoneNumber(String phoneNumber) {
 
         User user = userRepository.findByPhoneNumber(phoneNumber);
 
         if(user != null) {
             SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
-            UserDto userDto = new UserDto(user);
-            userDto.setSocialType(socialAccount.getType());
-            userDto.setSocialAccountId(socialAccount.getId());
-            return userDto;
+            return socialAccount.getType();
         } else {
-            return UserDto.createUserDto(UserRole.ANONYMOUS);
+            return null;
         }
     }
+
+//    public UserDto checkPhoneNumber(String phoneNumber) {
+//
+//        User user = userRepository.findByPhoneNumber(phoneNumber);
+//
+//        if(user != null) {
+//            SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
+//            UserDto userDto = new UserDto(user);
+//            userDto.setSocialType(socialAccount.getType());
+//            userDto.setSocialAccountId(socialAccount.getId());
+//            return userDto;
+//        } else {
+//            return UserDto.createUserDto(UserRole.ANONYMOUS);
+//        }
+//    }
 
     public Boolean checkNickname(String nickname) {
 

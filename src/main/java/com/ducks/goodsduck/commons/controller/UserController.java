@@ -9,6 +9,7 @@ import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
@@ -81,10 +82,17 @@ public class UserController {
         return OK(userService.updateProfile(userId, multipartFile, updateProfileRequest));
     }
 
+//    @NoCheckJwt
+//    @ApiOperation("전화번호 중복 확인 API")
+//    @PostMapping("/v1/users/phone-number-check")
+//    public ApiResult<UserDto> checkSamePhoneNumber(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
+//        return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
+//    }
+
     @NoCheckJwt
     @ApiOperation("전화번호 중복 확인 API")
     @PostMapping("/v1/users/phone-number-check")
-    public ApiResult<UserDto> checkSamePhoneNumber(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
+    public ApiResult<SocialType> checkSamePhoneNumber(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
         return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
     }
 

@@ -52,16 +52,14 @@ public class ItemController {
 
     private final ImageUploadService imageUploadService; // TODO : 워터마크 테스트용 추후 삭제
     @NoCheckJwt
-    @ApiOperation(value = "(삭제 예정) 워터마크 테스트 API")
+    @ApiOperation(value = "(테스트 중) 워터마크 테스트 API")
     @PostMapping("/v1/check/watermark")
     public Long checkWatermark(@RequestParam MultipartFile multipartFile) throws IOException {
 
         imageUploadService.uploadImageWithWatermark(multipartFile);
         return 1L;
     }
-
-    // TODO : 삭제
-    @NoCheckJwt
+    
     @ApiOperation(value = "아이템 등록하기")
     @PostMapping("/v1/items")
     public ApiResult<Long> uploadItem(@RequestParam String stringItemDto,
@@ -70,18 +68,14 @@ public class ItemController {
 
         ItemUploadRequest itemUploadRequest = new ObjectMapper().readValue(stringItemDto, ItemUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 4L;
-
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
-
-    @NoCheckJwt
+    
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/v1/items/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        userId = 3L;
 
         // HINT : 비회원에게 보여줄 상세보기
         if(userId.equals(-1L)) {
@@ -107,8 +101,6 @@ public class ItemController {
         return OK(itemService.edit(itemId, itemUpdateRequest));
     }
 
-    // TODO : 삭제
-    @NoCheckJwt
     @ApiOperation(value = "아이템 수정 V2")
     @PutMapping("/v2/items/{itemId}")
     public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
@@ -118,8 +110,6 @@ public class ItemController {
 
         ItemUpdateRequestV2 itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequestV2.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 2L;
-
         return OK(itemService.editV2(itemId, itemUpdateRequest, multipartFiles, userId));
     }
 

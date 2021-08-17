@@ -34,15 +34,12 @@ public class ChatController {
     private final UserService userService;
     private final NotificationService notificationService;
 
-    @NoCheckJwt // TODO : 삭제
     @ApiOperation("채팅방 생성 API by 즉시 판매/구매")
     @PostMapping("/v1/chat/items/{itemId}")
     public ApiResult<Boolean> createChatWithImmediateTrade(@PathVariable("itemId") Long itemId,
                                                            @RequestBody ChatRequestDto chatDto, HttpServletRequest request) {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 3L;
-
         return OK(userChatService.createWithImmediateTrade(chatDto.getChatId(), userId, itemId));
     }
 

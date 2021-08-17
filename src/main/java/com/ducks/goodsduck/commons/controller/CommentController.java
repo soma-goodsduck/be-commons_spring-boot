@@ -24,7 +24,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = "댓글 CRUD APIs")
+@Api(tags = "커뮤니티 댓글 CRUD APIs")
 public class CommentController {
 
     private final CommentService commentService;

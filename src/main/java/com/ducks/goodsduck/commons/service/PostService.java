@@ -58,7 +58,7 @@ public class PostService {
                 for (Image image : images) {
                     PostImage postImage = new PostImage(image);
                     post.addImage(postImage);
-                    postImageRepository.save(postImage);
+                    imageRepository.save(postImage);
                 }
             }
 
@@ -71,11 +71,6 @@ public class PostService {
     }
 
     public PostDetailResponse showDetailWithLike(Long userId, Long postId) {
-
-//        Post post = postRepository.findById(postId).get();
-//        post.increaseView();
-//
-//        PostDetailResponse postDetailResponse = new PostDetailResponse(post);
 
         Tuple postTupleWithUserPost = postRepositoryCustom.findByIdWithUserPost(userId, postId);
         Post post = postTupleWithUserPost.get(0, Post.class);
@@ -127,15 +122,15 @@ public class PostService {
 
             // case2
             if (updateImageUrls.isEmpty()) {
-                List<PostImage> deleteImages = new ArrayList<>();
+                List<Image> deleteImages = new ArrayList<>();
                 Iterator<PostImage> iter = existImages.iterator();
                 while (iter.hasNext()) {
-                    PostImage existImage = iter.next();
+                    Image existImage = iter.next();
                     deleteImages.add(existImage);
                     iter.remove();
                 }
 
-                postImageRepository.deleteInBatch(deleteImages);
+                imageRepository.deleteInBatch(deleteImages);
             }
             // case3
             else {
@@ -169,7 +164,7 @@ public class PostService {
                 for (Image image : images) {
                     PostImage postImage = new PostImage(image);
                     post.addImage(postImage);
-                    postImageRepository.save(postImage);
+                    imageRepository.save(postImage);
                 }
             }
 

@@ -102,7 +102,14 @@ public class ImageUploadService {
 
             BufferedImage resizedImage = rescale.filter(image, null);
 
-            if(!(imageType.equals(ImageType.PROFILE) || imageType.equals(ImageType.POST))) {
+            if(imageType.equals(ImageType.ITEM)) {
+                // 아이템 상세보기 이미지 (워터마크 O)
+                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+
+                // 아이템 홈 이미지 (워터마크 X)
+                uploadImageToS3(s3Client, "home-" + uploadName, ext, resizedImage, imageType);
+            } else if(imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -111,7 +118,14 @@ public class ImageUploadService {
 
         } else {
 
-            if(!imageType.equals(ImageType.PROFILE)) {
+            if(imageType.equals(ImageType.ITEM)) {
+                // 아이템 상세보기 이미지 (워터마크 O)
+                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+
+                // 아이템 홈 이미지 (워터마크 X)
+                uploadImageToS3(s3Client, "home-" + uploadName, ext, image, imageType);
+            } else if(imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -162,7 +176,7 @@ public class ImageUploadService {
         } else if(imageType.equals(ImageType.POST)) {
             s3Client.putObject(new PutObjectRequest(postS3Bucket, uploadName, imageIS, metadata));
         } else {
-            throw new RuntimeException("fail to upload image");
+            throw new RuntimeException("Fail to upload image in ImageUploadService.uploadImageToS3");
         }
     }
 

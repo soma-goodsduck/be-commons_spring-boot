@@ -31,7 +31,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Slf4j
-@Api(tags = "커뮤니티 APIs")
+@Api(tags = "커뮤니티 게시글 APIs")
 public class PostController {
 
     private final PostService postService;
@@ -67,10 +67,10 @@ public class PostController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(postService.edit(postId, postUpdateRequest, multipartFiles, userId));
     }
-
+    
     @ApiOperation("포스트 삭제 API")
     @DeleteMapping("/v1/posts/{postId}")
-    public ApiResult<Long> deletePost(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ApiResult<Long> deletePost(@PathVariable("postId") Long postId) {
         return OK(postService.delete(postId));
     }
 
