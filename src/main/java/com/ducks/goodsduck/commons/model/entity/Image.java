@@ -11,6 +11,8 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "image_type")
 public class Image {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +22,9 @@ public class Image {
     private String uploadName;
     private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
-    private Item item;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "item_id")
+//    private Item item;
 
     public Image(ImageDto imageDto) {
         this.originName = imageDto.getOriginName();

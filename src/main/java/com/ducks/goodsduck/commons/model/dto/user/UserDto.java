@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.user;
 
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class UserDto {
 
+    private SocialType socialType;
     private String socialAccountId;
     private String bcryptId;
     private String nickName;

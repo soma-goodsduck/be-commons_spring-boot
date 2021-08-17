@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SocialAccount {
 
-    @Id
+    @Id @Column(name = "social_account_id")
     private String id;
 
     @Enumerated(EnumType.STRING)

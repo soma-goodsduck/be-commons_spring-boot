@@ -41,6 +41,7 @@ public class ImageUploadService {
     private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.itemBucket", PropertyUtil.getProperty("cloud.aws.s3.itemBucket"));
     private final String profileS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.profileBucket", PropertyUtil.getProperty("cloud.aws.s3.profileBucket"));
     private final String chatS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.chatBucket", PropertyUtil.getProperty("cloud.aws.s3.chatBucket"));
+    private final String postS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.postBucket", PropertyUtil.getProperty("cloud.aws.s3.postBucket"));
     private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", PropertyUtil.getProperty("cloud.aws.credentials.accessKey"));
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
@@ -101,7 +102,14 @@ public class ImageUploadService {
 
             BufferedImage resizedImage = rescale.filter(image, null);
 
-            if(!imageType.equals(ImageType.PROFILE)) {
+            if(imageType.equals(ImageType.ITEM)) {
+                // 아이템 상세보기 이미지 (워터마크 O)
+                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+
+                // 아이템 홈 이미지 (워터마크 X)
+                uploadImageToS3(s3Client, "home-" + uploadName, ext, resizedImage, imageType);
+            } else if(imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -110,7 +118,14 @@ public class ImageUploadService {
 
         } else {
 
-            if(!imageType.equals(ImageType.PROFILE)) {
+            if(imageType.equals(ImageType.ITEM)) {
+                // 아이템 상세보기 이미지 (워터마크 O)
+                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
+                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+
+                // 아이템 홈 이미지 (워터마크 X)
+                uploadImageToS3(s3Client, "home-" + uploadName, ext, image, imageType);
+            } else if(imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -124,7 +139,10 @@ public class ImageUploadService {
             return new Image(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.CHAT)) {
             return new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
-        } else {
+        }else if(imageType.equals(ImageType.POST)) {
+            return new Image(originName, uploadName, s3Client.getUrl(postS3Bucket, uploadName).toString());
+        }
+        else {
             return null;
         }
     }
@@ -155,8 +173,10 @@ public class ImageUploadService {
             s3Client.putObject(new PutObjectRequest(profileS3Bucket, uploadName, imageIS, metadata));
         } else if(imageType.equals(ImageType.CHAT)) {
             s3Client.putObject(new PutObjectRequest(chatS3Bucket, uploadName, imageIS, metadata));
+        } else if(imageType.equals(ImageType.POST)) {
+            s3Client.putObject(new PutObjectRequest(postS3Bucket, uploadName, imageIS, metadata));
         } else {
-            throw new RuntimeException("fail to upload image");
+            throw new RuntimeException("Fail to upload image in ImageUploadService.uploadImageToS3");
         }
     }
 

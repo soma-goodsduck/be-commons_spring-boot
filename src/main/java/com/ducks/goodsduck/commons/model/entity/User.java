@@ -28,24 +28,28 @@ public class User {
     private String email;
     private String phoneNumber;
     private String imageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLoginAt;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @OneToMany(mappedBy = "user")
-    private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<SocialAccount> socialAccounts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
     private List<Item> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<>();
 
-    private LocalDateTime createdAt;
-    private LocalDateTime lastLoginAt;
+    // TODO : 없애도 될듯
+    @OneToMany(mappedBy = "user")
+    private List<SocialAccount> socialAccounts = new ArrayList<>();
+
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;

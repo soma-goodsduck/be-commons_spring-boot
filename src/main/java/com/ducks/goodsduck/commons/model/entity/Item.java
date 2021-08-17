@@ -43,7 +43,7 @@ public class Item {
     private GradeStatus gradeStatus;
 
     @OneToMany(mappedBy = "item")
-    private List<Image> images = new ArrayList<>();
+    private List<ItemImage> images = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -67,7 +67,6 @@ public class Item {
         this.likesItemCount = 0;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.updatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-
         if(tradeType.equals(TradeType.BUY)) {
             this.tradeStatus = TradeStatus.BUYING;
         } else {
@@ -79,7 +78,7 @@ public class Item {
         return this.images.get(0);
     }
 
-    public void addImage(Image image) {
+    public void addImage(ItemImage image) {
         image.setItem(this);
         this.images.add(image);
     }

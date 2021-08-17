@@ -26,7 +26,8 @@ public class ItemHomeResponse {
         this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());
         this.itemId = item.getId();
         this.name = item.getName();
-        this.imageUrl = item.getImages().get(0).getUrl();
+        // TODO : yml 반영
+        this.imageUrl = "https://goodsduck-item-image.s3.ap-northeast-2.amazonaws.com/home-" + item.getImages().get(0).getUploadName();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
         this.tradeStatus = item.getTradeStatus();
@@ -36,7 +37,6 @@ public class ItemHomeResponse {
         this.likesItemCount = item.getLikesItemCount();
         this.isLike = false;
     }
-
 
     public ItemHomeResponse(Item item, String imageUrl) {
         this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());

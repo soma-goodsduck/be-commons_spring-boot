@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.repository;
+package com.ducks.goodsduck.commons.repository.item;
 
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.User;

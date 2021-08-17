@@ -38,7 +38,6 @@ public class ItemDetailResponse {
 
     public ItemDetailResponse(Item item) {
         this.loginUser = new UserSimpleDto();
-        this.itemId = item.getId();
         this.itemOwner = new ItemDetailResponseItemOwner(item.getUser());
         this.itemId = item.getId();
         this.name = item.getName();

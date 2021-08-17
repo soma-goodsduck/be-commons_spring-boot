@@ -4,6 +4,8 @@ import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.repository.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.IdolMemberRepositoryCustom;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +15,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class IdolMemberService {
 
     private final IdolMemberRepository idolMemberRepository;
     private final IdolMemberRepositoryCustom idolMemberRepositoryCustom;
-
-    public IdolMemberService(IdolMemberRepository idolMemberRepository, IdolMemberRepositoryCustom idolMemberRepositoryCustom) {
-        this.idolMemberRepository = idolMemberRepository;
-        this.idolMemberRepositoryCustom = idolMemberRepositoryCustom;
-    }
 
     public List<IdolMember> findIdolMembersOfGroup(Long idolGroupId) {
         return idolMemberRepositoryCustom.findAllByIdolGroupId(idolGroupId)

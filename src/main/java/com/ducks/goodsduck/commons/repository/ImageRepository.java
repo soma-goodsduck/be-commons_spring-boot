@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
+    Image findByUrl(String imageUrl);
 
-    List<Image> findAllByItemId(Long itemId);
+//    List<Image> findAllByItemId(Long itemId);
 }

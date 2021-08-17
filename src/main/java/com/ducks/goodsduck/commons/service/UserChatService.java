@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

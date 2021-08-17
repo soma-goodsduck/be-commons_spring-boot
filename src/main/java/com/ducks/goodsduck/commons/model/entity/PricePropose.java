@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PricePropose {
 

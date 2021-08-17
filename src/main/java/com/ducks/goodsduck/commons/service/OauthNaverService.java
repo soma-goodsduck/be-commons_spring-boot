@@ -39,7 +39,7 @@ public class OauthNaverService {
     private final String tokenUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.naver.token-uri", "local");
     private final String userInfoUri = jsonOfAwsSecrets.optString("spring.security.oauth2.client.provider.naver.user-info-uri", "local");
 
-    public AuthorizationNaverDto callTokenApi(String code, String state) {
+    public AuthorizationNaverDto callAccessToken(String code, String state) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -68,7 +68,7 @@ public class OauthNaverService {
      * accessToken 을 이용한 유저정보 받기
      * @return Json Data(String)
      */
-    public String callGetUserByAccessToken(String accessToken) {
+    public String callUserInfoByAccessToken(String accessToken) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
