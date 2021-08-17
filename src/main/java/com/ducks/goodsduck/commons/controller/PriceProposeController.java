@@ -35,8 +35,7 @@ public class PriceProposeController {
     private final PriceProposeService priceProposeService;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
-
-    @NoCheckJwt // TODO : 삭제
+    
     @PostMapping("/v1/items/{itemId}/price-propose")
     @Transactional
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
@@ -45,10 +44,6 @@ public class PriceProposeController {
                                                         HttpServletRequest request) throws IOException {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        userId = 4L;
-        System.out.println(priceProposeRequest);
-
-
         PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
                 .orElseThrow(() -> new RuntimeException("Cannot propose the price."));
 
