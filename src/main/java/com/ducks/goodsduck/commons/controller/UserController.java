@@ -75,17 +75,6 @@ public class UserController {
         return OK(userService.signUp(userSignUpRequest));
     }
 
-    @ApiOperation("프로필 통합 수정 API")
-    @PutMapping("/v1/users/profile")
-    public ApiResult<Boolean> updateProfile(@RequestParam String stringProfileDto,
-                                            @RequestParam(required = false) MultipartFile multipartFile,
-                                            HttpServletRequest request) throws Exception {
-
-        UpdateProfileRequest updateProfileRequest = new ObjectMapper().readValue(stringProfileDto, UpdateProfileRequest.class);
-        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userService.updateProfile(userId, multipartFile, updateProfileRequest));
-    }
-
 //    @NoCheckJwt
 //    @ApiOperation("전화번호 중복 확인 API")
 //    @PostMapping("/v1/users/phone-number-check")
@@ -114,7 +103,18 @@ public class UserController {
         return OK(userService.checkEmail(emailCheckRequest.getEmail()));
     }
 
-    @ApiOperation(value = "좋아하는 아이돌 편집 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
+    @ApiOperation("프로필 통합 수정 API")
+    @PutMapping("/v1/users/profile")
+    public ApiResult<Boolean> updateProfile(@RequestParam String stringProfileDto,
+                                            @RequestParam(required = false) MultipartFile multipartFile,
+                                            HttpServletRequest request) throws Exception {
+
+        UpdateProfileRequest updateProfileRequest = new ObjectMapper().readValue(stringProfileDto, UpdateProfileRequest.class);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.updateProfile(userId, multipartFile, updateProfileRequest));
+    }
+
+    @ApiOperation(value = "좋아하는 아이돌 수정 API", notes = "좋아하는 아이돌 그룹이 추가/삭제될 경우, 기존에 있었던 아이돌 그룹 포함 List형태로 요청")
     @PutMapping("/v1/users/idol-groups")
     public ApiResult<Long> updateLikeIdolGroups(@RequestBody UserIdolGroupUpdateRequest userIdolGroupUpdateRequest,
                                                 HttpServletRequest request) {
