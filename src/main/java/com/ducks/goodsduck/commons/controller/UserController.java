@@ -9,6 +9,8 @@ import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -50,6 +52,7 @@ public class UserController {
     private final UserChatService userChatService;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final SmsAuthenticationService smsAuthenticationService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -232,6 +235,23 @@ public class UserController {
     public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(notificationService.getNotificationsOfUserId(userId));
+    }
+
+    @NoCheckJwt
+    @PostMapping("/v1/sms")
+    @ApiOperation("SMS 인증 문자 전송")
+    public ApiResult sendAuthenticationSms(@RequestBody SmsTransmitRequest smsTransmitRequest) throws Exception {
+        String phoneNumber = smsTransmitRequest.getPhoneNumber();
+        return OK(smsAuthenticationService.sendSmsOfAuthentication(phoneNumber));
+    }
+
+    @NoCheckJwt
+    @PostMapping("/v1/sms/authentication")
+    @ApiOperation("SMS 인증 번호에 대한 검증")
+    public ApiResult authenticateBySms(@RequestBody SmsAuthenticationRequest smsAuthenticationRequest) {
+        String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
+        String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
+        return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
     }
 
     // TODO : 개발중 (경원)
