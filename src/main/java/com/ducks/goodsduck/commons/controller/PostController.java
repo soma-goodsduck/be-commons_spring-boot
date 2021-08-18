@@ -74,15 +74,15 @@ public class PostController {
         return OK(postService.delete(postId));
     }
 
-    @PostMapping("/v1/posts/{postId}/like")
     @ApiOperation("특정 포스트 좋아요 요청 API")
+    @PostMapping("/v1/posts/{postId}/like")
     public ApiResult<Boolean> likePost(@PathVariable("postId") Long postId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userPostService.likePost(userId, postId));
     }
 
-    @DeleteMapping("/v1/posts/{postId}/like")
-    @ApiOperation("좋아요 취소 요청 API")
+    @ApiOperation("포스트 목록 조회하기 API")
+    @DeleteMapping("/v1/posts/{idolGroup}")
     public ApiResult<Boolean> dislikePost(@PathVariable("postId") Long postId, HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userPostService.dislikePost(userId, postId));

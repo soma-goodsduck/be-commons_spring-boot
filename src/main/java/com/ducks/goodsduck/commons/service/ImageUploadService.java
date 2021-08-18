@@ -7,6 +7,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
@@ -16,13 +21,12 @@ import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.imgscalr.Scalr;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import javax.management.RuntimeErrorException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -46,7 +50,7 @@ public class ImageUploadService {
     private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
 
-    public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException {
+    public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
         List<Image> images = new ArrayList<>();
 
@@ -61,7 +65,7 @@ public class ImageUploadService {
     }
 
     /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
-    public Image uploadImage(MultipartFile multipartFile, ImageType imageType, String nickname) throws IOException {
+    public Image uploadImage(MultipartFile multipartFile, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
         // S3 셋팅
         AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -80,6 +84,29 @@ public class ImageUploadService {
         Long bytes = multipartFile.getSize();
 
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+
+        // FEAT : 파일 회전 체크
+        int orientation = 1;
+
+        Metadata metadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
+        ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+        if(directory != null) {
+            orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+        }
+
+        switch (orientation) {
+            case 6:
+                image = Scalr.rotate(image, Scalr.Rotation.CW_90, null);
+                break;
+            case 3:
+                image = Scalr.rotate(image, Scalr.Rotation.CW_180, null);
+                break;
+            case 8:
+                image = Scalr.rotate(image, Scalr.Rotation.CW_270, null);
+                break;
+            default:
+                break;
+        }
 
         // FEAT : 파일이 1MB 이상일 경우 리사이징
         if(bytes >= 1048576) {

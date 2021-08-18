@@ -1,5 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
@@ -60,7 +62,7 @@ public class ChatController {
 
     @ApiOperation("채팅방 이미지 업로드 API")
     @PostMapping("/v1/users/chat-image")
-    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile, HttpServletRequest request) throws IOException {
+    public ApiResult<String> uploadChatImage(@RequestParam MultipartFile multipartFile, HttpServletRequest request) throws IOException, ImageProcessingException, MetadataException {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.uploadChatImage(multipartFile, ImageType.CHAT, userId));
     }

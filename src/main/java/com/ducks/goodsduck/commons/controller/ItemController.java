@@ -70,7 +70,8 @@ public class ItemController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(itemService.upload(itemUploadRequest, multipartFiles, userId));
     }
-    
+
+    @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/v1/items/{itemId}")
     public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
@@ -223,7 +224,7 @@ public class ItemController {
         }
     }
 
-    // TODO : 거래완료 필터링에서 제거
+    // TODO : 이후에 거래완료 필터링에서 제거
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 가져오기 + 아이돌 그룹=멤버, 거래타입, 카테고리, 상태, 가격대 필터링 in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")
@@ -289,6 +290,7 @@ public class ItemController {
     @ApiOperation(value = "아이템 거래 상태 변경 API")
     @PatchMapping("/v1/items/{itemId}/trade-status")
     public ApiResult updateMyItemTradeStatus(HttpServletRequest request, @PathVariable("itemId") Long item_id, @RequestBody ItemTradeStatusUpdateRequest tradeStatus) {
+
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         TradeStatus status;
 

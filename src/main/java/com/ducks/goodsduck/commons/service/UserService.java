@@ -1,5 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
@@ -270,7 +272,7 @@ public class UserService {
         }
     }
 
-    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException {
+    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException, ImageProcessingException, MetadataException {
         User user = userRepository.findById(userId).get();
         return imageUploadService.uploadImage(multipartFile, ImageType.CHAT, user.getNickName()).getUrl();
     }
