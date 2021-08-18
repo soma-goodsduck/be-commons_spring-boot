@@ -76,10 +76,8 @@ public class PriceProposeService {
         if (!findPricePropose.getUser().getId().equals(userId)) {
             throw new IllegalAccessException("Propose of price is not given by this user.");
         } else if (!findPricePropose.getStatus().equals(SUGGESTED)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Propose is not in SUGGESTED.");
         }
-
-        priceProposeRepository.delete(findPricePropose);
 
         findPricePropose.setStatus(CANCELED);
 
