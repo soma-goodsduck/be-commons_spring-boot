@@ -323,7 +323,6 @@ public class ItemController {
     @ApiOperation("좋아요 취소 요청 API")
     public ApiResult cancleLikeItem(@PathVariable("itemId") Long itemId,
                                     HttpServletRequest request) {
-        
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.cancelLikeItem(userId, itemId));
     }
