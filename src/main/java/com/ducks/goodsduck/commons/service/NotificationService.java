@@ -58,7 +58,6 @@ public class NotificationService {
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
 
-
         } catch (FirebaseMessagingException e) {
             log.debug(e.getMessage(), e);
 //            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
@@ -86,7 +85,6 @@ public class NotificationService {
             }
 
             var userChat = userChats.get(0);
-
             var receiver = userChat.getUser();
             var sender = userRepository.findById(notificationRequest.getSenderId())
                     .orElseThrow(() -> {
@@ -147,12 +145,15 @@ public class NotificationService {
                         .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
-                                .setTitle(notificationMessage.getMessageTitle()) //
-                                .setBody(notificationMessage.getMessageBody())  //
+                                .setTitle(notificationMessage.getMessageTitle())
+                                .setBody(notificationMessage.getMessageBody())
                                 .setIcon(notificationMessage.getIconUri())
                                 .build())
                         .build())
                 .setWebpushConfig(WebpushConfig.builder()
+                        .setNotification(WebpushNotification.builder()
+                                .setIcon(notificationMessage.getIconUri())
+                                .build())
                         .setFcmOptions(WebpushFcmOptions.builder()
                                 .setLink(notificationMessage.getMessageUri())
                                 .build())

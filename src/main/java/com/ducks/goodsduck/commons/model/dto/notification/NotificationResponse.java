@@ -37,11 +37,12 @@ public class NotificationResponse {
         this.priceProposeId = notification.getPriceProposeId();
         this.createdAt = notification.getCreatedAt();
         this.isRead = notification.getReadAt() == null ? false : true;
+
         String title = String.format("굿즈덕 %s 알림", type);
         String itemTitle = notification.getItemName();
         String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
                 itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(0, 12).concat("..."));
-        String messageUri = ""; // TODO
+        String messageUri = "";
         String iconUri = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
         switch (type) {
             case PRICE_PROPOSE:
