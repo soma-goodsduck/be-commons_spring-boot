@@ -2,9 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.report.CategoryReportDto;
-import com.ducks.goodsduck.commons.model.dto.report.ReportRequest;
-import com.ducks.goodsduck.commons.model.dto.report.ReportResponse;
+import com.ducks.goodsduck.commons.model.dto.report.*;
 import com.ducks.goodsduck.commons.service.ReportService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
@@ -26,11 +24,17 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @NoCheckJwt
     @PostMapping("/v1/category-report")
-    @ApiOperation("신고 유형 추가")
-    public ApiResult<CategoryReportDto> addCategoryReport(@RequestBody CategoryReportDto categoryReportDto) {
-        return OK(reportService.addCategoryReport(categoryReportDto));
+    @ApiOperation("(관리자) 신고 유형 추가")
+    public ApiResult<CategoryReportAddRequest> addCategoryReport(HttpServletRequest request, @RequestBody CategoryReportAddRequest categoryReportAddRequest) throws IllegalAccessException {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(reportService.addCategoryReport(userId, categoryReportAddRequest));
+    }
+
+    @GetMapping("/v1/category-report")
+    @ApiOperation("신고 유형 보기 및 신고할 대상 닉네임 확인")
+    public ApiResult<CategoryReportResponse> addCategoryReport(HttpServletRequest request, @RequestBody CategoryReportGetRequest categoryReportGetRequest) {
+        return OK(reportService.getCategoryReportWithUserNickName(categoryReportGetRequest));
     }
 
     @PostMapping("/v1/users/report")

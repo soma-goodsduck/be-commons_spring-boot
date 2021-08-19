@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
-import com.ducks.goodsduck.commons.model.dto.report.CategoryReportDto;
+import com.ducks.goodsduck.commons.model.dto.report.CategoryReportAddRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public class CategoryReport {
         this.type = type;
     }
 
-    public CategoryReport(CategoryReportDto categoryReportRequest) {
+    public CategoryReport(CategoryReportAddRequest categoryReportRequest) {
         this.type = categoryReportRequest.getContent();
     }
 }

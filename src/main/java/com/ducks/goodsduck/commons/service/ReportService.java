@@ -1,8 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.report.CategoryReportDto;
-import com.ducks.goodsduck.commons.model.dto.report.ReportRequest;
-import com.ducks.goodsduck.commons.model.dto.report.ReportResponse;
+import com.ducks.goodsduck.commons.model.dto.report.*;
 import com.ducks.goodsduck.commons.model.entity.CategoryReport;
 import com.ducks.goodsduck.commons.model.entity.Report;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -28,8 +26,15 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
 
-    public CategoryReportDto addCategoryReport(CategoryReportDto categoryReportRequest) {
-        return new CategoryReportDto(categoryReportRepository.save(new CategoryReport(categoryReportRequest)));
+    public CategoryReportAddRequest addCategoryReport(Long userId, CategoryReportAddRequest categoryReportRequest) throws IllegalAccessException {
+        // HINT: 관리자가 아니면 예외 처리
+        User loginUser = userRepository.findById(userId).orElseThrow(() -> {
+            throw new NoResultException("User not founded.");
+        });
+
+        if (!loginUser.getRole().equals(ADMIN)) throw new IllegalAccessException("관리자 권한이 필요합니다.");
+
+        return new CategoryReportAddRequest(categoryReportRepository.save(new CategoryReport(categoryReportRequest)));
     }
 
     public ReportResponse addReportFromUser(Long userId, ReportRequest reportRequest) {
@@ -62,6 +67,10 @@ public class ReportService {
             throw new NoResultException("User not founded.");
         });
 
+        if (userId.equals(receiverId)) {
+            throw new IllegalArgumentException("신고하려는 대상이 본인입니다.");
+        }
+
         if (!loginUser.getRole().equals(ADMIN)) {
             throw new IllegalAccessException("관리자 권한이 필요합니다.");
         }
@@ -70,5 +79,17 @@ public class ReportService {
                 .stream()
                 .map(report -> new ReportResponse(report))
                 .collect(Collectors.toList());
+    }
+
+    public CategoryReportResponse getCategoryReportWithUserNickName(CategoryReportGetRequest categoryReportGetRequest) {
+        User receiver = userRepository.findByBcryptId(categoryReportGetRequest.getBcryptId());
+        if (receiver == null) {
+            throw new NoResultException("User not founded.");
+        }
+        List<CategoryReportGetResponse> categoryReports = categoryReportRepository.findAll()
+                .stream()
+                .map(categoryReport -> new CategoryReportGetResponse(categoryReport))
+                .collect(Collectors.toList());
+        return new CategoryReportResponse(receiver.getNickName(), categoryReports);
     }
 }

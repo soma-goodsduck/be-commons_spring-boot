@@ -6,15 +6,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CategoryReportDto {
+public class CategoryReportAddRequest {
 
     private String content;
 
-    public CategoryReportDto(String content) {
+    public CategoryReportAddRequest(String content) {
         this.content = content;
     }
 
-    public CategoryReportDto(CategoryReport categoryReport) {
+    public CategoryReportAddRequest(CategoryReport categoryReport) {
         this.content = categoryReport.getType();
     }
 }
