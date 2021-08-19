@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter @Setter
@@ -60,7 +62,7 @@ public class Notification {
         this.itemId = userItem.getItem().getId();
         this.itemName = userItem.getItem().getName();
         this.type = NotificationType.USER_ITEM;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
 
     public Notification(Review review, User receiver, NotificationType reviewType) {
@@ -80,7 +82,7 @@ public class Notification {
         this.senderImageUrl = senderImageUrl;
         this.itemName = itemName;
         this.type = type;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
 
     public Notification(User user, String senderNickname, String senderImageUrl, Long itemId, String itemName, NotificationType type, Integer price) {
@@ -91,6 +93,6 @@ public class Notification {
         this.itemName = itemName;
         this.type = type;
         this.price = price;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
 }
