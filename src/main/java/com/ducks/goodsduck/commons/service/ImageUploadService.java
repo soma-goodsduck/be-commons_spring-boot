@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.json.JSONObject;
+//import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,7 +84,13 @@ public class ImageUploadService {
         String ext = extractExt(originName);
         Long bytes = multipartFile.getSize();
 
+//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1111111111111111");
+//        System.out.println(ext);
+//        System.out.println(multipartFile);
+
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+
+//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2222222");
 
         // FEAT : 파일 회전 체크
         int orientation = 1;
@@ -111,6 +118,8 @@ public class ImageUploadService {
         // FEAT : 파일이 1MB 이상일 경우 리사이징
         if(bytes >= 1048576) {
 
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
             int width = image.getWidth();
             int height = image.getHeight();
             int newWidth = width;
@@ -129,14 +138,15 @@ public class ImageUploadService {
 
             BufferedImage resizedImage = rescale.filter(image, null);
 
-            if(imageType.equals(ImageType.ITEM)) {
-                // 아이템 상세보기 이미지 (워터마크 O)
-                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
-                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-
-                // 아이템 홈 이미지 (워터마크 X)
-                uploadImageToS3(s3Client, "home-" + uploadName, ext, resizedImage, imageType);
-            } else if(imageType.equals(ImageType.CHAT)) {
+//            if(imageType.equals(ImageType.ITEM)) {
+//                // 아이템 상세보기 이미지 (워터마크 O)
+//                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
+//                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+//
+//                // 아이템 홈 이미지 (워터마크 X)
+//                uploadImageToS3(s3Client, "home-" + uploadName, ext, resizedImage, imageType);
+//            } else
+            if (imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -145,14 +155,15 @@ public class ImageUploadService {
 
         } else {
 
-            if(imageType.equals(ImageType.ITEM)) {
-                // 아이템 상세보기 이미지 (워터마크 O)
-                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
-                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-
-                // 아이템 홈 이미지 (워터마크 X)
-                uploadImageToS3(s3Client, "home-" + uploadName, ext, image, imageType);
-            } else if(imageType.equals(ImageType.CHAT)) {
+//            if(imageType.equals(ImageType.ITEM)) {
+//                // 아이템 상세보기 이미지 (워터마크 O)
+//                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
+//                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+//
+//                // 아이템 홈 이미지 (워터마크 X)
+//                uploadImageToS3(s3Client, "home-" + uploadName, ext, image, imageType);
+//            } else
+            if(imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
             } else {
@@ -214,7 +225,7 @@ public class ImageUploadService {
         Graphics graphics = watermarkedImage.getGraphics();
         graphics.drawImage(image, 0, 0, null);
 
-        graphics.setFont(new Font("SansSerif", Font.BOLD, 15));
+        graphics.setFont(new Font("dejavu", Font.BOLD, 15));
         graphics.setColor(new Color(255, 255, 255, 40));
 
         StringBuilder sb = new StringBuilder();
