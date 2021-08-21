@@ -2,13 +2,13 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.UserItemResponse;
+import com.ducks.goodsduck.commons.model.dto.HomeResponse;
+import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserItem;
-import com.ducks.goodsduck.commons.model.entity.UserPost;
+import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.UserPostService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -18,9 +18,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -36,6 +38,8 @@ public class PostController {
 
     private final PostService postService;
     private final UserPostService userPostService;
+
+    private final UserRepository userRepository;
 
     // TODO : 동영상 + gif
     @ApiOperation("포스트 업로드 API")
@@ -67,7 +71,7 @@ public class PostController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(postService.edit(postId, postUpdateRequest, multipartFiles, userId));
     }
-    
+
     @ApiOperation("포스트 삭제 API")
     @DeleteMapping("/v1/posts/{postId}")
     public ApiResult<Long> deletePost(@PathVariable("postId") Long postId) {
@@ -81,10 +85,59 @@ public class PostController {
         return OK(userPostService.likePost(userId, postId));
     }
 
-    @ApiOperation("포스트 목록 조회하기 API")
-    @DeleteMapping("/v1/posts/{idolGroup}")
+    @ApiOperation("특정 포스트 좋아요 취소 API")
+    @PostMapping("/v1/posts/{postId}/dislike")
     public ApiResult<Boolean> dislikePost(@PathVariable("postId") Long postId, HttpServletRequest request) {
-        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userPostService.dislikePost(userId, postId));
     }
+
+    @ApiOperation("포스트 목록 조회 + 좋아하는 아이돌 그룹 전체 필터링 API in 홈")
+    @GetMapping("/v1/posts")
+    @Transactional
+    public ApiResult<HomeResponse<PostDetailResponse>> getPosts(@RequestParam("postId") Long postId,
+                                                                HttpServletRequest request) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext = false;
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPosts"));
+
+        List<PostDetailResponse> postList = postService.getPosts(userId, postId);
+        if(postList.size() == pageableSize + 1) {
+            hasNext = true;
+            postList.remove(pageableSize);
+        }
+
+        return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
+    }
+
+    @ApiOperation("포스트 목록 조회 + 특정 아이돌 그룹 필터링 API in 홈")
+    @GetMapping("/v1/posts/filter")
+    @Transactional
+    public ApiResult<HomeResponse<PostDetailResponse>> getPostsWithFilterIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
+                                                                                   @RequestParam("postId") Long postId,
+                                                                                   HttpServletRequest request) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext = false;
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
+
+        List<PostDetailResponse> postList = postService.getPostsWithFilterIdolGroup(userId, idolGroupId, postId);
+        if(postList.size() == pageableSize + 1) {
+            hasNext = true;
+            postList.remove(pageableSize);
+        }
+
+        return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
+    }
+
+//    @ApiOperation("커뮤니티 메뉴 조회하기 API")
+//    @GetMapping("/v1/")
+//    public ApiResult<List<PostHomeResponse>>
 }

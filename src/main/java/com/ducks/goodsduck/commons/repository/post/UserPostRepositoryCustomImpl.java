@@ -31,15 +31,4 @@ public class UserPostRepositoryCustomImpl implements UserPostRepositoryCustom {
                 .where(userPost.user.id.eq(userId).and(userPost.post.id.eq(postId)))
                 .fetchOne();
     }
-
-//    @Override
-//    public List<UserPost> findByPostId(Long postId) {
-//        return queryFactory
-//                .select(userPost)
-//                .from(userPost)
-//                .where(userPost.post.id.eq(postId))
-//                .fetchOne();
-//    }
-
-
 }

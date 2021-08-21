@@ -8,6 +8,7 @@ import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final ImageRepository imageRepository;
     private final ImageRepositoryCustom imageRepositoryCustom;
+    private final UserPostRepository userPostRepository;
     private final UserPostRepositoryCustom userPostRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
@@ -188,7 +192,9 @@ public class PostService {
             List<PostImage> deleteImages = deletePost.getImages();
             postImageRepository.deleteInBatch(deleteImages);
 
-            // comment 삭제
+            // userPost 연관 삭제
+            List<UserPost> deleteUserPosts = userPostRepository.findByPostId(postId);
+            userPostRepository.deleteInBatch(deleteUserPosts);
 
             // post 삭제
             postRepository.delete(deletePost);
@@ -197,6 +203,54 @@ public class PostService {
         } catch (Exception e) {
             return -1L;
         }
+    }
 
+    public List<PostDetailResponse> getPosts(Long userId, Long postId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostService.getPosts"));
+
+        return postRepositoryCustom.findBylikeIdolGroupsWithUserPost(userId, user.getUserIdolGroups(), postId)
+                .stream()
+                .map(tuple -> {
+                    Post post = tuple.get(0, Post.class);
+                    UserPost userPost = tuple.get(1, UserPost.class);
+
+                    PostDetailResponse postDetailResponse = new PostDetailResponse(post);
+
+                    if(userPost != null) {
+                        postDetailResponse.likesOfMe();
+                    }
+
+                    if(post.getUser().getId().equals(userId)) {
+                        postDetailResponse.myItem();
+                    }
+
+                    return postDetailResponse;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<PostDetailResponse> getPostsWithFilterIdolGroup(Long userId, Long idolGroupId, Long postId) {
+
+        return postRepositoryCustom.findByUserIdolGroupWithUserPost(userId, idolGroupId, postId)
+                .stream()
+                .map(tuple -> {
+                    Post post = tuple.get(0, Post.class);
+                    UserPost userPost = tuple.get(1, UserPost.class);
+
+                    PostDetailResponse postDetailResponse = new PostDetailResponse(post);
+
+                    if(userPost != null) {
+                        postDetailResponse.likesOfMe();
+                    }
+
+                    if(post.getUser().getId().equals(userId)) {
+                        postDetailResponse.myItem();
+                    }
+
+                    return postDetailResponse;
+                })
+                .collect(Collectors.toList());
     }
 }

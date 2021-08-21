@@ -9,5 +9,4 @@ import java.util.List;
 public interface UserPostRepositoryCustom {
 
     UserPost findByUserIdAndPostId(Long userId, Long postId);
-//    List<UserPost> findByPostId(Long postId);
 }

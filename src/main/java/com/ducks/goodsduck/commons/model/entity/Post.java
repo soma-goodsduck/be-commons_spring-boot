@@ -37,7 +37,7 @@ public class Post {
     @OneToMany(mappedBy = "post")
     private List<PostImage> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     public Post(PostUploadRequest postUploadRequest) {
