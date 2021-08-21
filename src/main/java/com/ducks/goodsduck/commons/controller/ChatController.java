@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
