@@ -14,7 +14,6 @@ public class ReportRequest {
     private String receiverBcryptId;
     private Long categoryReportId;
     private String content;
-    private LocalDateTime createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));;
 
     public ReportRequest(String receiverBcryptId, Long categoryReportId, String content) {
         this.receiverBcryptId = receiverBcryptId;

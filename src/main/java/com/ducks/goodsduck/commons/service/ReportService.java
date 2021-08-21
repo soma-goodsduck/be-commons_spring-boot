@@ -81,8 +81,8 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryReportResponse getCategoryReportWithUserNickName(CategoryReportGetRequest categoryReportGetRequest) {
-        User receiver = userRepository.findByBcryptId(categoryReportGetRequest.getBcryptId());
+    public CategoryReportResponse getCategoryReportWithUserNickName(String bcryptId) {
+        User receiver = userRepository.findByBcryptId(bcryptId);
         if (receiver == null) {
             throw new NoResultException("User not founded.");
         }

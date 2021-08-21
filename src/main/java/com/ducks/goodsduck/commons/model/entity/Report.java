@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -29,10 +31,10 @@ public class Report {
     @JoinColumn(name = "CATEGORY_REPORT_ID")
     private CategoryReport categoryReport;
 
-    public Report(Long senderId, String content, LocalDateTime createdAt, User user, CategoryReport categoryReport) {
+    public Report(Long senderId, String content, User user, CategoryReport categoryReport) {
         this.senderId = senderId;
         this.content = content;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.user = user;
         this.categoryReport = categoryReport;
     }
@@ -40,7 +42,7 @@ public class Report {
     public Report(ReportRequest reportRequest, CategoryReport categoryReport, User receiver, User user) {
         this.senderId = receiver.getId();
         this.content = reportRequest.getContent();
-        this.createdAt = reportRequest.getCreatedAt();
+        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.user = user;
         this.categoryReport = categoryReport;
     }
