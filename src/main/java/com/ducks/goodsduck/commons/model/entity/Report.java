@@ -39,11 +39,11 @@ public class Report {
         this.categoryReport = categoryReport;
     }
 
-    public Report(ReportRequest reportRequest, CategoryReport categoryReport, User receiver, User user) {
-        this.senderId = receiver.getId();
+    public Report(ReportRequest reportRequest, CategoryReport categoryReport, User receiver, User sender) {
+        this.senderId = sender.getId();
         this.content = reportRequest.getContent();
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-        this.user = user;
+        this.user = receiver;
         this.categoryReport = categoryReport;
     }
 }
