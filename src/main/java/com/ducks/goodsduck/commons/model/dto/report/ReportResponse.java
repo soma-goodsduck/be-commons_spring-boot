@@ -14,13 +14,13 @@ public class ReportResponse {
     private String categoryReportType;
     private String content;
     private LocalDateTime createdAt;
-    private Boolean isExist = false;
+    private Boolean isExist = true;
 
     public ReportResponse(Report report) {
         this.receiverName = report.getUser().getNickName();
         this.categoryReportType = report.getCategoryReport().getType();
         this.content = report.getContent();
         this.createdAt = report.getCreatedAt();
-        this.isExist = true;
+        this.isExist = false;
     }
 }
