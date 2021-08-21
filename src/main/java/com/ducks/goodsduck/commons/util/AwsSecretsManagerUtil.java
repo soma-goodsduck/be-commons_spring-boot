@@ -5,6 +5,8 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.Base64;
 
@@ -79,8 +81,6 @@ public class AwsSecretsManagerUtil {
             decodedBinarySecret = new String(Base64.getDecoder().decode(getSecretValueResult.getSecretBinary()).array());
             jsonStringOfAwsSecrets = decodedBinarySecret;
         }
-
-
 
         // Your code goes here.
         jsonObject = new JSONObject(jsonStringOfAwsSecrets);

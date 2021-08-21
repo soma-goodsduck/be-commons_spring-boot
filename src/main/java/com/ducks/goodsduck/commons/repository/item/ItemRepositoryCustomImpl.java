@@ -570,17 +570,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .where(item.user.id.eq(userId).and(conditionOfTradeStatus))
                 .fetch();
-
-//        return queryFactory.select(item, itemImage)
-//                .from(item)
-//                .leftJoin(itemImage).on(itemImage.item.id.eq(item.id))
-//                .where(item.user.id.eq(userId).and(
-//                        conditionOfTradeStatus
-//                                .and(isHaveImage(subImage).in(1L, null))
-//                ))
-//                .orderBy(getStatusCompareExpression().desc())
-//                .orderBy(item.createdAt.desc())
-//                .fetch();
     }
 
     private JPQLQuery<Long> isHaveImage(QItemImage subImage) {

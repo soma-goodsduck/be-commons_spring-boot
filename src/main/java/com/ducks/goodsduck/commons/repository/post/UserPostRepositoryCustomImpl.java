@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static com.ducks.goodsduck.commons.model.entity.QUser.user;
 import static com.ducks.goodsduck.commons.model.entity.QPost.post;
 import static com.ducks.goodsduck.commons.model.entity.QUserPost.userPost;
@@ -29,4 +31,15 @@ public class UserPostRepositoryCustomImpl implements UserPostRepositoryCustom {
                 .where(userPost.user.id.eq(userId).and(userPost.post.id.eq(postId)))
                 .fetchOne();
     }
+
+//    @Override
+//    public List<UserPost> findByPostId(Long postId) {
+//        return queryFactory
+//                .select(userPost)
+//                .from(userPost)
+//                .where(userPost.post.id.eq(postId))
+//                .fetchOne();
+//    }
+
+
 }

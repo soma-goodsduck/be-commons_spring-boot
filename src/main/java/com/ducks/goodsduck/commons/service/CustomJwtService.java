@@ -8,6 +8,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+//import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -25,6 +27,9 @@ public class CustomJwtService implements JwtService {
 
     private final String STRING_EXPIRE_TIME = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "100000000");
     private final String SECRET_KEY = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "QW76QWORJOQPWNTHOWQN2QWBLK1QWBTKLQQIHR5W7QHWI6WQWBR7KLQWBK4LRQWRQWKNR48QWTOWQ:ORNQWLQ2NRWQ6K3BRKQWORJQOQ");
+
+    public CustomJwtService() throws ParseException {
+    }
 
     public Jws<Claims> getClaims(String jwt) {
         return Jwts.parserBuilder()

@@ -41,5 +41,6 @@ out/
 !**/src/main/resources/application.yml
 !**/src/main/resources/application-localh2.yml
 !**/src/main/resources/bootstrap.yml
+**/src/test/*
 goodsduck-service-account.json
 newrelic/

@@ -459,7 +459,6 @@ public class ItemService {
         return tupleToList;
     }
 
-
     // FEAT : 비회원용 홈 필터링 (아이돌 그룹)
     public Slice<ItemHomeResponse> filterByIdolGroup(Long idolGroupId, Integer pageNumber) {
 
@@ -802,6 +801,15 @@ public class ItemService {
                 .collect(Collectors.toList());
 
         return tupleToList;
+    }
+
+    public List<ItemSummaryDto> getItemsOfOtherUser(String bcryptId, TradeStatus tradeStatus) {
+
+        User user = userRepository.findByBcryptId(bcryptId);
+        return itemRepositoryCustom.findAllByUserIdAndTradeStatus(user.getId(), tradeStatus)
+                .stream()
+                .map(item -> new ItemSummaryDto(item))
+                .collect(Collectors.toList());
     }
 
     public ItemSummaryDto showDetailSummary(Long itemId) {

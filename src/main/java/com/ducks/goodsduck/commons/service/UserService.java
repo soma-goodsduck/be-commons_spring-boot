@@ -18,7 +18,9 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,7 +54,7 @@ public class UserService {
     private final UserImageRepository userImageRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
-    public UserDto oauth2AuthorizationNaver(String code, String state) {
+    public UserDto oauth2AuthorizationNaver(String code, String state) throws ParseException {
 
         AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callAccessToken(code, state);
 
@@ -60,13 +62,16 @@ public class UserService {
         String userInfoFromNaver = oauthNaverService.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 
         // 비회원 체크
-        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
-
-        // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
-        log.debug(userInfoFromNaver);
+//        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
+        JSONParser parser = new JSONParser();
+        Object obj = parser.parse(userInfoFromNaver);
+        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
 
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
+
+        // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
+        log.debug(userInfoFromNaver);
 
         return socialAccountRepository.findById(userSocialAccountId)
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
@@ -89,7 +94,7 @@ public class UserService {
     }
 
     // 카카오로 인증받기
-    public UserDto oauth2AuthorizationKakao(String code) {
+    public UserDto oauth2AuthorizationKakao(String code) throws ParseException {
 
         AuthorizationKakaoDto authorizationKakaoDto = oauthKakaoService.callAccessToken(code);
 
@@ -97,7 +102,11 @@ public class UserService {
         String userInfoFromKakao = oauthKakaoService.callUserInfoByAccessToken(authorizationKakaoDto.getAccess_token());
 
         // 비회원 체크
-        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
+//        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
+        JSONParser parser = new JSONParser();
+        Object obj = parser.parse(userInfoFromKakao);
+        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
+
         String userSocialAccountId = jsonUserInfo.get("id").toString();
 
         // 회원 로그인, 비회원 로그인 체크
@@ -274,7 +283,9 @@ public class UserService {
 
     public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException, ImageProcessingException, MetadataException {
         User user = userRepository.findById(userId).get();
-        return imageUploadService.uploadImage(multipartFile, ImageType.CHAT, user.getNickName()).getUrl();
+        System.out.println(user);
+
+        return imageUploadService.uploadImage(multipartFile, imageType, user.getNickName()).getUrl();
     }
 
     public void updateLastLoginAt(Long userId) {

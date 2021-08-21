@@ -3,9 +3,10 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
-import com.ducks.goodsduck.commons.model.dto.checkSame.EmailCheckRequest;
-import com.ducks.goodsduck.commons.model.dto.checkSame.NicknameCheckRequest;
-import com.ducks.goodsduck.commons.model.dto.checkSame.PhoneNumberCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.checksame.EmailCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.checksame.NicknameCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.checksame.PhoneNumberCheckRequest;
+import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
@@ -14,6 +15,7 @@ import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
@@ -26,6 +28,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.ParseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,14 +64,15 @@ public class UserController {
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/naver")
-    public ApiResult<UserDto> authorizeNaver(@RequestParam("code") String code, @RequestParam("state") String state) {
+    public ApiResult<UserDto> authorizeNaver(@RequestParam("code") String code,
+                                             @RequestParam("state") String state) throws ParseException {
         return OK(userService.oauth2AuthorizationNaver(code, state));
     }
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/kakao")
-    public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) {
+    public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) throws ParseException {
         return OK(userService.oauth2AuthorizationKakao(code));
     }
 
@@ -77,13 +82,6 @@ public class UserController {
     public ApiResult<UserDto> signUpUser(@RequestBody UserSignUpRequest userSignUpRequest) {
         return OK(userService.signUp(userSignUpRequest));
     }
-
-//    @NoCheckJwt
-//    @ApiOperation("전화번호 중복 확인 API")
-//    @PostMapping("/v1/users/phone-number-check")
-//    public ApiResult<UserDto> checkSamePhoneNumber(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
-//        return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
-//    }
 
     @NoCheckJwt
     @ApiOperation("전화번호 중복 확인 API")
@@ -126,24 +124,6 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
-    // TODO : 삭제 예정 (FE 사용 X)
-//    @ApiOperation("(삭제 예정) 프로필 사진 업로드 API")
-//    @PutMapping("/v1/users/profile-image")
-//    public ApiResult<Long> uploadProfileImage(@RequestParam(required = false) MultipartFile multipartFile,
-//                                              HttpServletRequest request) throws IOException {
-//
-//        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-//        return OK(userService.uploadProfileImage(userId, multipartFile));
-//    }
-
-    // TODO : 삭제 예정 (FE 사용 X)
-//    @ApiOperation("(삭제 예정) 유저 닉네임 수정 API")
-//    @PutMapping("/v1/users/nickname")
-//    public ApiResult<Long> updateNickname(@RequestBody NicknameRequest nicknameRequest, HttpServletRequest request) {
-//        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-//        return OK(userService.updateNickname(userId, nicknameRequest.getNickName()));
-//    }
-
     @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
@@ -151,17 +131,16 @@ public class UserController {
     public ApiResult<UserDto> getUser(@RequestHeader("jwt") String jwt, HttpServletResponse response) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
+        if(userId.equals(-1L)) {
+            return ERROR(null, "There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+        }
 
+        String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
         response.setHeader("jwt", newJwt);
 
-        return OK(userService.find(userId)
-                .map(user -> {
-                    UserDto userDto = new UserDto(user);
-                    userDto.setJwt(newJwt);
-                    return userDto;
-                })
-                .orElseGet(() -> UserDto.createUserDto(UserRole.ANONYMOUS)));
+        UserDto userDto = new UserDto(userRepository.findById(userId).get());
+        userDto.setJwt(newJwt);
+        return OK(userDto);
     }
 
     @ApiOperation("jwt를 통한 유저 ID 조회 API")
@@ -253,14 +232,23 @@ public class UserController {
         String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
         return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
     }
-
-    // TODO : 개발중 (경원)
+    
     @NoCheckJwt
-    @ApiOperation(value = "다른 사람의 프로필 보기 (ver.bcryptId)")
+    @ApiOperation(value = "다른 유저의 프로필 보기")
     @GetMapping("/v1/users/{bcryptUserId}")
     @Transactional
-    public ApiResult<OtherUserPageDto> getItemsOfUser(@PathVariable("bcryptUserId") String bcryptId) {
+    public ApiResult<OtherUserPageDto> showOtherUserPage(@PathVariable("bcryptUserId") String bcryptId) {
         return OK(userService.showOtherUserPage(bcryptId));
+    }
+    
+    @NoCheckJwt
+    @ApiOperation(value = "다른 유저의 프로필 보기에서 전체 상품 보기", notes = "초기 tradeStatus 값은 selling으로 설정")
+    @GetMapping("/v1/users/{bcryptUserId}/items")
+    public ApiResult<List<ItemSummaryDto>> getItemsOfOtherUser(@PathVariable("bcryptUserId") String bcryptId,
+                                                               @RequestParam("tradeStatus") String stringTradeStatus) {
+
+        TradeStatus tradeStatus = valueOf(stringTradeStatus.toUpperCase());
+        return OK(itemService.getItemsOfOtherUser(bcryptId, tradeStatus));
     }
 
     @NoCheckJwt

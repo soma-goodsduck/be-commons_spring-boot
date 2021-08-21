@@ -1,4 +1,4 @@
-package com.ducks.goodsduck.commons.model.dto.checkSame;
+package com.ducks.goodsduck.commons.model.dto.checksame;
 
 import lombok.Data;
 
