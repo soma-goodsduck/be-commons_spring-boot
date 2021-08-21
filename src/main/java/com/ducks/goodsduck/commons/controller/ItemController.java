@@ -124,9 +124,9 @@ public class ItemController {
     @ApiOperation(value = "아이템 검색 (회원/비회원)")
     @GetMapping("/v1/items/search")
     @Transactional
-    public HomeResponseResult<List<ItemHomeResponse>, LoginUser> getSearchedItems(@RequestParam("keyword") String keyword,
-                                                                                  @RequestParam("itemId") Long itemId,
-                                                                                  @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
+                                                                      @RequestParam("itemId") Long itemId,
+                                                                      @RequestHeader("jwt") String jwt) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
@@ -140,7 +140,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, null, itemList);
+            return OK(new HomeResponse(hasNext, null, itemList));
         }
         // HINT : 회원에게 보여줄 홈
         else {
@@ -151,7 +151,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, new LoginUser(user), itemList);
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
         }
     }
 
@@ -159,9 +159,7 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 조회 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items")
     @Transactional
-//    public ApiResult<HomeResponse<ItemHomeResponse>> getItems(@RequestParam("itemId") Long itemId,
-    public HomeResponseResult<List<ItemHomeResponse>, LoginUser> getItems(@RequestParam("itemId") Long itemId,
-                                                                          @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> getItems(@RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
@@ -175,8 +173,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, null, itemList);
-//            return OK(new HomeResponse(hasNext, null, itemList));
+            return OK(new HomeResponse(hasNext, null, itemList));
         }
         // HINT : 회원에게 보여줄 홈
         else {
@@ -187,8 +184,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, new LoginUser(user), itemList);
-//            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
         }
     }
 
@@ -196,9 +192,9 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 조회 + 아이돌 그룹 필터링 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filter")
     @Transactional
-    public HomeResponseResult<List<ItemHomeResponse>, LoginUser> filterItemWithIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                           @RequestParam ("itemId") Long itemId,
-                                                                                           @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> filterItemWithIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
+                                                                               @RequestParam("itemId") Long itemId,
+                                                                               @RequestHeader("jwt") String jwt) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
@@ -212,7 +208,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, null, itemList);
+            return OK(new HomeResponse(hasNext, null, itemList));
         }
         // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
         else {
@@ -223,7 +219,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, new LoginUser(user), itemList);
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
         }
     }
 
@@ -232,15 +228,14 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 조회 + 전체 필터링 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")
     @Transactional
-    public HomeResponseResult<List<ItemHomeResponse>, LoginUser> filterItemWithAllV3(
-                                                                              @RequestParam(value = "idolGroup") Long idolGroupId,
-                                                                              @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
-                                                                              @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                                                              @RequestParam(value = "category", required = false) Long categoryItemId,
-                                                                              @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
-                                                                              @RequestParam(value = "minPrice", required = false) Long minPrice,
-                                                                              @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                              @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> filterItemWithAllV3(@RequestParam(value = "idolGroup") Long idolGroupId,
+                                                                         @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+                                                                         @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+                                                                         @RequestParam(value = "category", required = false) Long categoryItemId,
+                                                                         @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+                                                                         @RequestParam(value = "minPrice", required = false) Long minPrice,
+                                                                         @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+                                                                         @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
@@ -255,7 +250,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, null, itemList);
+            return OK(new HomeResponse(hasNext, null, itemList));
         }
         // HINT : 회원에게 보여줄 홈 + 모든 필터링
         else {
@@ -267,7 +262,7 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return HomeResponseResult.OK(hasNext, new LoginUser(user), itemList);
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
         }
     }
 
