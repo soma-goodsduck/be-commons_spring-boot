@@ -138,6 +138,6 @@ public class PostController {
     }
 
 //    @ApiOperation("커뮤니티 메뉴 조회하기 API")
-//    @GetMapping("/v1/")
+//    @GetMapping("/v1/comm")
 //    public ApiResult<List<PostHomeResponse>>
 }
