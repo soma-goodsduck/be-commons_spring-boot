@@ -49,7 +49,7 @@ public class ReportService {
                     throw new NoResultException("CategoryReport not founded.");
                 });
 
-        if (reportRepository.existsByUserAndSenderId(sender.getId(), receiver.getId())) {
+        if (reportRepository.existsByUserAndSenderId(receiver, sender.getId())) {
             return new ReportResponse();
         }
 
