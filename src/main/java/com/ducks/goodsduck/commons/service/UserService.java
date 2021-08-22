@@ -20,9 +20,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,19 +52,20 @@ public class UserService {
     private final UserImageRepository userImageRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
-    public UserDto oauth2AuthorizationNaver(String code, String state, String clientId) throws ParseException {
+    public UserDto oauth2AuthorizationNaver(String code, String state, String clientId) {
 
         AuthorizationNaverDto authorizationNaverDto = OauthNaverLoginUtil.callAccessToken(code, state, clientId);
 
         // 소셜로그인 정보
         String userInfoFromNaver = OauthNaverLoginUtil.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 
-        // 비회원 체크
-//        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
-        JSONParser parser = new JSONParser();
         log.debug("Now login user information: \n" + userInfoFromNaver);
-        Object obj = parser.parse(userInfoFromNaver);
-        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
+
+        // 비회원 체크
+        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
+//        JSONParser parser = new JSONParser();
+//        Object obj = parser.parse(userInfoFromNaver);
+//        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
 
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
@@ -95,18 +94,20 @@ public class UserService {
     }
 
     // 카카오로 인증받기
-    public UserDto oauth2AuthorizationKakao(String code) throws ParseException {
+    public UserDto oauth2AuthorizationKakao(String code) {
 
         AuthorizationKakaoDto authorizationKakaoDto = OauthKakaoLoginUtil.callAccessToken(code);
 
         // 소셜로그인 정보
         String userInfoFromKakao = OauthKakaoLoginUtil.callUserInfoByAccessToken(authorizationKakaoDto.getAccess_token());
 
+        log.debug("Now login user information: \n" + userInfoFromKakao);
+
         // 비회원 체크
-//        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
-        JSONParser parser = new JSONParser();
-        Object obj = parser.parse(userInfoFromKakao);
-        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
+        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
+//        JSONParser parser = new JSONParser();
+//        Object obj = parser.parse(userInfoFromKakao);
+//        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
 
         String userSocialAccountId = jsonUserInfo.get("id").toString();
 
