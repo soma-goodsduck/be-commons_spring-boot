@@ -14,6 +14,8 @@ import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.util.OauthKakaoLoginUtil;
+import com.ducks.goodsduck.commons.util.OauthNaverLoginUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +38,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final CustomJwtService jwtService;
-    private final OauthKakaoService oauthKakaoService;
-    private final OauthNaverService oauthNaverService;
     private final ImageUploadService imageUploadService;
 
     private final UserRepository userRepository;
@@ -54,12 +54,12 @@ public class UserService {
     private final UserImageRepository userImageRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
-    public UserDto oauth2AuthorizationNaver(String code, String state) throws ParseException {
+    public UserDto oauth2AuthorizationNaver(String code, String state, String clientId) throws ParseException {
 
-        AuthorizationNaverDto authorizationNaverDto = oauthNaverService.callAccessToken(code, state);
+        AuthorizationNaverDto authorizationNaverDto = OauthNaverLoginUtil.callAccessToken(code, state, clientId);
 
         // 소셜로그인 정보
-        String userInfoFromNaver = oauthNaverService.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
+        String userInfoFromNaver = OauthNaverLoginUtil.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 
         // 비회원 체크
 //        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
@@ -96,10 +96,10 @@ public class UserService {
     // 카카오로 인증받기
     public UserDto oauth2AuthorizationKakao(String code) throws ParseException {
 
-        AuthorizationKakaoDto authorizationKakaoDto = oauthKakaoService.callAccessToken(code);
+        AuthorizationKakaoDto authorizationKakaoDto = OauthKakaoLoginUtil.callAccessToken(code);
 
         // 소셜로그인 정보
-        String userInfoFromKakao = oauthKakaoService.callUserInfoByAccessToken(authorizationKakaoDto.getAccess_token());
+        String userInfoFromKakao = OauthKakaoLoginUtil.callUserInfoByAccessToken(authorizationKakaoDto.getAccess_token());
 
         // 비회원 체크
 //        JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);

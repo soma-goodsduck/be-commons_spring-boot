@@ -65,8 +65,9 @@ public class UserController {
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/naver")
     public ApiResult<UserDto> authorizeNaver(@RequestParam("code") String code,
-                                             @RequestParam("state") String state) throws ParseException {
-        return OK(userService.oauth2AuthorizationNaver(code, state));
+                                             @RequestParam("state") String state,
+                                             @RequestParam("clientId") String clientId) throws ParseException {
+        return OK(userService.oauth2AuthorizationNaver(code, state, clientId));
     }
 
     @NoCheckJwt
