@@ -56,6 +56,8 @@ public class UserService {
 
         AuthorizationNaverDto authorizationNaverDto = OauthNaverLoginUtil.callAccessToken(code, state, clientId);
 
+        log.debug("Social login user's DTO: \n" + authorizationNaverDto);
+
         // 소셜로그인 정보
         String userInfoFromNaver = OauthNaverLoginUtil.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 

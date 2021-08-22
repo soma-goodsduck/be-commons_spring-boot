@@ -51,6 +51,13 @@ public class OauthNaverLoginUtil {
             userInfoUri = PropertyUtil.getProperty("spring.security.oauth2.client.provider.naver.user-info-uri");
         }
 
+        log.debug("Environment variables: "+ "\nnaverOauth2ClientId" + naverOauth2ClientId+
+                "\nnaverOauth2ClientSecret" + naverOauth2ClientSecret+
+                "\nfrontendRedirectUrl" + frontendRedirectUrl+
+                "\ngrantType" + grantType+
+                "\ntokenUri" + tokenUri+
+                "\nuserInfoUri" + userInfoUri);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -80,6 +87,7 @@ public class OauthNaverLoginUtil {
      */
     public static String callUserInfoByAccessToken(String accessToken) {
 
+        log.debug("accessToken: " + accessToken + "\nuserInfoUri: " + userInfoUri);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
