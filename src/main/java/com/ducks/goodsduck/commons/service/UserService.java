@@ -64,6 +64,7 @@ public class UserService {
         // 비회원 체크
 //        JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
         JSONParser parser = new JSONParser();
+        log.debug("Now login user information: \n" + userInfoFromNaver);
         Object obj = parser.parse(userInfoFromNaver);
         JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
 
