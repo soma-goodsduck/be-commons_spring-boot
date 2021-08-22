@@ -16,6 +16,7 @@ public class Comment {
     private Long id;
     private Integer level;
     private Boolean isDeleted;
+    private Boolean isSecret;
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,12 +34,13 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<Comment> childComments = new ArrayList<>();
 
-    public Comment(User user, Post post, Comment parentComment, String content) {
+    public Comment(User user, Post post, Comment parentComment, String content, Boolean isSecret) {
         this.user = user;
         this.post = post;
         this.parentComment = parentComment;
         this.level = parentComment != null ? parentComment.getLevel() + 1 : 1;
         this.content = content;
         this.isDeleted = false;
+        this.isSecret = isSecret;
     }
 }

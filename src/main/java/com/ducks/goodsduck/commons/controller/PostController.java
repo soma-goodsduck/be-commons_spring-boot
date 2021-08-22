@@ -41,7 +41,7 @@ public class PostController {
 
     private final UserRepository userRepository;
 
-    // TODO : 동영상 + gif
+    // TODO : 동영상 + gif / 일반글, 나눔글 구분
     @ApiOperation("포스트 업로드 API")
     @PostMapping("/v1/posts")
     public ApiResult<Long> uploadPost(@RequestParam String stringPostDto,
@@ -136,8 +136,4 @@ public class PostController {
 
         return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
     }
-
-//    @ApiOperation("커뮤니티 메뉴 조회하기 API")
-//    @GetMapping("/v1/comm")
-//    public ApiResult<List<PostHomeResponse>>
 }

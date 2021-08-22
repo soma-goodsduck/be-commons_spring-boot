@@ -17,6 +17,7 @@ import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.madgag.gif.fmsware.GifDecoder;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -58,11 +60,22 @@ public class ImageUploadService {
         for (MultipartFile multipartFile : multipartFiles) {
             if(!multipartFile.isEmpty()) {
                 Image image = uploadImage(multipartFile, imageType, nickname);
-                images.add(image);
+                if(image != null) {
+                    images.add(image);
+                }
             }
         }
 
         return images;
+    }
+
+    public File convert(MultipartFile mfile) throws IOException {
+        File file = new File(mfile.getOriginalFilename());
+        file.createNewFile();
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(mfile.getBytes());
+        fos.close();
+        return file;
     }
 
     /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
@@ -87,14 +100,37 @@ public class ImageUploadService {
 //        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1111111111111111");
 //        System.out.println(ext);
 //        System.out.println(multipartFile);
+//        if(!multipartFile.isEmpty()) {
+//            System.out.println("#####################################111111111111#");
+//
+//            File file = convert(multipartFile);
+//
+//
+//            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, file));
+//
+//            System.out.println("#################################22222222");
+//
+//            return null;
+//        }
+
+//        InputStream gif = new FileInputStream(convert(multipartFile));
+//        GifDecoder gifDecoder = new GifDecoder();
+//        gifDecoder.read(gif);
+//
+//        int frameCount = gifDecoder.getFrameCount();
+//
+//        System.out.println(frameCount);
+//
+//        for (int i = 0; i < frameCount; i++) {
+//            BufferedImage frame = gifDecoder.getFrame(i);
+//            System.out.println(frame);
+//            System.out.println(getResizedImage(frame));
+//        }
 
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
-//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2222222");
-
         // FEAT : 파일 회전 체크
         int orientation = 1;
-
         Metadata metadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
         ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
         if(directory != null) {
@@ -118,34 +154,8 @@ public class ImageUploadService {
         // FEAT : 파일이 1MB 이상일 경우 리사이징
         if(bytes >= 1048576) {
 
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            BufferedImage resizedImage = getResizedImage(image);
 
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int newWidth = width;
-            int newHeight = height;
-
-            if(width > height) {
-                newHeight = 500;
-                newWidth = getNewWidth(newHeight, width, height);
-            } else {
-                newWidth = 500;
-                newHeight = getNewHeight(newWidth, width, height);
-            }
-
-            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
-            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
-
-            BufferedImage resizedImage = rescale.filter(image, null);
-
-//            if(imageType.equals(ImageType.ITEM)) {
-//                // 아이템 상세보기 이미지 (워터마크 O)
-//                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
-//                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-//
-//                // 아이템 홈 이미지 (워터마크 X)
-//                uploadImageToS3(s3Client, "home-" + uploadName, ext, resizedImage, imageType);
-//            } else
             if (imageType.equals(ImageType.CHAT)) {
                 BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
                 uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
@@ -179,10 +189,30 @@ public class ImageUploadService {
             return new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
         }else if(imageType.equals(ImageType.POST)) {
             return new Image(originName, uploadName, s3Client.getUrl(postS3Bucket, uploadName).toString());
-        }
-        else {
+        } else {
             return null;
         }
+    }
+
+    private BufferedImage getResizedImage(BufferedImage image) {
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int newWidth = width;
+        int newHeight = height;
+
+        if (width > height) {
+            newHeight = 500;
+            newWidth = getNewWidth(newHeight, width, height);
+        } else {
+            newWidth = 500;
+            newHeight = getNewHeight(newWidth, width, height);
+        }
+
+        MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
+        rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
+
+        return rescale.filter(image, null);
     }
 
     private void uploadImageToS3(AmazonS3 s3Client, String uploadName, String ext, BufferedImage image, ImageType imageType) throws IOException {
@@ -352,23 +382,7 @@ public class ImageUploadService {
         // 1MB 이상에서만 리사이징
         if(bytes >= 1048576) {
 
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int newWidth = width;
-            int newHeight = height;
-
-            if (width > height) {
-                newHeight = 500;
-                newWidth = getNewWidth(newHeight, width, height);
-            } else {
-                newWidth = 500;
-                newHeight = getNewHeight(newWidth, width, height);
-            }
-
-            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
-            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
-
-            BufferedImage resizedImage = rescale.filter(image, null);
+            BufferedImage resizedImage = getResizedImage(image);
             BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, "makkk");
 
             ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));

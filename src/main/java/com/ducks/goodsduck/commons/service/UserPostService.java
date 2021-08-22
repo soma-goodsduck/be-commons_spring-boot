@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.entity.Post;
 import com.ducks.goodsduck.commons.model.entity.User;
@@ -12,6 +13,7 @@ import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,7 @@ public class UserPostService {
         
         // 이미 좋아요된 상태
         if (userPost != null) {
-            return false;
+            throw new NoResultException("Already Like Post in UserPostService.likePost");
         }
 
         User user = userRepository.findById(userId)
@@ -58,7 +60,7 @@ public class UserPostService {
 
         // 이미 좋아요가 풀린 상태
         if (userPost == null) {
-            return false;
+            throw new NoResultException("Not Find UserPost in UserPostService.likePost");
         }
 
         postRepository.findById(postId)

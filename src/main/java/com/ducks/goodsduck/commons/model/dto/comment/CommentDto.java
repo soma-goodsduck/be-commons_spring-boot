@@ -16,11 +16,13 @@ public class CommentDto {
     private UserSimpleDto receiver;
     private String content;
     private Integer level;
+    private Boolean isSecret;
     private List<CommentDto> childComments = new ArrayList<>();
 
     public CommentDto(User user, Comment comment) {
         this.writer = new UserSimpleDto(user);
         this.content = comment.getContent();
         this.level = comment.getLevel();
+        this.isSecret = comment.getIsSecret();
     }
 }

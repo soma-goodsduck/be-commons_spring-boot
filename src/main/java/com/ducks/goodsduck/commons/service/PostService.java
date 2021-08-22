@@ -106,6 +106,7 @@ public class PostService {
              * 기존 포스트 정보 수정
              * 제목
              * 내용
+             * 이미지
              */
             Post post = postRepository.findById(postId).get();
             post.setTitle(postUpdateRequest.getTitle());

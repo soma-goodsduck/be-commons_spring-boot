@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
+import com.ducks.goodsduck.commons.model.enums.PostType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,6 +26,9 @@ public class Post {
     private Integer commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    private PostType postType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

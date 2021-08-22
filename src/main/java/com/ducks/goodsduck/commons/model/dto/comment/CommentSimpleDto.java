@@ -10,11 +10,13 @@ public class CommentSimpleDto {
     private UserSimpleDto receiver;
     private String content;
     private Integer level;
+    private Boolean isSecret;
 
     public CommentSimpleDto(CommentDto commentDto) {
         this.writer = commentDto.getWriter();
         this.receiver = commentDto.getReceiver();
         this.content = commentDto.getContent();
         this.level = commentDto.getLevel();
+        this.isSecret = commentDto.getIsSecret();
     }
 }

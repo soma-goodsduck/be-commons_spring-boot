@@ -8,4 +8,5 @@ public class CommentUploadRequest {
     private String content;
     private Long postId;
     private Long parentCommentId;
+    private Boolean isSecret;
 }

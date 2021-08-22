@@ -39,6 +39,7 @@ dependencies {
 
 	// Image-Resizing
 	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
+	implementation group: 'com.madgag', name: 'animated-gif-lib', version: '1.4'
 
 	// Image Rotation
 	implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
