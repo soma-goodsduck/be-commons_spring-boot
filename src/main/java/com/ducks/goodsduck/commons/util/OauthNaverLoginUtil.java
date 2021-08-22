@@ -35,16 +35,24 @@ public class OauthNaverLoginUtil {
 
     public static AuthorizationNaverDto callAccessToken(String code, String state, String clientId) {
 
+        String naverOauth2ClientIdProd = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.client-id");
+        String naverOauth2ClientSecretProd = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.client-secret");
+        String naverOauth2ClientIdDev = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-id");
+        String naverOauth2ClientSecretDev = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-secret");
+
         // HINT: 네아로 goodsduck-dev 환경
-        if (!naverOauth2ClientId.equals(clientId)) {
-            naverOauth2ClientId = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-id");
-            naverOauth2ClientSecret = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-secret");
+        if (clientId.equals(naverOauth2ClientIdProd)) {
+            naverOauth2ClientId = naverOauth2ClientIdProd;
+            naverOauth2ClientSecret = naverOauth2ClientSecretProd;
+        } else if (clientId.equals(naverOauth2ClientIdDev)){
+            naverOauth2ClientId = naverOauth2ClientIdDev;
+            naverOauth2ClientSecret = naverOauth2ClientSecretDev;
         }
 
         // HINT: 로컬 환경에서의 환경 변수 설정
         if (jsonOfAwsSecrets.isEmpty()) {
-            naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-id");
-            naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.client-secret");
+            naverOauth2ClientId = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.dev.client-id");
+            naverOauth2ClientSecret = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.dev.client-secret");
             frontendRedirectUrl = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.redirect-uri");
             grantType = PropertyUtil.getProperty("spring.security.oauth2.client.registration.naver.authorization-grant-type");
             tokenUri = PropertyUtil.getProperty("spring.security.oauth2.client.provider.naver.token-uri");

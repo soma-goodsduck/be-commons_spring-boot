@@ -38,7 +38,7 @@ public class NotificationResponse {
         this.createdAt = notification.getCreatedAt();
         this.isRead = notification.getReadAt() == null ? false : true;
 
-        String title = String.format("굿즈덕 %s 알림", type);
+        String title = "GOODSDUCK";
         String itemTitle = notification.getItemName();
         String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
                 itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(0, 12).concat("..."));
