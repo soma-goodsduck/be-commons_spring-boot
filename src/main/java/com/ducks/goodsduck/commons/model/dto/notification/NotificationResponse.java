@@ -21,7 +21,7 @@ public class NotificationResponse {
     private Long reviewId;
     private Long priceProposeId;
     private LocalDateTime createdAt;
-    private boolean isRead;
+    private Boolean isRead;
 
     /** 메시지 부 */
     private NotificationMessage message;
