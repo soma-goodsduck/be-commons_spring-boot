@@ -40,7 +40,7 @@ public class OauthNaverLoginUtil {
         String naverOauth2ClientIdDev = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-id");
         String naverOauth2ClientSecretDev = jsonOfAwsSecrets.optString("spring.security.oauth2.client.registration.naver.dev.client-secret");
 
-        // HINT: 네아로 goodsduck-dev 환경
+        // HINT: 네아로 goodsduck / goodsduck-dev 환경 전환
         if (clientId.equals(naverOauth2ClientIdProd)) {
             naverOauth2ClientId = naverOauth2ClientIdProd;
             naverOauth2ClientSecret = naverOauth2ClientSecretProd;

@@ -40,7 +40,11 @@ public class Notification {
     private Integer price;
 
     private LocalDateTime createdAt;
-    private LocalDateTime readAt;
+    private Boolean isRead = false;
+
+    public void read() {
+        this.isRead = true;
+    }
 
     public Notification(User user, PriceProposeResponse priceProposeResponse) {
         this.user = user;

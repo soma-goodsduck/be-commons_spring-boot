@@ -36,7 +36,7 @@ public class NotificationResponse {
         this.reviewId = notification.getReviewId();
         this.priceProposeId = notification.getPriceProposeId();
         this.createdAt = notification.getCreatedAt();
-        this.isRead = notification.getReadAt() == null ? false : true;
+        this.isRead = notification.getIsRead();
 
         String title = "GOODSDUCK";
         String itemTitle = notification.getItemName();
