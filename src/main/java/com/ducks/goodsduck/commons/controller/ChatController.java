@@ -69,8 +69,9 @@ public class ChatController {
 
     @ApiOperation("채팅 전송 시 알림 요청 API")
     @PostMapping("/v1/chat/notification")
-    public ApiResult<Boolean> sendNotification(@RequestBody NotificationRequest notificationRequest) throws IOException {
-        notificationService.sendMessageOfChat(notificationRequest);
+    public ApiResult<Boolean> sendNotification(HttpServletRequest request, @RequestBody NotificationRequest notificationRequest) throws IOException, IllegalAccessException {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        notificationService.sendMessageOfChat(userId, notificationRequest);
         return OK(true);
     }
 
