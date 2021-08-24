@@ -68,6 +68,8 @@ public class PostService {
 
             postRepository.save(post);
 
+            user.gainExp(10);
+
             return post.getId();
         } catch (Exception e) {
             return -1L;
@@ -93,8 +95,6 @@ public class PostService {
         if(userPost != null) {
             postDetailResponse.likesOfMe();
         }
-
-        // TODO : 좋아요 수 체크
 
         return postDetailResponse;
     }

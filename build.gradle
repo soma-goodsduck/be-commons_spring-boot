@@ -39,7 +39,6 @@ dependencies {
 
 	// Image-Resizing
 	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
-	implementation group: 'com.madgag', name: 'animated-gif-lib', version: '1.4'
 
 	// Image Rotation
 	implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
@@ -60,10 +59,6 @@ dependencies {
 
 	// Bcrypt
 	implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
-
-//	// Swagger 2
-//	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
-//	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 
 	// Swagger 3
 	implementation("io.springfox:springfox-boot-starter:3.0.0")

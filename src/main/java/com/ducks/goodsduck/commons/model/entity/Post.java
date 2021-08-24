@@ -47,6 +47,7 @@ public class Post {
     public Post(PostUploadRequest postUploadRequest) {
         this.title = postUploadRequest.getTitle();
         this.content = postUploadRequest.getContent();
+//        this.postType = postUploadRequest.g
         this.viewCount = 0;
         this.likeCount = 0;
         this.commentCount = 0;

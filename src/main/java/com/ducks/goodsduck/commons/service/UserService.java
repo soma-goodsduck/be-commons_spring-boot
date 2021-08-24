@@ -232,33 +232,6 @@ public class UserService {
         }
     }
 
-    // TODO : 추후 삭제 예정 (FE 사용X)
-//    public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
-//
-//        try {
-//            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
-//
-//            User user = userRepository.findById(userId).get();
-//            user.setImageUrl(image.getUrl());
-//
-//            return userId;
-//        } catch (Exception e) {
-//            return -1L;
-//        }
-//    }
-
-    // TODO : 추후 삭제 예정 (FE 사용X)
-//    public Long updateNickname(Long userId, String newNickname) {
-//        User user = userRepository.findById(userId).get();
-//
-//        try {
-//            user.setNickName(newNickname);
-//            return userId;
-//        } catch (Exception e) {
-//            return -1L;
-//        }
-//    }
-
     public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
 
         User user = userRepository.findById(userId).get();

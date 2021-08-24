@@ -48,13 +48,15 @@ public class CommentService {
                     commentRepository.findById(commentUploadRequest.getParentCommentId())
                             .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
 
-            Comment comment = new Comment(user, post, parentComment, commentUploadRequest.getContent(), commentUploadRequest.getIsSecret());
+            Comment comment = new Comment(user, post, parentComment, commentUploadRequest);
 
             if(parentComment != null) {
                 parentComment.getChildComments().add(comment);
             }
 
             commentRepository.save(comment);
+
+            user.gainExp(5);
 
             return comment.getId();
         } catch (Exception e) {

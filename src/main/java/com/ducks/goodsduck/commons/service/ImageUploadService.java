@@ -17,14 +17,12 @@ import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
-import com.madgag.gif.fmsware.GifDecoder;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.json.JSONObject;
-//import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +32,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -69,15 +66,6 @@ public class ImageUploadService {
         return images;
     }
 
-    public File convert(MultipartFile mfile) throws IOException {
-        File file = new File(mfile.getOriginalFilename());
-        file.createNewFile();
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(mfile.getBytes());
-        fos.close();
-        return file;
-    }
-
     /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
     public Image uploadImage(MultipartFile multipartFile, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
@@ -94,91 +82,60 @@ public class ImageUploadService {
 
         String originName = multipartFile.getOriginalFilename();
         String uploadName = createUploadName(originName);
-        String ext = extractExt(originName);
+        String EXT = extractExt(originName);
+        String ext = EXT.toLowerCase();
         Long bytes = multipartFile.getSize();
 
-//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1111111111111111");
-//        System.out.println(ext);
-//        System.out.println(multipartFile);
-//        if(!multipartFile.isEmpty()) {
-//            System.out.println("#####################################111111111111#");
-//
-//            File file = convert(multipartFile);
-//
-//
-//            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, file));
-//
-//            System.out.println("#################################22222222");
-//
-//            return null;
-//        }
+        if(!ext.equals("gif")) {
 
-//        InputStream gif = new FileInputStream(convert(multipartFile));
-//        GifDecoder gifDecoder = new GifDecoder();
-//        gifDecoder.read(gif);
-//
-//        int frameCount = gifDecoder.getFrameCount();
-//
-//        System.out.println(frameCount);
-//
-//        for (int i = 0; i < frameCount; i++) {
-//            BufferedImage frame = gifDecoder.getFrame(i);
-//            System.out.println(frame);
-//            System.out.println(getResizedImage(frame));
-//        }
+            BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
-        BufferedImage image = ImageIO.read(multipartFile.getInputStream());
-
-        // FEAT : 파일 회전 체크
-        int orientation = 1;
-        Metadata metadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
-        ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        if(directory != null) {
-            orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-        }
-
-        switch (orientation) {
-            case 6:
-                image = Scalr.rotate(image, Scalr.Rotation.CW_90, null);
-                break;
-            case 3:
-                image = Scalr.rotate(image, Scalr.Rotation.CW_180, null);
-                break;
-            case 8:
-                image = Scalr.rotate(image, Scalr.Rotation.CW_270, null);
-                break;
-            default:
-                break;
-        }
-
-        // FEAT : 파일이 1MB 이상일 경우 리사이징
-        if(bytes >= 1048576) {
-
-            BufferedImage resizedImage = getResizedImage(image);
-
-            if (imageType.equals(ImageType.CHAT)) {
-                BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
-                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-            } else {
-                uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
+            // FEAT : 파일 회전 체크
+            int orientation = 1;
+            Metadata metadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
+            ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if(directory != null) {
+                orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
             }
 
+            switch (orientation) {
+                case 6:
+                    image = Scalr.rotate(image, Scalr.Rotation.CW_90, null);
+                    break;
+                case 3:
+                    image = Scalr.rotate(image, Scalr.Rotation.CW_180, null);
+                    break;
+                case 8:
+                    image = Scalr.rotate(image, Scalr.Rotation.CW_270, null);
+                    break;
+                default:
+                    break;
+            }
+
+            // FEAT : 파일이 1MB 이상일 경우 리사이징
+            if(bytes >= 1048576) {
+
+                BufferedImage resizedImage = getResizedImage(image);
+
+                if (imageType.equals(ImageType.CHAT)) {
+                    BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
+                    uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+                } else {
+                    uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
+                }
+
+            } else {
+                if(imageType.equals(ImageType.CHAT)) {
+                    BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
+                    uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
+                } else {
+                    uploadImageToS3(s3Client, uploadName, ext, image, imageType);
+                }
+            }
         } else {
-
-//            if(imageType.equals(ImageType.ITEM)) {
-//                // 아이템 상세보기 이미지 (워터마크 O)
-//                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
-//                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-//
-//                // 아이템 홈 이미지 (워터마크 X)
-//                uploadImageToS3(s3Client, "home-" + uploadName, ext, image, imageType);
-//            } else
-            if(imageType.equals(ImageType.CHAT)) {
-                BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
-                uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
-            } else {
-                uploadImageToS3(s3Client, uploadName, ext, image, imageType);
-            }
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("gif");
+            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, multipartFile.getInputStream(), metadata));
         }
 
         if(imageType.equals(ImageType.ITEM)) {

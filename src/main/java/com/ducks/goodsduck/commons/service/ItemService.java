@@ -15,6 +15,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Source;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,8 +61,8 @@ public class ItemService {
             Item item = new Item(itemUploadRequest);
 
             /** Item-User 연관관계 삽입 **/
-            User findUser = userRepository.findById(userId).get();
-            item.setUser(findUser);
+            User user = userRepository.findById(userId).get();
+            item.setUser(user);
 
             /** Item-IdolMember 연관관계 삽입 **/
             IdolMember idolMember = idolMemberRepository.findById(itemUploadRequest.getIdolMember()).get();
@@ -72,7 +73,7 @@ public class ItemService {
             item.setCategoryItem(categoryItem);
 
             /** 이미지 업로드 처리 & Item-Image 연관관계 삽입 **/
-            List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, findUser.getNickName());
+            List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, user.getNickName());
             for (Image image : images) {
                 ItemImage itemImage = new ItemImage(image);
                 item.addImage(itemImage);
@@ -80,6 +81,8 @@ public class ItemService {
             }
 
             itemRepository.save(item);
+
+            user.gainExp(10);
 
             return item.getId();
         } catch (Exception e) {

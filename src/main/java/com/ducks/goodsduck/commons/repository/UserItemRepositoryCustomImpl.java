@@ -47,11 +47,11 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
 
     @Override
     public List<Item> findByUserIdV2(Long userId) {
-        return queryFactory.select(userItem.item)
+        return queryFactory
+                .select(userItem.item)
                 .from(userItem)
-//                .join(userItem.item.images, image).fetchJoin()
                 .where(userItem.user.id.eq(userId))
-                .distinct()
+                .orderBy(userItem.item.id.desc())
                 .fetch();
     }
 

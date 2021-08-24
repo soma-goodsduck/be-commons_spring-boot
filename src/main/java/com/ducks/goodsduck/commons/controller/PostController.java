@@ -41,7 +41,7 @@ public class PostController {
 
     private final UserRepository userRepository;
 
-    // TODO : 동영상 + gif / 일반글, 나눔글 구분
+    // TODO : gif 리사이즈...
     @ApiOperation("포스트 업로드 API")
     @PostMapping("/v1/posts")
     public ApiResult<Long> uploadPost(@RequestParam String stringPostDto,

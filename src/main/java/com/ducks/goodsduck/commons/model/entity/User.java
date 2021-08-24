@@ -29,6 +29,7 @@ public class User {
     private String phoneNumber;
     private String imageUrl;
     private Integer level;
+    private Integer exp;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
@@ -47,10 +48,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<>();
 
-//    // TODO : 삭제 예정
-//    @OneToMany(mappedBy = "user")
-//    private List<SocialAccount> socialAccounts = new ArrayList<>();
-
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
         this.email = email;
@@ -58,6 +55,8 @@ public class User {
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.role = UserRole.USER;
+        this.level = 1;
+        this.exp = 0;
         this.bcryptId = createBcryptId();
     }
 
@@ -71,7 +70,6 @@ public class User {
 
     public void addSocialAccount(SocialAccount socialAccount) {
         socialAccount.setUser(this);
-//        socialAccounts.add(socialAccount);
     }
 
     public void addUserIdolGroup(UserIdolGroup userIdolGroup) {
@@ -81,5 +79,17 @@ public class User {
 
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+    }
+
+    public void gainExp(int exp) {
+        this.exp += exp;
+        if(this.exp >= 100) {
+            levelUp();
+        }
+    }
+
+    public void levelUp() {
+        this.level++;
+        this.exp -= 100;
     }
 }

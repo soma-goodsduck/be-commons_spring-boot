@@ -27,7 +27,7 @@ public class ItemHomeResponse {
         this.itemOwner = new UserSimpleDto(item.getUser());
         this.itemId = item.getId();
         this.name = item.getName();
-        this.imageUrl = item.getImages().get(0).getUrl();
+        if(!item.getImages().isEmpty()) this.imageUrl = item.getImages().get(0).getUrl();
         this.price = item.getPrice();
         this.tradeType = item.getTradeType().getKorName();
         this.tradeStatus = item.getTradeStatus();

@@ -17,6 +17,7 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.NoResultException;
@@ -52,6 +53,7 @@ public class ReviewController {
 
     @PostMapping("/v1/users/reviews")
     @ApiOperation("채팅방 ID를 통해 특정 유저에 대한 리뷰 남기기")
+    @Transactional
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
                                          @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -60,10 +62,18 @@ public class ReviewController {
                     throw new IllegalStateException("Error occurred during save review.");
                 });
 
-        User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
-            throw new NoResultException("User not founded.");
+        User sender = userRepository.findById(userId).orElseThrow(() -> {
+            throw new NoResultException("Sender not founded.");
         });
+
+        User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
+            throw new NoResultException("Receiver not founded.");
+        });
+
         notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
+
+        sender.gainExp(20);
+
         return OK(true);
     }
 
