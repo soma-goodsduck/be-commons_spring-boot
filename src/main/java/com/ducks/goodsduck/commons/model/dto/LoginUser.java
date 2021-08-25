@@ -11,12 +11,10 @@ import java.util.stream.Collectors;
 @Data
 public class LoginUser {
 
-    private Long userId;
     private String nickName;
     private List<UserIdolGroupDto> likeIdolGroups = new ArrayList<>();
 
     public LoginUser(User user) {
-        this.userId = user.getId();
         this.nickName = user.getNickName();
         this.likeIdolGroups = user.getUserIdolGroups().stream()
                     .map(userIdolGroup -> new UserIdolGroupDto(userIdolGroup))

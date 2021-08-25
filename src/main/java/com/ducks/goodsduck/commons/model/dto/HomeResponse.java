@@ -1,8 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
-import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
-import com.ducks.goodsduck.commons.model.entity.User;
 import lombok.Data;
 
 import java.util.List;
