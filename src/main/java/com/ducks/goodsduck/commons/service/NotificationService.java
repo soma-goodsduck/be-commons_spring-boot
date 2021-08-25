@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
@@ -7,7 +8,6 @@ import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.repository.*;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +26,14 @@ public class NotificationService {
 
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final NotificationRepository notificationRepository;
+    private final NotificationRepositoryCustomImpl notificationRepositoryCustomImpl;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final UserRepository userRepository;
 
-    public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository, UserChatRepositoryCustomImpl userChatRepositoryCustom, UserRepository userRepository) {
+    public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom, NotificationRepository notificationRepository, NotificationRepositoryCustomImpl notificationRepositoryCustomImpl, UserChatRepositoryCustomImpl userChatRepositoryCustom, UserRepository userRepository) {
         this.deviceRepositoryCustom = userDeviceRepositoryCustom;
         this.notificationRepository = notificationRepository;
+        this.notificationRepositoryCustomImpl = notificationRepositoryCustomImpl;
         this.userChatRepositoryCustom = userChatRepositoryCustom;
         this.userRepository = userRepository;
     }
@@ -67,7 +69,11 @@ public class NotificationService {
         }
     }
 
-    public void sendMessageOfChat(NotificationRequest notificationRequest) throws IOException {
+    public void sendMessageOfChat(Long userId, NotificationRequest notificationRequest) throws IOException, IllegalAccessException {
+
+        if (!userId.equals(notificationRequest.getSenderId())) {
+            throw new IllegalAccessException("Login user is not matched with senderId.");
+        }
 
         Notification notification;
 
@@ -163,9 +169,22 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getNotificationsOfUserId(Long userId) {
-        return notificationRepository.findByUserId(userId, Sort.by(Sort.Direction.DESC, "id"))
+        return notificationRepositoryCustomImpl.findByUserIdExceptChat(userId)
                 .stream()
-                .map(notification -> new NotificationResponse(notification))
+                .map(notification -> {
+                    NotificationResponse notificationResponse = new NotificationResponse(notification);
+                    notification.read();
+                    return notificationResponse;
+                })
                 .collect(Collectors.toList());
+    }
+
+    /** 읽지 않은 알림 유무 체크 */
+    public NotificationBadgeResponse checkNewNotification(Long userId) {
+        NotificationBadgeResponse notificationBadgeResponse = new NotificationBadgeResponse();
+        if (!notificationRepository.existsByUserIdAndTypeNotAndIsReadFalse(userId, CHAT)) notificationBadgeResponse.setHasNewNotification(false);
+        if (!notificationRepository.existsByUserIdAndTypeIsAndIsReadFalse(userId, CHAT)) notificationBadgeResponse.setHasNewChat(false);
+
+        return notificationBadgeResponse;
     }
 }

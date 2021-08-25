@@ -21,7 +21,7 @@ public class NotificationResponse {
     private Long reviewId;
     private Long priceProposeId;
     private LocalDateTime createdAt;
-    private boolean isRead;
+    private Boolean isRead;
 
     /** 메시지 부 */
     private NotificationMessage message;
@@ -36,9 +36,9 @@ public class NotificationResponse {
         this.reviewId = notification.getReviewId();
         this.priceProposeId = notification.getPriceProposeId();
         this.createdAt = notification.getCreatedAt();
-        this.isRead = notification.getReadAt() == null ? false : true;
+        this.isRead = notification.getIsRead();
 
-        String title = String.format("굿즈덕 %s 알림", type);
+        String title = "GOODSDUCK";
         String itemTitle = notification.getItemName();
         String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
                 itemTitle.length() < 12 ? notification.getItemName() : itemTitle.substring(0, 12).concat("..."));

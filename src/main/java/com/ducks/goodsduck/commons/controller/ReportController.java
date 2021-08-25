@@ -31,10 +31,10 @@ public class ReportController {
         return OK(reportService.addCategoryReport(userId, categoryReportAddRequest));
     }
 
-    @GetMapping("/v1/category-report")
+    @GetMapping("/v1/category-report/users/{bcryptId}")
     @ApiOperation("신고 유형 보기 및 신고할 대상 닉네임 확인")
-    public ApiResult<CategoryReportResponse> addCategoryReport(HttpServletRequest request, @RequestBody CategoryReportGetRequest categoryReportGetRequest) {
-        return OK(reportService.getCategoryReportWithUserNickName(categoryReportGetRequest));
+    public ApiResult<CategoryReportResponse> addCategoryReport(HttpServletRequest request, @PathVariable("bcryptId") String bcryptId) {
+        return OK(reportService.getCategoryReportWithUserNickName(bcryptId));
     }
 
     @PostMapping("/v1/users/report")

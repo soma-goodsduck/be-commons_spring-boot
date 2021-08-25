@@ -40,7 +40,11 @@ public class Notification {
     private Integer price;
 
     private LocalDateTime createdAt;
-    private LocalDateTime readAt;
+    private Boolean isRead = false;
+
+    public void read() {
+        this.isRead = true;
+    }
 
     public Notification(User user, PriceProposeResponse priceProposeResponse) {
         this.user = user;
@@ -52,6 +56,7 @@ public class Notification {
         this.priceProposeId = priceProposeResponse.getPriceProposeId();
         this.price = priceProposeResponse.getProposedPrice();
         this.createdAt = priceProposeResponse.getCreatedAt();
+        this.isRead = false;
     }
 
     public Notification(User user, UserItem userItem) {
@@ -63,6 +68,7 @@ public class Notification {
         this.itemName = userItem.getItem().getName();
         this.type = NotificationType.USER_ITEM;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.isRead = false;
     }
 
     public Notification(Review review, User receiver, NotificationType reviewType) {
@@ -74,6 +80,7 @@ public class Notification {
         this.itemName = review.getItem().getName();
         this.type = reviewType;
         this.createdAt = review.getCreatedAt();
+        this.isRead = false;
     }
 
     public Notification(User user, String senderNickname, String senderImageUrl, String itemName, NotificationType type) {
@@ -83,6 +90,7 @@ public class Notification {
         this.itemName = itemName;
         this.type = type;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.isRead = false;
     }
 
     public Notification(User user, String senderNickname, String senderImageUrl, Long itemId, String itemName, NotificationType type, Integer price) {
@@ -94,5 +102,6 @@ public class Notification {
         this.type = type;
         this.price = price;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.isRead = false;
     }
 }

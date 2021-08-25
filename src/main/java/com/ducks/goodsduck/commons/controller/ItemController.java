@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserItem;
@@ -184,7 +185,9 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
+            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
+
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
         }
     }
 
@@ -219,7 +222,9 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
+            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
+
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
         }
     }
 
@@ -262,7 +267,9 @@ public class ItemController {
                 itemList.remove(pageableSize);
             }
 
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
+            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
+
+            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
         }
     }
 

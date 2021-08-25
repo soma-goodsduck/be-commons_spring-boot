@@ -49,7 +49,7 @@ public class ReportService {
                     throw new NoResultException("CategoryReport not founded.");
                 });
 
-        if (reportRepository.existsByUserAndSenderId(sender.getId(), receiver.getId())) {
+        if (reportRepository.existsByUserAndSenderId(receiver, sender.getId())) {
             return new ReportResponse();
         }
 
@@ -81,8 +81,8 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryReportResponse getCategoryReportWithUserNickName(CategoryReportGetRequest categoryReportGetRequest) {
-        User receiver = userRepository.findByBcryptId(categoryReportGetRequest.getBcryptId());
+    public CategoryReportResponse getCategoryReportWithUserNickName(String bcryptId) {
+        User receiver = userRepository.findByBcryptId(bcryptId);
         if (receiver == null) {
             throw new NoResultException("User not founded.");
         }

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    Boolean existsByUserAndSenderId(Long userId, Long senderId);
+    Boolean existsByUserAndSenderId(User user, Long senderId);
     List<Report> findByUser(User user);
 }
