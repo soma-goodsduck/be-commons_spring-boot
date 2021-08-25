@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 public class ReportResponse {
 
     private String receiverName;
-    private String categoryReportType;
+    private String categoryReportName;
     private String content;
     private LocalDateTime createdAt;
     private Boolean isExist = true;
 
     public ReportResponse(Report report) {
-        this.receiverName = report.getUser().getNickName();
-        this.categoryReportType = report.getCategoryReport().getType();
+        this.receiverName = report.getReceiver().getNickName();
+        this.categoryReportName = report.getReportCategory().getName();
         this.content = report.getContent();
         this.createdAt = report.getCreatedAt();
         this.isExist = false;

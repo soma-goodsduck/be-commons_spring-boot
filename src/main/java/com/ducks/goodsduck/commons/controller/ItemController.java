@@ -2,6 +2,8 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
@@ -13,13 +15,12 @@ import com.ducks.goodsduck.commons.model.entity.UserItem;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.log.Log;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class ItemController {
     private final UserItemService userItemService;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
-    private final CategoryItemRepository categoryItemRepository;
+    private final ItemCategoryRepository itemCategoryRepository;
 
     private final ImageUploadService imageUploadService; // TODO : 워터마크 테스트용 추후 삭제
     @NoCheckJwt
@@ -236,7 +237,7 @@ public class ItemController {
     public ApiResult<HomeResponse<ItemHomeResponse>> filterItemWithAllV3(@RequestParam(value = "idolGroup") Long idolGroupId,
                                                                          @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
                                                                          @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                                                         @RequestParam(value = "category", required = false) Long categoryItemId,
+                                                                         @RequestParam(value = "itemCategoryId", required = false) Long itemCategoryId,
                                                                          @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
                                                                          @RequestParam(value = "minPrice", required = false) Long minPrice,
                                                                          @RequestParam(value = "maxPrice", required = false) Long maxPrice,
@@ -249,7 +250,7 @@ public class ItemController {
         // HINT : 비회원에게 보여줄 홈 + 모든 필터링
         if(userId.equals(-1L)) {
             List<ItemHomeResponse> itemList = itemService.filterByAllV3(
-                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
+                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, itemCategoryId, gradeStatus, minPrice, maxPrice), itemId);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -261,7 +262,7 @@ public class ItemController {
         else {
             User user = userRepository.findById(userId).get();
             List<ItemHomeResponse> itemList = itemService.filterByAllV3(userId,
-                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
+                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, itemCategoryId, gradeStatus, minPrice, maxPrice), itemId);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -274,12 +275,13 @@ public class ItemController {
     }
 
     @NoCheckJwt
-    @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
+    @ApiOperation(value = "아이템 카테고리 불러오기 in 아이템 등록")
     @GetMapping("/v1/items/category")
     @Transactional
-    public ApiResult<List<CategoryItemDto>> getCategoryItem() {
-        return OK(categoryItemRepository.findAll().stream()
-                .map(categoryItem -> new CategoryItemDto(categoryItem))
+    public ApiResult<List<CategoryResponse>> getItemCategory() {
+        return OK(itemCategoryRepository.findAll()
+                .stream()
+                .map(itemCategory -> new CategoryResponse(itemCategory))
                 .collect(Collectors.toList()));
     }
 

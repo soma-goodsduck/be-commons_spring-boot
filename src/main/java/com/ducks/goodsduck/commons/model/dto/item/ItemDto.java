@@ -2,9 +2,9 @@ package com.ducks.goodsduck.commons.model.dto.item;
 
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
-import com.ducks.goodsduck.commons.model.entity.CategoryItem;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
@@ -33,7 +33,7 @@ public class ItemDto {
     private List<ImageDto> images = new ArrayList<>();
     private IdolMember idolMember;
     private UserSimpleDto userSimpleDto;
-    private CategoryItem categoryItem;
+    private ItemCategory itemCategory;
 
     public ItemDto likesOfMe() {
         this.isLike = true;

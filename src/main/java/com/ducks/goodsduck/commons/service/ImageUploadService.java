@@ -13,7 +13,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.ducks.goodsduck.commons.model.dto.ImageDto;
-import com.ducks.goodsduck.commons.model.entity.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;

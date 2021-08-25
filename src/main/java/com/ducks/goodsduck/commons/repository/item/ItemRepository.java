@@ -18,6 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByUserId(Long userId);
   
     @Override
-    @EntityGraph(attributePaths = {"user", "idolMember", "categoryItem"})
+    @EntityGraph(attributePaths = {"user", "idolMember", "itemCategory"})
     Optional<Item> findById(Long itemId);
 }

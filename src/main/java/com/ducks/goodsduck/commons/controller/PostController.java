@@ -2,13 +2,15 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.HomeResponse;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.LoginUser;
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.UserPostService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -26,6 +28,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 
@@ -39,6 +42,7 @@ public class PostController {
     private final PostService postService;
     private final UserPostService userPostService;
 
+    private final PostCategoryRepository postCategoryRepository;
     private final UserRepository userRepository;
 
     // TODO : gif 리사이즈...
@@ -135,5 +139,16 @@ public class PostController {
         }
 
         return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
+    }
+
+    @NoCheckJwt
+    @ApiOperation(value = "포스트 카테고리 불러오기 in 포스트 등록")
+    @GetMapping("/v1/posts/category")
+    @javax.transaction.Transactional
+    public ApiResult<List<CategoryResponse>> getItemCategory() {
+        return OK(postCategoryRepository.findAll()
+                .stream()
+                .map(postCategory -> new CategoryResponse(postCategory))
+                .collect(Collectors.toList()));
     }
 }

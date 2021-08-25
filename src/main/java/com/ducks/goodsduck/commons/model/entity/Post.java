@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
+import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.enums.PostType;
 import lombok.*;
 

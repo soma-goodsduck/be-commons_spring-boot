@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.dto.report.ReportRequest;
+import com.ducks.goodsduck.commons.model.entity.category.Category;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,34 +16,26 @@ import java.time.ZoneId;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Report {
 
-    @Id @Column(name = "REPORT_ID")
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "report_id")
     private Long id;
     private Long senderId;
     private String content;
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    @JoinColumn(name = "user_id")
+    private User receiver;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CATEGORY_REPORT_ID")
-    private CategoryReport categoryReport;
+    @JoinColumn(name = "category_report_id")
+    private Category reportCategory;
 
-    public Report(Long senderId, String content, User user, CategoryReport categoryReport) {
-        this.senderId = senderId;
-        this.content = content;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-        this.user = user;
-        this.categoryReport = categoryReport;
-    }
-
-    public Report(ReportRequest reportRequest, CategoryReport categoryReport, User receiver, User sender) {
+    public Report(ReportRequest reportRequest, Category category, User receiver, User sender) {
         this.senderId = sender.getId();
+        this.receiver = receiver;
         this.content = reportRequest.getContent();
+        this.reportCategory = category;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-        this.user = receiver;
-        this.categoryReport = categoryReport;
     }
 }

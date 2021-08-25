@@ -5,17 +5,25 @@ import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
+import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Source;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +53,7 @@ public class ItemService {
     private final UserChatRepository userChatRepository;
     private final UserChatRepositoryCustom userChatRepositoryCustom;
     private final IdolMemberRepository idolMemberRepository;
-    private final CategoryItemRepository categoryItemRepository;
+    private final ItemCategoryRepository itemCategoryRepository;
     private final UserItemRepository userItemRepository;
     private final UserItemRepositoryCustom userItemRepositoryCustom;
     private final PriceProposeRepository priceProposeRepository;
@@ -69,8 +77,8 @@ public class ItemService {
             item.setIdolMember(idolMember);
 
             /** Item-Category 연관관계 삽입 **/
-            CategoryItem categoryItem = categoryItemRepository.findByName(itemUploadRequest.getCategory());
-            item.setCategoryItem(categoryItem);
+            ItemCategory itemCategory = itemCategoryRepository.findByName(itemUploadRequest.getCategory());
+            item.setItemCategory(itemCategory);
 
             /** 이미지 업로드 처리 & Item-Image 연관관계 삽입 **/
             List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.ITEM, user.getNickName());
@@ -157,8 +165,8 @@ public class ItemService {
             item.setGradeStatus(itemUpdateRequest.getGradeStatus());
             IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
             item.setIdolMember(idolMember);
-            CategoryItem categoryItem = categoryItemRepository.findByName(itemUpdateRequest.getCategory());
-            item.setCategoryItem(categoryItem);
+            ItemCategory itemCategory = itemCategoryRepository.findByName(itemUpdateRequest.getCategory());
+            item.setItemCategory(itemCategory);
 
             return item.getId();
         } catch (Exception e) {
@@ -192,8 +200,8 @@ public class ItemService {
             item.setGradeStatus(itemUpdateRequest.getGradeStatus());
             IdolMember idolMember = idolMemberRepository.findById(itemUpdateRequest.getIdolMember()).get();
             item.setIdolMember(idolMember);
-            CategoryItem categoryItem = categoryItemRepository.findByName(itemUpdateRequest.getCategory());
-            item.setCategoryItem(categoryItem);
+            ItemCategory itemCategory = itemCategoryRepository.findByName(itemUpdateRequest.getCategory());
+            item.setItemCategory(itemCategory);
 
             /**
              * 기존 이미지 수정 (Url)
