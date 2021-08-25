@@ -2,7 +2,6 @@ package com.ducks.goodsduck.commons.util;
 
 import com.ducks.goodsduck.commons.config.ApplicationContextServe;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 
 @Slf4j
 public class PropertyUtil {

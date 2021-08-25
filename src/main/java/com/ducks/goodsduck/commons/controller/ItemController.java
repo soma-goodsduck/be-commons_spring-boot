@@ -346,4 +346,17 @@ public class ItemController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.getLikeItemsOfUserV2(userId));
     }
+
+    /** (임시)GIF 이미지 리사이즈 테스트
+     *
+     * 이미지 업로드 API에다가 해당 기능을 합쳐야 함.
+     * 작업 완료 시 이 API는 삭제하시오.
+     */
+    @NoCheckJwt
+    @PostMapping("/v1/gif")
+    public ApiResult resizeGIF(@RequestParam MultipartFile multipartFile) throws IOException {
+        imageUploadService.resizeGIF(multipartFile);
+        return OK(true);
+    }
+
 }

@@ -16,18 +16,23 @@ import com.ducks.goodsduck.commons.model.dto.ImageDto;
 import com.ducks.goodsduck.commons.model.entity.Image;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
+import com.ducks.goodsduck.commons.util.GifSequenceWriter;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.madgag.gif.fmsware.GifDecoder;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.json.JSONObject;
-//import org.json.simple.JSONObject;
+import org.springframework.boot.context.event.ApplicationPreparedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -40,16 +45,16 @@ import java.util.UUID;
 @Slf4j
 public class ImageUploadService {
 
-    private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
+    private static final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-    private final String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
-    private final String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.itemBucket", PropertyUtil.getProperty("cloud.aws.s3.itemBucket"));
-    private final String profileS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.profileBucket", PropertyUtil.getProperty("cloud.aws.s3.profileBucket"));
-    private final String chatS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.chatBucket", PropertyUtil.getProperty("cloud.aws.s3.chatBucket"));
-    private final String postS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.postBucket", PropertyUtil.getProperty("cloud.aws.s3.postBucket"));
-    private final String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", PropertyUtil.getProperty("cloud.aws.credentials.accessKey"));
-    private final String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
-    private final String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
+    private static String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
+    private static String itemS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.itemBucket", PropertyUtil.getProperty("cloud.aws.s3.itemBucket"));
+    private static String profileS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.profileBucket", PropertyUtil.getProperty("cloud.aws.s3.profileBucket"));
+    private static String chatS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.chatBucket", PropertyUtil.getProperty("cloud.aws.s3.chatBucket"));
+    private static String postS3Bucket = jsonOfAwsSecrets.optString("cloud.aws.s3.postBucket", PropertyUtil.getProperty("cloud.aws.s3.postBucket"));
+    private static String accessKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.accessKey", PropertyUtil.getProperty("cloud.aws.credentials.accessKey"));
+    private static String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
+    private static String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
 
     public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
@@ -120,23 +125,7 @@ public class ImageUploadService {
 
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int newWidth = width;
-            int newHeight = height;
-
-            if(width > height) {
-                newHeight = 500;
-                newWidth = getNewWidth(newHeight, width, height);
-            } else {
-                newWidth = 500;
-                newHeight = getNewHeight(newWidth, width, height);
-            }
-
-            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
-            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
-
-            BufferedImage resizedImage = rescale.filter(image, null);
+            BufferedImage resizedImage = getResizedBufferedImage(image);
 
 //            if(imageType.equals(ImageType.ITEM)) {
 //                // 아이템 상세보기 이미지 (워터마크 O)
@@ -338,6 +327,7 @@ public class ImageUploadService {
     /** local에 이미지 업로드 + 리사이징 + 워터마크 **/
     public ImageDto uploadImageWithWatermark(MultipartFile multipartFile) throws IOException {
 
+        final int IMAGE_SIZE_LIMIT =  1048576;
         if(multipartFile.isEmpty()) {
             return null;
         }
@@ -350,25 +340,9 @@ public class ImageUploadService {
         BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
         // 1MB 이상에서만 리사이징
-        if(bytes >= 1048576) {
+        if(bytes >= IMAGE_SIZE_LIMIT) {
 
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int newWidth = width;
-            int newHeight = height;
-
-            if (width > height) {
-                newHeight = 500;
-                newWidth = getNewWidth(newHeight, width, height);
-            } else {
-                newWidth = 500;
-                newHeight = getNewHeight(newWidth, width, height);
-            }
-
-            MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
-            rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
-
-            BufferedImage resizedImage = rescale.filter(image, null);
+            BufferedImage resizedImage = getResizedBufferedImage(image);
             BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, "makkk");
 
             ImageIO.write(watermarkedImage, ext, new File(getFilePath(uploadName)));
@@ -379,5 +353,95 @@ public class ImageUploadService {
         }
 
         return new ImageDto(orginName, uploadName);
+    }
+
+    public void resizeGIF(MultipartFile multipartFile) throws IOException {
+
+        // TODO: 임시로 항상 리사이징 하게끔 설정해놓음.
+        final int GIF_SIZE_LIMIT =  10;
+        String orginName = multipartFile.getOriginalFilename();
+        String uploadName = createUploadName(orginName);
+        String ext = extractExt(orginName);
+
+        BufferedImage imageOfFrame;
+        BufferedImage resizedBufferedImageOfFrame;
+
+        GifDecoder gifDecoder = new GifDecoder();
+        gifDecoder.read(multipartFile.getInputStream());
+
+        int delay = gifDecoder.getDelay(0);
+        int frameCount = gifDecoder.getFrameCount();
+        Long bytes =  multipartFile.getSize();
+
+        if (bytes > GIF_SIZE_LIMIT) {
+            ImageOutputStream outputStream = new FileImageOutputStream(new File(getFilePath(uploadName)));
+            GifSequenceWriter writer = new GifSequenceWriter(outputStream, gifDecoder.getFrame(0).getType(), delay, true);
+
+            for (int i = 0; i < frameCount; i+=2) {
+                imageOfFrame = gifDecoder.getFrame(i);
+                resizedBufferedImageOfFrame = getResizedBufferedImageOfFrame(imageOfFrame);
+                writer.writeToSequence(resizedBufferedImageOfFrame);
+            }
+            writer.close();
+            outputStream.close();
+        }
+    }
+
+    private BufferedImage getResizedBufferedImage(BufferedImage image) {
+        final int STANDARD_LENGTH = 500;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int newWidth = width;
+        int newHeight = height;
+
+        if (width > height) {
+            newHeight = STANDARD_LENGTH;
+            newWidth = getNewWidth(newHeight, width, height);
+        } else {
+            newWidth = STANDARD_LENGTH;
+            newHeight = getNewHeight(newWidth, width, height);
+        }
+
+        MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
+        rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Soft);
+
+        return rescale.filter(image, null);
+    }
+
+    private BufferedImage getResizedBufferedImageOfFrame(BufferedImage image) {
+        final int STANDARD_LENGTH = 400;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int newWidth = width;
+        int newHeight = height;
+
+        if (width > STANDARD_LENGTH && width > height) {
+            newWidth = STANDARD_LENGTH;
+            newHeight = getNewHeight(newWidth, width, height);
+        } else if (height > STANDARD_LENGTH && height > width) {
+            newHeight = STANDARD_LENGTH;
+            newWidth = getNewWidth(newHeight, width, height);
+        }
+
+        MultiStepRescaleOp rescale = new MultiStepRescaleOp(newWidth, newHeight);
+        rescale.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.None);
+
+        return rescale.filter(image, null);
+    }
+
+
+    // HINT: 어플리케이션이 준비가 된 시점에서 실행
+    @EventListener
+    public void setIfLocal(ApplicationPreparedEvent event) {
+        if (jsonOfAwsSecrets.isEmpty()) {
+            localFilePath = PropertyUtil.getProperty("spring.file.path.local");
+            itemS3Bucket = PropertyUtil.getProperty("cloud.aws.s3.itemBucket");
+            profileS3Bucket = PropertyUtil.getProperty("cloud.aws.s3.profileBucket");
+            chatS3Bucket = PropertyUtil.getProperty("cloud.aws.s3.chatBucket");
+            postS3Bucket = PropertyUtil.getProperty("cloud.aws.s3.postBucket");
+            accessKey = PropertyUtil.getProperty("cloud.aws.credentials.accessKey");
+            secretKey = PropertyUtil.getProperty("cloud.aws.credentials.secretKey");
+            region = PropertyUtil.getProperty("cloud.aws.region.static");
+        }
     }
 }

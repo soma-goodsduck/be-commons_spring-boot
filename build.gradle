@@ -80,6 +80,9 @@ dependencies {
 	// CoolSMS (authentication of SMS)
 	compile group: 'net.nurigo', name: 'javaSDK', version: '2.2'
 
+	// https://mvnrepository.com/artifact/com.madgag/animated-gif-lib
+	implementation group: 'com.madgag', name: 'animated-gif-lib', version: '1.4'
+
 	compile('org.springframework.boot:spring-boot-starter-data-redis')
 	compile 'io.sentry:sentry-logback:1.7.30'
 	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
