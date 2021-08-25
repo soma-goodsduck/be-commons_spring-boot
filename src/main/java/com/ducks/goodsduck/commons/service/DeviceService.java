@@ -6,14 +6,14 @@ import com.ducks.goodsduck.commons.repository.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.DeviceRepositoryCustomImpl;
 import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
-import java.util.UUID;
 
 @Service
+@Transactional
 @Slf4j
 public class DeviceService {
 
@@ -27,24 +27,27 @@ public class DeviceService {
         this.userRepository = userRepository;
     }
 
-    public Device registerFCMToken(Long userId, String registrationToken) {
+    public Boolean register(Long userId, String registrationToken) {
 
-        // TODO: 기기 별 UUID 생성 및 관리 방법 구체화
-        String uuid = UUID.randomUUID().toString();
-
-        Tuple tupleOfUserAndDevice = deviceRepositoryCustom.getTupleByUserIdAndRegistrationToken(userId, registrationToken);
-        if (tupleOfUserAndDevice == null) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> {
-                throw new NoResultException("User not founded.");
-            });
-
-            return deviceRepository.save(
-                    new Device(user,
-                        uuid, registrationToken));
-        } else {
-            log.debug("Already registered device.");
-            return tupleOfUserAndDevice.get(1, Device.class);
+        // HINT: registrationToken이 이미 존재하는 경우, 최근 발급 받은 토큰으로 업데이트.
+        if (deviceRepository.existsByUserId(userId)) {
+            return deviceRepositoryCustom.updateRegistrationTokenByUserId(userId, registrationToken) > 0 ? true : false;
         }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
+
+        deviceRepository.save(new Device(user, registrationToken));
+        return true;
+    }
+
+    public void discard(Long userId) {
+        if (!deviceRepository.existsByUserId(userId)) {
+            return;
+        }
+
+        deviceRepositoryCustom.disallowRegistrationTokenByUserId(userId);
     }
 }

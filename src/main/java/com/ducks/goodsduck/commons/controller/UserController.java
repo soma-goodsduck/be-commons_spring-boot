@@ -13,12 +13,9 @@ import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
-import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
-import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
@@ -201,13 +198,18 @@ public class UserController {
     }
 
     @PostMapping("/v1/users/device")
-    @ApiOperation("(FCM) 사용자 디바이스의 Registration Token을 등록하는 API")
+    @ApiOperation("사용자 디바이스의 FCM Registration Token을 등록하는 API (알림 권한 허용 시에도 사용)")
     public ApiResult registerDevice(HttpServletRequest request, @RequestHeader("registrationToken") String registrationToken) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        Device savedDevice = deviceService.registerFCMToken(userId, registrationToken);
-        return OK(
-                new DeviceResponse(savedDevice.getUuid())
-        );
+        return OK(deviceService.register(userId, registrationToken));
+    }
+
+    @PatchMapping("/v1/users/device")
+    @ApiOperation("사용자 디바이스의 알림 여부 차단")
+    public ApiResult discardDevice(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        deviceService.discard(userId);
+        return OK(true);
     }
 
     @GetMapping("/v1/users/notifications")
