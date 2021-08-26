@@ -8,5 +8,6 @@ import java.util.List;
 @Repository
 public interface DeviceRepositoryCustom {
     List<String> getRegistrationTokensByUserId(Long userId);
-    Tuple getTupleByUserIdAndRegistrationToken(Long userId, String registrationToken);
+    Long updateRegistrationTokenByUserId(Long userId, String registrationToken);
+    Long disallowRegistrationTokenByUserId(Long userId);
 }

@@ -29,13 +29,19 @@ public class DeviceRepositoryCustomImpl implements DeviceRepositoryCustom {
     }
 
     @Override
-    public Tuple getTupleByUserIdAndRegistrationToken(Long userId, String registrationToken) {
-        return queryFactory.select(user, device)
-                .from(user)
-                .join(device).on(user.eq(device.user))
-                .where(user.id.eq(userId).and(
-                        device.registrationToken.eq(registrationToken)
-                ))
-                .fetchOne();
+    public Long updateRegistrationTokenByUserId(Long userId, String registrationToken) {
+        return queryFactory.update(device)
+                .set(device.registrationToken, registrationToken)
+                .set(device.isAllowed, true)
+                .where(device.user.id.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public Long disallowRegistrationTokenByUserId(Long userId) {
+        return queryFactory.update(device)
+                .set(device.isAllowed, false)
+                .where(device.user.id.eq(userId))
+                .execute();
     }
 }
