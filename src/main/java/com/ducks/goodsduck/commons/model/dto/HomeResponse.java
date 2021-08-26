@@ -17,6 +17,7 @@ public class HomeResponse<T> {
         this.hasNext = hasNext;
         this.loginUser = loginUser;
         this.list = list;
+        this.noty = new NotificationBadgeResponse();
     }
 
 
