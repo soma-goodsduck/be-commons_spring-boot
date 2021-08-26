@@ -42,9 +42,6 @@ public class PostController {
     private final PostService postService;
     private final UserPostService userPostService;
 
-    private final PostCategoryRepository postCategoryRepository;
-    private final UserRepository userRepository;
-
     // TODO : gif 리사이즈...
     @ApiOperation("포스트 업로드 API")
     @PostMapping("/v1/posts")
@@ -99,56 +96,29 @@ public class PostController {
     @ApiOperation("포스트 목록 조회 + 좋아하는 아이돌 그룹 전체 필터링 API in 홈")
     @GetMapping("/v1/posts")
     @Transactional
-    public ApiResult<HomeResponse<PostDetailResponse>> getPosts(@RequestParam("postId") Long postId,
-                                                                HttpServletRequest request) {
+    public ApiResult<HomeResponse<PostDetailResponse>> getPostList(@RequestParam("postId") Long postId,
+                                                                   HttpServletRequest request) {
 
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext = false;
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPosts"));
-
-        List<PostDetailResponse> postList = postService.getPosts(userId, postId);
-        if(postList.size() == pageableSize + 1) {
-            hasNext = true;
-            postList.remove(pageableSize);
-        }
-
-        return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
+        return OK(postService.getPostList(userId, postId));
     }
 
     @ApiOperation("포스트 목록 조회 + 특정 아이돌 그룹 필터링 API in 홈")
     @GetMapping("/v1/posts/filter")
     @Transactional
-    public ApiResult<HomeResponse<PostDetailResponse>> getPostsWithFilterIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
-                                                                                   @RequestParam("postId") Long postId,
-                                                                                   HttpServletRequest request) {
+    public ApiResult<HomeResponse<PostDetailResponse>> getPostListFilterByIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
+                                                                                    @RequestParam("postId") Long postId,
+                                                                                    HttpServletRequest request) {
 
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext = false;
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
-
-        List<PostDetailResponse> postList = postService.getPostsWithFilterIdolGroup(userId, idolGroupId, postId);
-        if(postList.size() == pageableSize + 1) {
-            hasNext = true;
-            postList.remove(pageableSize);
-        }
-
-        return OK(new HomeResponse(hasNext, new LoginUser(user), postList));
+        return OK(postService.getPostListFilterByIdolGroup(userId, idolGroupId, postId));
     }
 
     @NoCheckJwt
     @ApiOperation(value = "포스트 카테고리 불러오기 in 포스트 등록")
     @GetMapping("/v1/posts/category")
-    @javax.transaction.Transactional
-    public ApiResult<List<CategoryResponse>> getItemCategory() {
-        return OK(postCategoryRepository.findAll()
-                .stream()
-                .map(postCategory -> new CategoryResponse(postCategory))
-                .collect(Collectors.toList()));
+    @Transactional
+    public ApiResult<List<CategoryResponse>> getPostCategory() {
+        return OK(postService.getPostCategory());
     }
 }
