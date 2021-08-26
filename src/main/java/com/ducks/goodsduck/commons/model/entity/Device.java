@@ -17,18 +17,18 @@ public class Device {
     @Column(name = "DEVICE_ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    private String uuid;
     private String registrationToken;
+    private Boolean isAllowed;
     private LocalDateTime createdAt;
 
-    public Device(User user, String uuid, String registrationToken) {
+    public Device(User user, String registrationToken) {
         this.user = user;
-        this.uuid = uuid;
         this.registrationToken = registrationToken;
+        this.isAllowed = true;
         this.createdAt = LocalDateTime.now();
     }
 }
