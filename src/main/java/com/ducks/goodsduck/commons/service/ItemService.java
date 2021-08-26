@@ -1,7 +1,11 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
+import com.ducks.goodsduck.commons.model.dto.LoginUser;
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
@@ -36,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
@@ -373,7 +378,7 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈 (V3)
-    public List<ItemHomeResponse> getItemListV3(Long itemId) {
+    public List<ItemHomeResponse> getItemListForAnonymousV3(Long itemId) {
 
         List<Item> items = itemRepositoryCustom.findAllV3(itemId);
         List<ItemHomeResponse> itemToList =  items
@@ -444,7 +449,7 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 (V3)
-    public List<ItemHomeResponse> getItemListV3(Long userId, Long itemId) {
+    public List<ItemHomeResponse> getItemListForUserV3(Long userId, Long itemId) {
 
         User user = userRepository.findById(userId).get();
         user.updateLastLoginAt();
@@ -508,7 +513,7 @@ public class ItemService {
     }
 
     // FEAT : 비회원용 홈 필터링 (아이돌 그룹) V3
-    public List<ItemHomeResponse> filterByIdolGroupV3(Long idolGroupId, Long itemId) {
+    public List<ItemHomeResponse> getItemListFilterByIdolGroupForAnonoymousV3(Long idolGroupId, Long itemId) {
 
         List<Item> items = itemRepositoryCustom.findAllByIdolGroupV3(idolGroupId, itemId);
 
@@ -521,7 +526,7 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 필터링 (아이돌그룹)
-    public Slice<ItemHomeResponse> filterByIdolGroup(Long userId, Long idolGroupId, Integer pageNumber) {
+    public Slice<ItemHomeResponse> filterByIdolGroupV2(Long userId, Long idolGroupId, Integer pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PropertyUtil.PAGEABLE_SIZE);
 
@@ -572,7 +577,7 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 필터링 (아이돌그룹) V3
-    public List<ItemHomeResponse> filterByIdolGroupV3(Long userId, Long idolGroupId, Long itemId) {
+    public List<ItemHomeResponse> getItemListFilterByIdolGroupForUserV3(Long userId, Long idolGroupId, Long itemId) {
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV3(userId, idolGroupId, itemId);
 
@@ -632,7 +637,7 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 홈 필터링 (ALL) V3
-    public List<ItemHomeResponse> filterByAllV3(ItemFilterDto itemFilterDto, Long itemId) {
+    public List<ItemHomeResponse> getItemListFilterByAllForAnonymousV3(ItemFilterDto itemFilterDto, Long itemId) {
 
         List<Item> items = itemRepositoryCustom.findAllByFilterV3(itemFilterDto, itemId);
 
@@ -696,7 +701,7 @@ public class ItemService {
     }
 
     // FEAT : 회원용 홈 필터링 (ALL) V3
-    public List<ItemHomeResponse> filterByAllV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+    public List<ItemHomeResponse> getItemListFilterByAllForUserV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
         List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV3(userId, itemFilterDto, itemId);
 
@@ -772,7 +777,7 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 검색 기능
-    public List<ItemHomeResponse> getSearchedItemListForGuest(String keyword, Long itemId) {
+    public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId) {
 
         List<String> keywords = List.of(keyword.split(" "));
 
@@ -840,5 +845,124 @@ public class ItemService {
 
     private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
         return content.subList(0, pageable.getPageSize());
+    }
+
+    public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
+
+        // HINT : 비회원에게 보여줄 홈
+        if(userId.equals(-1L)) {
+            List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈
+        else {
+            User user = userRepository.findById(userId).get();
+            List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, new LoginUser(user), itemList);
+        }
+    }
+
+    public HomeResponse getItemListV3(Long userId, Long itemId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
+
+        // HINT : 비회원에게 보여줄 홈
+        if(userId.equals(-1L)) {
+            List<ItemHomeResponse> itemList = getItemListForAnonymousV3(itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈
+        else {
+            User user = userRepository.findById(userId).get();
+            List<ItemHomeResponse> itemList = getItemListForUserV3(userId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, new LoginUser(user), itemList);
+        }
+    }
+
+    public HomeResponse getItemListFilterByIdolGroupV3(Long userId,Long idolGroupId, Long itemId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
+
+        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
+        if(userId.equals(-1L)) {
+            List<ItemHomeResponse> itemList = getItemListFilterByIdolGroupForAnonoymousV3(idolGroupId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
+        else {
+            User user = userRepository.findById(userId).get();
+            List<ItemHomeResponse> itemList = getItemListFilterByIdolGroupForUserV3(userId, idolGroupId, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, new LoginUser(user), itemList);
+        }
+    }
+
+    public HomeResponse getItemListFilterByAllV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext= false;
+
+        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
+        if(userId.equals(-1L)) {
+            List<ItemHomeResponse> itemList = getItemListFilterByAllForAnonymousV3(itemFilterDto, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, null, itemList);
+        }
+        // HINT : 회원에게 보여줄 홈 + 모든 필터링
+        else {
+            User user = userRepository.findById(userId).get();
+            List<ItemHomeResponse> itemList = getItemListFilterByAllForUserV3(userId, itemFilterDto, itemId);
+            if(itemList.size() == pageableSize + 1) {
+                hasNext = true;
+                itemList.remove(pageableSize);
+            }
+
+            return new HomeResponse(hasNext, new LoginUser(user), itemList);
+        }
+    }
+
+    public List<CategoryResponse> getItemCategory() {
+        return itemCategoryRepository.findAll()
+                .stream()
+                .map(itemCategory -> new CategoryResponse(itemCategory))
+                .collect(Collectors.toList());
     }
 }

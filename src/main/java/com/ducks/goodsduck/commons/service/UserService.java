@@ -2,7 +2,10 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemHomeResponse;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
@@ -34,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 
 @Service
 @RequiredArgsConstructor
