@@ -92,7 +92,7 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기 (요약)")
     @GetMapping("/v1/items/{itemId}/summary")
-    public ApiResult<ItemSummaryDto> showItemDetailSummary(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+    public ApiResult<ItemSummaryDto> showItemDetailSummary(@PathVariable("itemId") Long itemId) {
         return OK(itemService.showDetailSummary(itemId));
     }
 
