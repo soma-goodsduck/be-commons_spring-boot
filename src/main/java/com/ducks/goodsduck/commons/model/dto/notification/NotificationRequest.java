@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class NotificationChatRequest {
+public class NotificationRequest {
 
     private String chatRoomId;
     private Long senderId;
     private NotificationType type;
 
-    public NotificationChatRequest(String chatRoomId, Long senderId, NotificationType type) {
+    public NotificationRequest(String chatRoomId, Long senderId, NotificationType type) {
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
         this.type = type;
