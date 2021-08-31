@@ -71,6 +71,7 @@ public class UserController {
     @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/kakao")
     public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) throws ParseException {
+        log.debug("Request code of Kakao's login: " + code);
         return OK(userService.oauth2AuthorizationKakao(code));
     }
 

@@ -175,6 +175,8 @@ public class UserService {
 
         Map<String, Object> payloads = new HashMap<>();
 
+        log.debug("user's jwt is : " + jwt);
+
         try {
             payloads = jwtService.getPayloads(jwt);
         } catch (JwtException e) {
