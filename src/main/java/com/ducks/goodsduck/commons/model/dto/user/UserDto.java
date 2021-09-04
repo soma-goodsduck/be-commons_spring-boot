@@ -25,6 +25,7 @@ public class UserDto {
     private String jwt;
     private UserRole role;
     private List<UserIdolGroupDto> likeIdolGroups = new ArrayList<>();
+    private Boolean isAgreeToNotification;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
@@ -32,6 +33,10 @@ public class UserDto {
         UserDto userDto = new UserDto();
         userDto.setRole(role);
         return userDto;
+    }
+
+    public void setAgreeToNotification(Boolean isAgree) {
+        this.isAgreeToNotification = isAgree;
     }
 
     public UserDto(User user) {
@@ -47,5 +52,6 @@ public class UserDto {
         this.lastLoginAt = user.getLastLoginAt();
         this.jwt = "";
         this.bcryptId = user.getBcryptId();
+        this.isAgreeToNotification = true;
     }
 }

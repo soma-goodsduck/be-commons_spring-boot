@@ -13,9 +13,12 @@ import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
+import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.repository.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
@@ -57,6 +60,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final DeviceRepository deviceRepository;
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
@@ -137,8 +141,11 @@ public class UserController {
         String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
         response.setHeader("jwt", newJwt);
 
-        UserDto userDto = new UserDto(userRepository.findById(userId).get());
+        User user = userRepository.findById(userId).get();
+        Device device = deviceRepository.findByUser(user);
+        UserDto userDto = new UserDto(user);
         userDto.setJwt(newJwt);
+        userDto.setAgreeToNotification(device.getIsAllowed());
         return OK(userDto);
     }
 
