@@ -185,9 +185,60 @@ public class NotificationService {
         }
     }
 
+    public void sendMessageOfChatV2(Long userId, ChatMessageRequest chatMessageRequest) throws IOException, IllegalAccessException, FirebaseMessagingException {
+
+        if (!userId.equals(chatMessageRequest.getSenderId())) {
+            throw new IllegalAccessException("Login user is not matched with senderId.");
+        }
+
+
+        List<UserChat> userChats = userChatRepositoryCustom.findAllByChatId(chatMessageRequest.getChatRoomId())
+                .stream()
+                // HINT: SENDER에 해당하는 ROW 제거
+                .filter(userChat -> !userChat.getUser().getId().equals(chatMessageRequest.getSenderId()))
+                .collect(Collectors.toList());
+
+        if (userChats.isEmpty()) {
+            throw new NoResultException("UserChat not founded.");
+        } else if (userChats.size() > 1) {
+            log.debug("UserChats exist total: " + userChats.size());
+        }
+
+        var userChat = userChats.get(0);
+        var receiver = userChat.getUser();
+        User sender = userRepository.findById(chatMessageRequest.getSenderId())
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
+
+        Notification notification = new Notification(receiver, sender.getNickName(), sender.getImageUrl(), userChat.getItem().getName(), CHAT);
+        List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
+
+        try {
+            // HINT: 알림 Message 구성
+            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+                    .putData("chatRoomId", chatMessageRequest.getChatRoomId())
+                    .build();
+
+            log.debug("firebase message is : " + message);
+
+            // HINT: 파이어베이스에 Cloud Messaging 요청
+            requestCloudMessagingToFirebase(registrationTokens, message);
+
+        } catch (FirebaseMessagingException e) {
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+        } catch (Exception e) {
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+        }
+
+        ChatRedis chatRedis = new ChatRedis(chatMessageRequest.getChatMessageId(), chatMessageRequest.getChatRoomId(), chatMessageRequest.getContent(), sender.getNickName());
+
+        chatRedisTemplate.saveChatKeyAndValueByUserId(receiver.getId(), chatRedis);
+    }
+
     private void requestCloudMessagingToFirebase(List<String> registrationTokens, MulticastMessage message) throws FirebaseMessagingException {
         BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
-        log.debug("batch response of firebase is :" + response);
+        log.debug("batch response of firebase is :" + response.toString());
         if (response.getFailureCount() > 0) {
             List<SendResponse> responses = response.getResponses();
             List<String> failedTokens = new ArrayList<>();
