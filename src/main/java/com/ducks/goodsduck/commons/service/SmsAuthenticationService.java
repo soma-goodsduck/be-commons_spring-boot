@@ -49,7 +49,7 @@ public class SmsAuthenticationService {
             if (!sendedMessage.get("error_count").equals(0L)) {
                 return false;
             }
-            smsAuthenticationRepository.saveKeyAndValue(phoneNumber, authenticationNumber);
+            smsAuthenticationRepository.saveKeyAndValueOfSMS(phoneNumber, authenticationNumber);
         } catch (CoolsmsException e) {
             throw new CoolsmsException("Exception of CoolSMS: " + e.getMessage(), e.getCode());
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class SmsAuthenticationService {
     public Boolean authenticate(String phoneNumber, String authenticationNumber) {
         if (smsAuthenticationRepository.hasKey(phoneNumber)) {
             if (smsAuthenticationRepository.getValueByPhoneNumber(phoneNumber).equals(authenticationNumber)) {
-                smsAuthenticationRepository.removeKeyAndValue(phoneNumber);
+                smsAuthenticationRepository.removeKeyAndValueOfSMS(phoneNumber);
                 return true;
             }
         }
