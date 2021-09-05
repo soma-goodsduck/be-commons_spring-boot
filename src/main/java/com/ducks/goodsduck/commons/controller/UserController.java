@@ -212,7 +212,7 @@ public class UserController {
         return OK(deviceService.register(userId, registrationToken));
     }
 
-    @PatchMapping("/v1/users/device")
+    @DeleteMapping("/v1/users/device")
     @ApiOperation("사용자 디바이스의 알림 여부 차단")
     public ApiResult discardDevice(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
