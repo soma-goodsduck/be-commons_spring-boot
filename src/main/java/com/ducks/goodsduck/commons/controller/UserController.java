@@ -16,6 +16,7 @@ import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
@@ -218,6 +219,13 @@ public class UserController {
     public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(notificationService.getNotificationsOfUserId(userId));
+    }
+
+    @GetMapping("/v2/users/notifications")
+    @ApiOperation("사용자가 받은 알림 목록 조회 API V2")
+    public ApiResult<List<NotificationRedisResponse>> getNotificationsOfUserV2(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(notificationService.getNotificationsOfUserIdV2(userId));
     }
 
     @NoCheckJwt
