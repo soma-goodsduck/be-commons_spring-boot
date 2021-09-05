@@ -50,6 +50,7 @@ public class UserService {
     private final ReviewRepository reviewRepository;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final UserImageRepository userImageRepository;
+    private final DeviceRepository deviceRepository;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state, String clientId) {
@@ -79,9 +80,11 @@ public class UserService {
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
+                    Device device = deviceRepository.findByUser(user);
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
+                    userDto.setAgreeToNotification(device.getIsAllowed());
 
                     return userDto;
                 })
@@ -117,9 +120,11 @@ public class UserService {
         return socialAccountRepository.findById(userSocialAccountId)
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
+                    Device device = deviceRepository.findByUser(user);
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
+                    userDto.setAgreeToNotification(device.getIsAllowed());
 
                     return userDto;
                 })
