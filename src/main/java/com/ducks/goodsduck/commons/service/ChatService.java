@@ -3,23 +3,18 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatResponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomResponse;
 import com.ducks.goodsduck.commons.model.redis.ChatRedis;
-import com.ducks.goodsduck.commons.repository.ChatFirebaseRepository;
 import com.ducks.goodsduck.commons.repository.ChatRedisTemplate;
-import com.ducks.goodsduck.commons.repository.ChatRepository;
 import com.ducks.goodsduck.commons.repository.UserChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatFirebaseRepository chatFirebaseRepository;
-    private final ChatRepository chatRepository;
     private final UserChatRepository userChatRepository;
     private final ChatRedisTemplate chatRedisTemplate;
 
