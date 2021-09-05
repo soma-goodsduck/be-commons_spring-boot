@@ -14,6 +14,7 @@ import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class ReviewController {
     @PostMapping("/v1/users/reviews")
     @ApiOperation("채팅방 ID를 통해 특정 유저에 대한 리뷰 남기기")
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
-                                         @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException {
+                                         @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException, JsonProcessingException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         Review savedReview = reviewService.saveReview(userId, reviewRequest)
                 .orElseThrow(() -> {
@@ -63,7 +64,9 @@ public class ReviewController {
         User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
             throw new NoResultException("User not founded.");
         });
-        notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
+        // TODO: 프론트 연동 테스트 후 문제 없을 시 sendMessageV2로 변경
+//        notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
+        notificationService.sendMessageV2(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
         return OK(true);
     }
 

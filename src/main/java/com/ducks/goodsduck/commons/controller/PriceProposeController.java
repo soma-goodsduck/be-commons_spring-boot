@@ -53,7 +53,9 @@ public class PriceProposeController {
                     throw new NoResultException("User not founded.");
                 });
 
-        notificationService.sendMessage(new Notification(user, priceProposeResponse));
+        // TODO: 프론트 연동 테스트 후 문제 없을 시 sendMessageV2로 변경
+//        notificationService.sendMessage(new Notification(user, priceProposeResponse));
+        notificationService.sendMessageV2(new Notification(user, priceProposeResponse));
 
         return OK(priceProposeResponse);
     }

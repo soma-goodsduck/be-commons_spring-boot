@@ -130,10 +130,8 @@ public class UserService {
                 })
                 .orElseGet(() -> {
                     UserDto userDto = new UserDto();
-
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setRole(UserRole.ANONYMOUS);
-
 
                     return userDto;
                 });
