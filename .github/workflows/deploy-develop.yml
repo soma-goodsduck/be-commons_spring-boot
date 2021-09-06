@@ -51,3 +51,6 @@ jobs:
 
       - name: Code Deploy
         run: aws deploy create-deployment --application-name be-commons_spring-boot_develop --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons_spring-boot_develop-group --s3-location bucket=backendgoodsduckdevelop,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+        
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name be-commons_spring-boot_develop --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons_EC2 --s3-location bucket=backendgoodsduckdevelop,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
