@@ -143,7 +143,9 @@ public class UserController {
         response.setHeader("jwt", newJwt);
 
         User user = userRepository.findById(userId).get();
-        Device device = deviceRepository.findByUser(user);
+
+        Device device = deviceRepository.findByUser(user)
+                .orElseGet(() -> new Device(user));
         UserDto userDto = new UserDto(user);
         userDto.setJwt(newJwt);
         userDto.setAgreeToNotification(device.getIsAllowed());

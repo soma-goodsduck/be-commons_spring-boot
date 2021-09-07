@@ -91,7 +91,8 @@ public class UserService {
                 // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
-                    Device device = deviceRepository.findByUser(user);
+                    Device device = deviceRepository.findByUser(user)
+                            .orElseGet(() -> new Device(user));
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
@@ -131,7 +132,8 @@ public class UserService {
         return socialAccountRepository.findById(userSocialAccountId)
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
-                    Device device = deviceRepository.findByUser(user);
+                    Device device = deviceRepository.findByUser(user)
+                            .orElseGet(() -> new Device(user));
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userSocialAccountId);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));

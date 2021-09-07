@@ -31,4 +31,10 @@ public class Device {
         this.isAllowed = true;
         this.createdAt = LocalDateTime.now();
     }
+    public Device(User user) {
+        this.user = user;
+        this.registrationToken = "";
+        this.isAllowed = false;
+        this.createdAt = LocalDateTime.now();
+    }
 }

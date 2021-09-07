@@ -23,8 +23,8 @@ public class ChatRedisTemplate {
     private final String PREFIX_OF_USER = "user:";
     private final String PREFIX_OF_CHAT = ":chatRoom:";
 
-    public ChatRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public ChatRedisTemplate() {
+        this.redisTemplate = new RedisTemplate();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(ChatRedis.class));
         this.redisDtoListOperations = redisTemplate.opsForList();

@@ -19,10 +19,10 @@ public class NotificationRedisTemplate {
     private final ListOperations<String, NotificationRedis> redisDtoListOperations;
 
     private final String PREFIX_OF_USER = "user:";
-    private final String PREFIX_OF_NOTIFICATION = ":notificaition";
+    private final String PREFIX_OF_NOTIFICATION = ":notification";
 
-    public NotificationRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public NotificationRedisTemplate() {
+        this.redisTemplate = new RedisTemplate();
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(NotificationRedis.class));
         this.redisDtoListOperations = redisTemplate.opsForList();
     }
