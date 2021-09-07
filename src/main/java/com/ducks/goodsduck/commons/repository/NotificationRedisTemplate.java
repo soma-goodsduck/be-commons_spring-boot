@@ -15,14 +15,13 @@ import java.util.stream.Collectors;
 @Repository
 public class NotificationRedisTemplate {
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate = new RedisTemplate();
     private final ListOperations<String, NotificationRedis> redisDtoListOperations;
 
     private final String PREFIX_OF_USER = "user:";
-    private final String PREFIX_OF_NOTIFICATION = ":notificaition";
+    private final String PREFIX_OF_NOTIFICATION = ":notification";
 
-    public NotificationRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public NotificationRedisTemplate() {
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(NotificationRedis.class));
         this.redisDtoListOperations = redisTemplate.opsForList();
     }

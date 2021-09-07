@@ -17,14 +17,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatRedisTemplate {
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate = new RedisTemplate();
     private final ListOperations<String, ChatRedis> redisDtoListOperations;
 
     private final String PREFIX_OF_USER = "user:";
     private final String PREFIX_OF_CHAT = ":chatRoom:";
 
-    public ChatRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public ChatRedisTemplate() {
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(ChatRedis.class));
         this.redisDtoListOperations = redisTemplate.opsForList();
