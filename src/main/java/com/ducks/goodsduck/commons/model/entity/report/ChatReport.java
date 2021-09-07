@@ -1,7 +1,8 @@
 package com.ducks.goodsduck.commons.model.entity.report;
 
 import com.ducks.goodsduck.commons.model.dto.report.ReportRequest;
-import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.Chat;
+import com.ducks.goodsduck.commons.model.entity.Comment;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.category.Category;
 import lombok.AccessLevel;
@@ -14,13 +15,13 @@ import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue("ItemReport")
-public class ItemReport extends Report {
+@DiscriminatorValue("CommentReport")
+public class ChatReport extends Report {
 
-    private Long itemId;
+    private String chatId;
 
-    public ItemReport(ReportRequest reportRequest, Category category, User sender, User receiver, Item item) {
+    public ChatReport(ReportRequest reportRequest, Category category, User sender, User receiver, Chat chat) {
         super(reportRequest, category, sender, receiver);
-        this.itemId = item.getId();
+        this.chatId = chat.getId();
     }
 }

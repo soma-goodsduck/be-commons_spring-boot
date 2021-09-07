@@ -319,13 +319,6 @@ public class ItemService {
 //                deleteItemOfReview.setItem(replaceItem);
             }
 
-            // itemReport 연관 삭제 (삭제용 데이터 0번 아이템으로 교체)
-            List<ItemReport> itemReports = itemReportRepository.findByItemId(itemId);
-            for (ItemReport itemReport : itemReports) {
-                // TODO : 0번 아이템 만든 후에 체크
-//                itemReport.setItem(replaceItem);
-            }
-
             // userItem 연관 삭제
             List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(itemId);
             userItemRepository.deleteInBatch(deleteUserItems);

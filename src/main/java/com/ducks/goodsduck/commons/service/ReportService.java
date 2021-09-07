@@ -5,15 +5,10 @@ import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.report.*;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.category.Category;
-import com.ducks.goodsduck.commons.model.entity.report.CommentReport;
-import com.ducks.goodsduck.commons.model.entity.report.ItemReport;
-import com.ducks.goodsduck.commons.model.entity.report.PostReport;
+import com.ducks.goodsduck.commons.model.entity.report.*;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.ReportRepository.ReportRepository;
-import com.ducks.goodsduck.commons.repository.category.CategoryRepository;
-import com.ducks.goodsduck.commons.repository.category.CommentReportCategoryRepository;
-import com.ducks.goodsduck.commons.repository.category.ItemReportCategoryRepository;
-import com.ducks.goodsduck.commons.repository.category.PostReportCategoryRepository;
+import com.ducks.goodsduck.commons.repository.category.*;
 import com.ducks.goodsduck.commons.repository.comment.CommentRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
@@ -37,13 +32,15 @@ public class ReportService {
     private final ItemRepository itemRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final ChatRepository chatRepository;
 
     private final CategoryRepository categoryRepository;
     private final PostReportCategoryRepository postReportCategoryRepository;
     private final ItemReportCategoryRepository itemReportCategoryRepository;
     private final CommentReportCategoryRepository commentReportCategoryRepository;
+    private final ChatReportCategoryRepository chatReportCategoryRepository;
 
-    public ReportResponse addReportV2(Long userId, ReportRequest reportRequest) {
+    public ReportResponse addReport(Long userId, ReportRequest reportRequest) {
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> { throw new NoResultException("Not Find User in CategoryService.addReport");});
 
@@ -59,19 +56,27 @@ public class ReportService {
             return new ReportResponse();
         }
 
-        // TODO : 삭제시 연관관계 끊어야함 (Post, Comment)
-        if(reportRequest.getType().equals("ItemReport")) {
-            Item item = itemRepository.findById(reportRequest.getId()).get();
+        if(reportRequest.getType().equals("UserReport")) {
+            UserReport userReport = new UserReport(reportRequest, reportCategory, sender, receiver);
+            return new ReportResponse(reportRepository.save(userReport));
+        }
+        else if(reportRequest.getType().equals("ItemReport")) {
+            Item item = itemRepository.findById(Long.parseLong(reportRequest.getId())).get();
             ItemReport itemReport = new ItemReport(reportRequest, reportCategory, sender, receiver, item);
             return new ReportResponse(reportRepository.save(itemReport));
         }
+        else if(reportRequest.getType().equals("ChatReport")) {
+            Chat chat = chatRepository.findById(reportRequest.getId()).get();
+            ChatReport chatReport = new ChatReport(reportRequest, reportCategory, sender, receiver, chat);
+            return new ReportResponse(reportRepository.save(chatReport));
+        }
         else if(reportRequest.getType().equals("PostReport")) {
-            Post post = postRepository.findById(reportRequest.getId()).get();
+            Post post = postRepository.findById(Long.parseLong(reportRequest.getId())).get();
             PostReport postReport = new PostReport(reportRequest, reportCategory, sender, receiver, post);
             return new ReportResponse(reportRepository.save(postReport));
         }
         else if(reportRequest.getType().equals("CommentReport")) {
-            Comment comment = commentRepository.findById(reportRequest.getId()).get();
+            Comment comment = commentRepository.findById(Long.parseLong(reportRequest.getId())).get();
             CommentReport commentReport = new CommentReport(reportRequest, reportCategory, sender, receiver, comment);
             return new ReportResponse(reportRepository.save(commentReport));
         }
@@ -114,12 +119,27 @@ public class ReportService {
 
         User receiver = userRepository.findByBcryptId(bcryptId);
         if (receiver == null) {
-            throw new NoResultException("Not Find User in CategoryService.getPostReportCategory");
+            throw new NoResultException("Not Find User in CategoryService.getCommentReportCategory");
         }
 
         List<CategoryResponse> reportCategoryList = commentReportCategoryRepository.findAll()
                 .stream()
-                .map(postReportCategory -> new CategoryResponse(postReportCategory))
+                .map(commentReportCategory -> new CategoryResponse(commentReportCategory))
+                .collect(Collectors.toList());
+
+        return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);
+    }
+
+    public ReportCategoryResponse getChatReportCategory(String bcryptId) {
+
+        User receiver = userRepository.findByBcryptId(bcryptId);
+        if (receiver == null) {
+            throw new NoResultException("Not Find User in CategoryService.getChatReportCategory");
+        }
+
+        List<CategoryResponse> reportCategoryList = chatReportCategoryRepository.findAll()
+                .stream()
+                .map(chat -> new CategoryResponse(chat))
                 .collect(Collectors.toList());
 
         return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);

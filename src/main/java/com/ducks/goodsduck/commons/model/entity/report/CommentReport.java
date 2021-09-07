@@ -18,12 +18,10 @@ import javax.persistence.*;
 @DiscriminatorValue("CommentReport")
 public class CommentReport extends Report {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
+    private Long commentId;
 
     public CommentReport(ReportRequest reportRequest, Category category, User sender, User receiver, Comment comment) {
         super(reportRequest, category, sender, receiver);
-        this.comment = comment;
+        this.commentId = comment.getId();
     }
 }

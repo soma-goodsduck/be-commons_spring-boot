@@ -11,9 +11,9 @@ public class ReportRequest {
     private Long reportCategoryId;
     private String content;
 
-    // ItemReport, PostReport, CommentReport
+    // ItemReport, ChatReport, UserReport, PostReport, CommentReport
     private String type;
 
-    // Item, Post, CommentId
-    private Long id;
+    // Item, Post, User, Chat, Comment Id
+    private String id;
 }

@@ -32,37 +32,38 @@ public class CategoryController {
     private final PostService postService;
     private final ReportService reportService;
 
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 카테고리 불러오기")
+    @ApiOperation(value = "아이템 카테고리 불러오기 (회원)")
     @GetMapping("/v1/items/category")
     public ApiResult<List<CategoryResponse>> getItemCategory() {
         return OK(itemService.getItemCategory());
     }
 
-    @NoCheckJwt
-    @ApiOperation(value = "포스트 카테고리 불러오기")
+    @ApiOperation(value = "포스트 카테고리 불러오기 (회원)")
     @GetMapping("/v1/posts/category")
     public ApiResult<List<CategoryResponse>> getPostCategory() {
         return OK(postService.getPostCategory());
     }
 
-    @NoCheckJwt
     @GetMapping("/v1/items/report-category/{bcryptId}")
-    @ApiOperation("아이템 게시글 신고 카테고리 보기 및 신고 대상 닉네임 확인")
+    @ApiOperation("아이템 게시글 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
     public ApiResult<ReportCategoryResponse> getItemReportCategory(@PathVariable("bcryptId") String bcryptId) {
         return OK(reportService.getItemReportCategory(bcryptId));
     }
 
-    @NoCheckJwt
+    @GetMapping("/v1/chats/report-category/{bcryptId}")
+    @ApiOperation("채팅 게시글 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
+    public ApiResult<ReportCategoryResponse> getChatReportCategory(@PathVariable("bcryptId") String bcryptId) {
+        return OK(reportService.getChatReportCategory(bcryptId));
+    }
+
     @GetMapping("/v1/posts/report-category/{bcryptId}")
-    @ApiOperation("커뮤니티 게시글 신고 카테고리 보기 및 신고 대상 닉네임 확인")
+    @ApiOperation("커뮤니티 게시글 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
     public ApiResult<ReportCategoryResponse> getPostReportCategory(@PathVariable("bcryptId") String bcryptId) {
         return OK(reportService.getPostReportCategory(bcryptId));
     }
 
-    @NoCheckJwt
     @GetMapping("/v1/comments/report-category/{bcryptId}")
-    @ApiOperation("커뮤니티 게시글 신고 유형 카테고리 및 신고 대상 닉네임 확인")
+    @ApiOperation("커뮤니티 댓글 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
     public ApiResult<ReportCategoryResponse> getCommentReportCategory(@PathVariable("bcryptId") String bcryptId) {
         return OK(reportService.getCommentReportCategory(bcryptId));
     }
