@@ -24,6 +24,7 @@ import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -232,7 +233,7 @@ public class UserController {
 
     @GetMapping("/v2/users/notifications")
     @ApiOperation("사용자가 받은 알림 목록 조회 API V2")
-    public ApiResult<List<NotificationRedisResponse>> getNotificationsOfUserV2(HttpServletRequest request) {
+    public ApiResult<List<NotificationRedisResponse>> getNotificationsOfUserV2(HttpServletRequest request) throws JsonProcessingException {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(notificationService.getNotificationsOfUserIdV2(userId));
     }

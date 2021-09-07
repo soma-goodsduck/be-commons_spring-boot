@@ -2,10 +2,11 @@ package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.dto.chat.ChatResponse;
 import com.ducks.goodsduck.commons.model.redis.ChatRedis;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.*;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Repository;
 
@@ -18,21 +19,24 @@ import java.util.stream.Collectors;
 public class ChatRedisTemplate {
 
     private final RedisTemplate redisTemplate;
-    private final ListOperations<String, ChatRedis> redisDtoListOperations;
+    private final ListOperations<String, String> redisDtoListOperations;
+    private final ObjectMapper objectMapper;
 
     private final String PREFIX_OF_USER = "user:";
     private final String PREFIX_OF_CHAT = ":chatRoom:";
 
-    public ChatRedisTemplate() {
-        this.redisTemplate = new RedisTemplate();
+    public ChatRedisTemplate(RedisTemplate redisTemplate, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(ChatRedis.class));
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         this.redisDtoListOperations = redisTemplate.opsForList();
+        this.objectMapper = objectMapper;
     }
 
-    public void saveChatKeyAndValueByUserId(Long userId, ChatRedis chatRedis) {
+    public void saveChatKeyAndValueByUserId(Long userId, ChatRedis chatRedis) throws JsonProcessingException {
         String key = PREFIX_OF_USER + userId + PREFIX_OF_CHAT + chatRedis.getChatRoomId();
-        redisTemplate.opsForList().leftPush(key, chatRedis);
+        String valueFromChatRedis = objectMapper.writeValueAsString(chatRedis);
+        redisTemplate.opsForList().leftPush(key, valueFromChatRedis);
     }
 
     // Chat
@@ -47,12 +51,19 @@ public class ChatRedisTemplate {
             log.info(new String(c.next()));
         }
 
-        // TODO: 전체 채팅방을 불러오도록 구현해야 함. (단일 채팅방 X)
-
-        List<ChatRedis> chatRedisList = redisDtoListOperations.range(key, 0, -1);
+        List<String> chatRedisList = redisDtoListOperations.range(key, 0, -1);
         List<ChatResponse> chatResponses = chatRedisList
                 .stream()
-                .map(chatRedis -> new ChatResponse(chatRedis))
+                .map(stringAsChatRedis -> {
+                    ChatRedis chatRedis = null;
+                    try {
+                        chatRedis = objectMapper.readValue(stringAsChatRedis, ChatRedis.class);
+                    } catch (JsonProcessingException e) {
+                        log.debug("Failure occurred while processing stringAsJSON value to ChatRedis.class value: ", e);
+                        return null;
+                    }
+                    return new ChatResponse(chatRedis);
+                })
                 .collect(Collectors.toList());
 
         int size = chatResponses.size();
@@ -71,7 +82,17 @@ public class ChatRedisTemplate {
      */
     public List<ChatRedis> getMessages(String key) {
 
-        return redisDtoListOperations.range(key, 0, -1);
+        return redisDtoListOperations.range(key, 0, -1)
+                .stream()
+                .map(stringAsChatRedis -> {
+                    try {
+                        return objectMapper.readValue(stringAsChatRedis, ChatRedis.class);
+                    } catch (JsonProcessingException e) {
+                        log.debug("Failure occurred while processing stringAsJSON value to ChatRedis.class value: ", e);
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     /**

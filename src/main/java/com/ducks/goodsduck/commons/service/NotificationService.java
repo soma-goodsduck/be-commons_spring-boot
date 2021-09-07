@@ -293,7 +293,7 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    public List<NotificationRedisResponse> getNotificationsOfUserIdV2(Long userId) {
+    public List<NotificationRedisResponse> getNotificationsOfUserIdV2(Long userId) throws JsonProcessingException {
 
         return notificationRedisTemplate.findByUserId(userId);
     }
