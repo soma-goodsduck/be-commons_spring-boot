@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.enums.TradeType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class ItemDetailResponse {
     private String description;
     private List<ItemDetailResponseImage> images = new ArrayList<>();
     private Long price;
-    private String tradeType;
+    private TradeType tradeType;
     private TradeStatus tradeStatus;
     private GradeStatus gradeStatus;
     private ItemDetailResponseIdol idolMember;
@@ -46,7 +47,7 @@ public class ItemDetailResponse {
                         .map(image -> new ItemDetailResponseImage(image))
                         .collect(Collectors.toList());
         this.price = item.getPrice();
-        this.tradeType = item.getTradeType().getKorName();
+        this.tradeType = item.getTradeType();
         this.tradeStatus = item.getTradeStatus();
         this.gradeStatus = item.getGradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
