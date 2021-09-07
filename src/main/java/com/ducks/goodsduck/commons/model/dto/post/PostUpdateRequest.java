@@ -10,4 +10,5 @@ public class PostUpdateRequest {
     private String title;
     private String content;
     private List<String> imageUrls;
+    private String postCategory;
 }

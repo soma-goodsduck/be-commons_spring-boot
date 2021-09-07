@@ -41,8 +41,4 @@ public class Review {
         this.score = score;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
     }
-
-    public void deleteItem() {
-        this.item = null;
-    }
 }

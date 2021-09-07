@@ -2,18 +2,27 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
+import com.ducks.goodsduck.commons.model.dto.item.ItemHomeResponse;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ProfileImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
+import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
 import com.ducks.goodsduck.commons.util.OauthKakaoLoginUtil;
 import com.ducks.goodsduck.commons.util.OauthNaverLoginUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -28,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 
 @Service
 @RequiredArgsConstructor
@@ -245,33 +256,6 @@ public class UserService {
         }
     }
 
-    // TODO : 추후 삭제 예정 (FE 사용X)
-//    public Long uploadProfileImage(Long userId, MultipartFile multipartFile) throws IOException {
-//
-//        try {
-//            Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE);
-//
-//            User user = userRepository.findById(userId).get();
-//            user.setImageUrl(image.getUrl());
-//
-//            return userId;
-//        } catch (Exception e) {
-//            return -1L;
-//        }
-//    }
-
-    // TODO : 추후 삭제 예정 (FE 사용X)
-//    public Long updateNickname(Long userId, String newNickname) {
-//        User user = userRepository.findById(userId).get();
-//
-//        try {
-//            user.setNickName(newNickname);
-//            return userId;
-//        } catch (Exception e) {
-//            return -1L;
-//        }
-//    }
-
     public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
 
         User user = userRepository.findById(userId).get();
@@ -330,21 +314,6 @@ public class UserService {
         }
     }
 
-//    public UserDto checkPhoneNumber(String phoneNumber) {
-//
-//        User user = userRepository.findByPhoneNumber(phoneNumber);
-//
-//        if(user != null) {
-//            SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
-//            UserDto userDto = new UserDto(user);
-//            userDto.setSocialType(socialAccount.getType());
-//            userDto.setSocialAccountId(socialAccount.getId());
-//            return userDto;
-//        } else {
-//            return UserDto.createUserDto(UserRole.ANONYMOUS);
-//        }
-//    }
-
     public Boolean checkNickname(String nickname) {
 
         User user = userRepository.findByNickName(nickname);
@@ -365,7 +334,6 @@ public class UserService {
             return true;
         }
     }
-
 
     public OtherUserPageDto showOtherUserPage(String bcryptId) {
 

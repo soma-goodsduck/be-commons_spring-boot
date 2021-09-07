@@ -48,13 +48,15 @@ public class CommentService {
                     commentRepository.findById(commentUploadRequest.getParentCommentId())
                             .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
 
-            Comment comment = new Comment(user, post, parentComment, commentUploadRequest.getContent());
+            Comment comment = new Comment(user, post, parentComment, commentUploadRequest);
 
             if(parentComment != null) {
                 parentComment.getChildComments().add(comment);
             }
 
             commentRepository.save(comment);
+
+            user.gainExp(5);
 
             return comment.getId();
         } catch (Exception e) {
@@ -109,7 +111,7 @@ public class CommentService {
         return comment;
     }
 
-    public List<CommentDto> getCommentsOfPost(Long postId) {
+    public List<CommentDto> getCommentsOfPost(Long userId, Long postId) {
 
         List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
         List<CommentDto> topCommentDtos = new ArrayList<>();
@@ -125,12 +127,18 @@ public class CommentService {
                     } else {
                         topCommentDtos.add(commentDto);
                     }
+
+                    if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
+                        commentDto.setIsSecret(false);
+                    } else if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
+                        commentDto.setIsSecret(false);
+                    }
                 });
 
         return topCommentDtos;
     }
 
-    public List<CommentSimpleDto> getCommentsOfPostV2(Long postId) {
+    public List<CommentSimpleDto> getCommentsOfPostV2(Long userId, Long postId) {
 
         List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
         List<CommentDto> topCommentDtos = new ArrayList<>();
@@ -145,6 +153,12 @@ public class CommentService {
                 map.get(comment.getParentComment().getId()).getChildComments().add(commentDto);
             } else {
                 topCommentDtos.add(commentDto);
+            }
+
+            if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
+                commentDto.setIsSecret(false);
+            } else if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
+                commentDto.setIsSecret(false);
             }
         });
 

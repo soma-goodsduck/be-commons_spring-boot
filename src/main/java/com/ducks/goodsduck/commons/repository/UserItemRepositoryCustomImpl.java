@@ -1,6 +1,8 @@
 package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.QImage;
+import com.ducks.goodsduck.commons.model.entity.category.QItemCategory;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -17,7 +19,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
     private QItem item = QItem.item;
     private QImage image = QImage.image;
     private QUserItem userItem = QUserItem.userItem;
-    private QCategoryItem categoryItem = QCategoryItem.categoryItem;
+    private QItemCategory itemCategory = QItemCategory.itemCategory;
     private QIdolMember idolMember = QIdolMember.idolMember;
     private QIdolGroup idolGroup = QIdolGroup.idolGroup;
 
@@ -34,10 +36,10 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
 
     @Override
     public List<Tuple> findByUserId(Long userId) {
-        return queryFactory.select(userItem, item, categoryItem, idolMember, idolGroup)
+        return queryFactory.select(userItem, item, itemCategory, idolMember, idolGroup)
                 .from(userItem)
                 .join(userItem.item, item)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.idolMember, idolMember)
                 .join(idolMember.idolGroup, idolGroup)
                 .join(userItem.user, user)
@@ -47,11 +49,11 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
 
     @Override
     public List<Item> findByUserIdV2(Long userId) {
-        return queryFactory.select(userItem.item)
+        return queryFactory
+                .select(userItem.item)
                 .from(userItem)
-//                .join(userItem.item.images, image).fetchJoin()
                 .where(userItem.user.id.eq(userId))
-                .distinct()
+                .orderBy(userItem.item.id.desc())
                 .fetch();
     }
 

@@ -1,6 +1,9 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
@@ -14,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -54,8 +56,8 @@ public class Item {
     private IdolMember idolMember;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_item_id")
-    private CategoryItem categoryItem;
+    @JoinColumn(name = "item_category_id")
+    private ItemCategory itemCategory;
 
     public Item(ItemUploadRequest itemUploadRequest) {
         this.name = itemUploadRequest.getName();

@@ -1,6 +1,9 @@
 package com.ducks.goodsduck.commons.model.entity;
 
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
+import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
+import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,6 +29,10 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_category_id")
+    private PostCategory postCategory;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -43,6 +50,7 @@ public class Post {
     public Post(PostUploadRequest postUploadRequest) {
         this.title = postUploadRequest.getTitle();
         this.content = postUploadRequest.getContent();
+//        this.postType = postUploadRequest.g
         this.viewCount = 0;
         this.likeCount = 0;
         this.commentCount = 0;

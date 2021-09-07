@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto.post;
 
-import com.ducks.goodsduck.commons.model.entity.PostImage;
+import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import lombok.Data;
 
 @Data

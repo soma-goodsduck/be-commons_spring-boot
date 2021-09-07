@@ -1,15 +1,28 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.LoginUser;
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
+import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
+import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.image.PostImageRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +38,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -39,7 +54,7 @@ public class PostService {
     private final ImageRepository imageRepository;
     private final ImageRepositoryCustom imageRepositoryCustom;
     private final UserPostRepository userPostRepository;
-    private final UserPostRepositoryCustom userPostRepositoryCustom;
+    private final PostCategoryRepository postCategoryRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -56,6 +71,10 @@ public class PostService {
             IdolGroup idolGroup = idolGroupRepository.findById(postUploadRequest.getIdolGroupId()).get();
             post.setIdolGroup(idolGroup);
 
+            /** Post-Category 연관관계 삽입 **/
+            PostCategory postCategory = postCategoryRepository.findByName(postUploadRequest.getPostCategory());
+            post.setPostCategory(postCategory);
+
             /** 이미지 업로드 처리 & Image-Post 연관관계 삽입 **/
             if(multipartFiles != null) {
                 List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.POST, user.getNickName());
@@ -66,7 +85,7 @@ public class PostService {
                 }
             }
 
-            postRepository.save(post);
+            user.gainExp(10);
 
             return post.getId();
         } catch (Exception e) {
@@ -94,8 +113,6 @@ public class PostService {
             postDetailResponse.likesOfMe();
         }
 
-        // TODO : 좋아요 수 체크
-
         return postDetailResponse;
     }
 
@@ -106,10 +123,13 @@ public class PostService {
              * 기존 포스트 정보 수정
              * 제목
              * 내용
+             * 이미지
              */
             Post post = postRepository.findById(postId).get();
             post.setTitle(postUpdateRequest.getTitle());
             post.setContent(postUpdateRequest.getContent());
+            PostCategory postCategory = postCategoryRepository.findByName(postUpdateRequest.getPostCategory());
+            post.setPostCategory(postCategory);
 
             /**
              * 기존 이미지 수정 (Url)
@@ -205,7 +225,7 @@ public class PostService {
         }
     }
 
-    public List<PostDetailResponse> getPosts(Long userId, Long postId) {
+    public List<PostDetailResponse> getPostListForUser(Long userId, Long postId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostService.getPosts"));
@@ -231,7 +251,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public List<PostDetailResponse> getPostsWithFilterIdolGroup(Long userId, Long idolGroupId, Long postId) {
+    public List<PostDetailResponse> getPostListFilterByIdolGroupForUser(Long userId, Long idolGroupId, Long postId) {
 
         return postRepositoryCustom.findByUserIdolGroupWithUserPost(userId, idolGroupId, postId)
                 .stream()
@@ -251,6 +271,47 @@ public class PostService {
 
                     return postDetailResponse;
                 })
+                .collect(Collectors.toList());
+    }
+
+    public HomeResponse getPostList(Long userId, Long postId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext = false;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPosts"));
+
+        List<PostDetailResponse> postList = getPostListForUser(userId, postId);
+        if(postList.size() == pageableSize + 1) {
+            hasNext = true;
+            postList.remove(pageableSize);
+        }
+
+        return new HomeResponse(hasNext, new LoginUser(user), postList);
+    }
+
+    public HomeResponse getPostListFilterByIdolGroup(Long userId, Long idolGroupId, Long postId) {
+
+        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        Boolean hasNext = false;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
+
+        List<PostDetailResponse> postList = getPostListFilterByIdolGroupForUser(userId, idolGroupId, postId);
+        if(postList.size() == pageableSize + 1) {
+            hasNext = true;
+            postList.remove(pageableSize);
+        }
+
+        return new HomeResponse(hasNext, new LoginUser(user), postList);
+    }
+
+    public List<CategoryResponse> getPostCategory() {
+        return postCategoryRepository.findAll()
+                .stream()
+                .map(postCategory -> new CategoryResponse(postCategory))
                 .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,9 @@ package com.ducks.goodsduck.commons.repository.item;
 
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.QImage;
+import com.ducks.goodsduck.commons.model.entity.Image.QItemImage;
+import com.ducks.goodsduck.commons.model.entity.category.QItemCategory;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -32,7 +35,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private final QUser user = QUser.user;
     private final QIdolMember idolMember = QIdolMember.idolMember;
     private final QIdolGroup idolGroup = QIdolGroup.idolGroup;
-    private final QCategoryItem categoryItem = QCategoryItem.categoryItem;
+    private final QItemCategory itemCategory = QItemCategory.itemCategory;
     private final QImage image = QImage.image;
     private final QItemImage itemImage = QItemImage.itemImage;
     private final QItemImage subImage = new QItemImage("subImage");
@@ -57,7 +60,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -75,15 +78,15 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, idolGroup, idolMember, image, categoryItem)
+                .select(item, idolGroup, idolMember, image, itemCategory)
                 .from(item)
 //                .leftJoin(image).on(image.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -102,7 +105,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -113,7 +116,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId))
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -131,16 +134,16 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, idolGroup, idolMember, categoryItem)
+                .select(item, idolGroup, idolMember, itemCategory)
                 .from(item)
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(
                         builder
                 ))
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -159,7 +162,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder))
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -169,7 +172,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -181,7 +184,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             }
         }
         if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
@@ -190,7 +193,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -201,7 +204,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -218,20 +221,20 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         if(keyword != null) { builder.and(item.name.contains(keyword)); }
         if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
         return queryFactory
-                .select(item, idolGroup, idolMember, categoryItem)
+                .select(item, idolGroup, idolMember, itemCategory)
                 .from(item)
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -243,7 +246,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -263,7 +266,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         }
 
         if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
@@ -272,7 +275,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -293,10 +296,10 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -323,10 +326,10 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -349,15 +352,15 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         builder.and(isHaveImage(subImage).in(1L, null));
 
         return queryFactory
-                .select(item, userItem, idolGroup, idolMember, categoryItem)
+                .select(item, userItem, idolGroup, idolMember, itemCategory)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -369,7 +372,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId))
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -388,10 +391,10 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder))
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -411,7 +414,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder))
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -421,7 +424,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -433,7 +436,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             }
         }
         if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
@@ -443,7 +446,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -454,7 +457,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -470,21 +473,21 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         if(keyword != null) { builder.and(item.name.contains(keyword)); }
         if(tradeType != null) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
         return queryFactory
-                .select(item, userItem, idolGroup, idolMember, categoryItem)
+                .select(item, userItem, idolGroup, idolMember, itemCategory)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember, idolMember)
                 .join(item.idolMember.idolGroup, idolGroup)
-                .join(item.categoryItem, categoryItem)
+                .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder)
-                .orderBy(item.createdAt.desc())
+                .orderBy(item.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -496,7 +499,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
         TradeType tradeType = itemFilterDto.getTradeType();
-        Long categoryItemId = itemFilterDto.getCategoryItemId();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
         GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
         Long minPrice = itemFilterDto.getMinPrice();
         Long maxPrice = itemFilterDto.getMaxPrice();
@@ -516,7 +519,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         }
 
         if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
-        if(categoryItemId != null) { builder.and(item.categoryItem.id.eq(categoryItemId)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
         if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
@@ -527,7 +530,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember.idolGroup, idolGroup)
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -569,6 +572,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(item.user.id.eq(userId).and(conditionOfTradeStatus))
+                .orderBy(getStatusCompareExpression().desc(), item.updatedAt.desc())
                 .fetch();
     }
 
@@ -577,7 +581,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(subImage.count().add(1))
                 .from(subImage)
                 .where(subImage.id.lt(image.id).and(
-                        subImage.item.eq(itemImage.item)
+                       subImage.item.eq(itemImage.item)
                 ));
     }
 
@@ -615,7 +619,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -637,17 +641,14 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(builder)
-                .orderBy(item.id.desc())
+                .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
     private NumberExpression<Integer> getStatusCompareExpression() {
         return new CaseBuilder()
-                .when(item.tradeStatus.eq(BUYING)).then(20)
-                .when(item.tradeStatus.eq(SELLING)).then(20)
-                .when(item.tradeStatus.eq(RESERVING)).then(30)
-                .when(item.tradeStatus.eq(COMPLETE)).then(10)
+                .when(item.tradeStatus.eq(RESERVING)).then(1)
                 .otherwise(0);
     }
 }

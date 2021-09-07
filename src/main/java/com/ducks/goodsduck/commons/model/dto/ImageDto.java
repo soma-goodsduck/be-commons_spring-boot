@@ -1,6 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
-import com.ducks.goodsduck.commons.model.entity.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

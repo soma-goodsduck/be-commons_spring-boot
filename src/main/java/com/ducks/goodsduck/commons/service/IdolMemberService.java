@@ -2,8 +2,8 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.IdolMember;
-import com.ducks.goodsduck.commons.repository.IdolMemberRepository;
-import com.ducks.goodsduck.commons.repository.IdolMemberRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
+import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 public class ReportRequest {
 
     private String receiverBcryptId;
-    private Long categoryReportId;
+    private Long reportCategoryId;
     private String content;
 
-    public ReportRequest(String receiverBcryptId, Long categoryReportId, String content) {
-        this.receiverBcryptId = receiverBcryptId;
-        this.categoryReportId = categoryReportId;
-        this.content = content;
-    }
+    // ItemReport, PostReport, CommentReport
+    private String type;
+
+    // Item, Post, CommentId
+    private Long id;
 }

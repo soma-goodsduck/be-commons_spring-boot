@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemDto;
 import com.ducks.goodsduck.commons.model.dto.item.ItemSummaryDto;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.UserItemRepositoryCustom;
@@ -40,11 +41,11 @@ public class UserItemService {
                 .stream()
                 .map(tuple -> {
                     var item = tuple.get(1, Item.class);
-                    var categoryItem = tuple.get(2, CategoryItem.class);
+                    ItemCategory itemCategory = tuple.get(2, ItemCategory.class);
                     var idolMember = tuple.get(3, IdolMember.class);
 
                     var itemDto = new ItemDto(item);
-                    itemDto.setCategoryItem(categoryItem);
+                    itemDto.setItemCategory(itemCategory);
                     itemDto.setUserSimpleDto(new UserSimpleDto(item.getUser()));
                     itemDto.setIdolMember(idolMember);
                     itemDto.likesOfMe();

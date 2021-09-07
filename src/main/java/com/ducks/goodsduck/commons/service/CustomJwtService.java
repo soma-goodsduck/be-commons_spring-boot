@@ -25,7 +25,7 @@ public class CustomJwtService implements JwtService {
 
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
-    private final String STRING_EXPIRE_TIME = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "100000000");
+    private final String STRING_EXPIRE_TIME = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "10000000000");
     private final String SECRET_KEY = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "QW76QWORJOQPWNTHOWQN2QWBLK1QWBTKLQQIHR5W7QHWI6WQWBR7KLQWBK4LRQWRQWKNR48QWTOWQ:ORNQWLQ2NRWQ6K3BRKQWORJQOQ");
 
     public CustomJwtService() throws ParseException {

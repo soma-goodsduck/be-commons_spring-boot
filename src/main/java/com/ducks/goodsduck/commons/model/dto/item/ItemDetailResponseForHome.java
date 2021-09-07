@@ -51,7 +51,7 @@ public class ItemDetailResponseForHome {
         this.gradeStatus = item.getGradeStatus();
         this.idolMember = new ItemDetailResponseIdol(item.getIdolMember());
         this.itemCreatedAt = item.getCreatedAt();
-        this.categoryName = item.getCategoryItem().getName();
+        this.categoryName = item.getItemCategory().getName();
         this.views = item.getViews();
         this.likesItemCount = item.getLikesItemCount();
         this.isLike = false;

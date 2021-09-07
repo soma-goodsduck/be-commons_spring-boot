@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.model.dto.comment.CommentUploadRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ public class Comment {
     private Long id;
     private Integer level;
     private Boolean isDeleted;
+    private Boolean isSecret;
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,12 +35,13 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<Comment> childComments = new ArrayList<>();
 
-    public Comment(User user, Post post, Comment parentComment, String content) {
+    public Comment(User user, Post post, Comment parentComment, CommentUploadRequest commentUploadRequest) {
         this.user = user;
         this.post = post;
         this.parentComment = parentComment;
         this.level = parentComment != null ? parentComment.getLevel() + 1 : 1;
-        this.content = content;
         this.isDeleted = false;
+        this.isSecret = commentUploadRequest.getIsSecret();
+        this.content = commentUploadRequest.getContent();
     }
 }

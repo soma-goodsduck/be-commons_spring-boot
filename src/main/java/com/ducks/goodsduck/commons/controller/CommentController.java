@@ -33,7 +33,6 @@ public class CommentController {
     @PostMapping("/v1/comments")
     public ApiResult<Long> uploadComment(@RequestBody CommentUploadRequest commentUploadRequest,
                                          HttpServletRequest request) {
-
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(commentService.uploadComment(commentUploadRequest, userId));
     }
@@ -53,13 +52,17 @@ public class CommentController {
 
     @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API")
     @GetMapping("/v1/comments/{postId}")
-    public ApiResult<List<CommentDto>> showCommentsOfPost(@PathVariable("postId") Long postId) {
-        return OK(commentService.getCommentsOfPost(postId));
+    public ApiResult<List<CommentDto>> showCommentsOfPost(@PathVariable("postId") Long postId,
+                                                          HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.getCommentsOfPost(userId, postId));
     }
 
     @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API (V2)")
     @GetMapping("/v2/comments/{postId}")
-    public ApiResult<List<CommentSimpleDto>> showCommentsOfPostV2(@PathVariable("postId") Long postId) {
-        return OK(commentService.getCommentsOfPostV2(postId));
+    public ApiResult<List<CommentSimpleDto>> showCommentsOfPostV2(@PathVariable("postId") Long postId,
+                                                                  HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.getCommentsOfPostV2(userId, postId));
     }
 }

@@ -2,24 +2,29 @@ package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.*;
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
+import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserItem;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import com.ducks.goodsduck.commons.repository.CategoryItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepository;
+import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.log.Log;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -48,17 +53,23 @@ public class ItemController {
     private final UserService userService;
     private final UserItemService userItemService;
     private final NotificationService notificationService;
-    private final UserRepository userRepository;
-    private final CategoryItemRepository categoryItemRepository;
 
-    private final ImageUploadService imageUploadService; // TODO : 워터마크 테스트용 추후 삭제
+    // TODO : 워터마크 테스트용 추후 삭제
+    private final ImageUploadService imageUploadService;
+//    @NoCheckJwt
+//    @ApiOperation(value = "(테스트 중) 워터마크 테스트 API")
+//    @PostMapping("/v1/check/watermark")
+//    public Long checkWatermark(@RequestParam MultipartFile multipartFile) throws IOException {
+//
+//        imageUploadService.uploadImageWithWatermark(multipartFile);
+//        return 1L;
+//    }
+
     @NoCheckJwt
-    @ApiOperation(value = "(테스트 중) 워터마크 테스트 API")
-    @PostMapping("/v1/check/watermark")
-    public Long checkWatermark(@RequestParam MultipartFile multipartFile) throws IOException {
-
-        imageUploadService.uploadImageWithWatermark(multipartFile);
-        return 1L;
+    @PostMapping("/v1/gif")
+    public ApiResult resizeGIF(@RequestParam MultipartFile multipartFile) throws IOException {
+        imageUploadService.resizeGIF(multipartFile);
+        return OK(true);
     }
 
     @ApiOperation(value = "아이템 등록하기")
@@ -105,8 +116,7 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 수정 V2")
     @PutMapping("/v2/items/{itemId}")
-    public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
-                                      @RequestParam String stringItemDto,
+    public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto,
                                       @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                       HttpServletRequest request) throws JsonProcessingException {
 
@@ -128,104 +138,33 @@ public class ItemController {
     public ApiResult<HomeResponse<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
                                                                       @RequestParam("itemId") Long itemId,
                                                                       @RequestHeader("jwt") String jwt) {
-
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext= false;
         Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = itemService.getSearchedItemListForGuest(keyword, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return OK(new HomeResponse(hasNext, null, itemList));
-        }
-        // HINT : 회원에게 보여줄 홈
-        else {
-            User user = userRepository.findById(userId).get();
-            List<ItemHomeResponse> itemList = itemService.getSearchedItemListForUser(keyword, userId, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList));
-        }
+        return OK(itemService.getSearchedItemList(userId, keyword, itemId));
     }
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 조회 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items")
     @Transactional
-    public ApiResult<HomeResponse<ItemHomeResponse>> getItems(@RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> getItemList(@RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
 
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext= false;
         Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = itemService.getItemListV3(itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return OK(new HomeResponse(hasNext, null, itemList));
-        }
-        // HINT : 회원에게 보여줄 홈
-        else {
-            User user = userRepository.findById(userId).get();
-            List<ItemHomeResponse> itemList = itemService.getItemListV3(userId, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
-
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
-        }
+        HomeResponse homeResponse = itemService.getItemListV3(userId, itemId);
+        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        return OK(homeResponse);
     }
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 조회 + 아이돌 그룹 필터링 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filter")
     @Transactional
-    public ApiResult<HomeResponse<ItemHomeResponse>> filterItemWithIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
-                                                                               @RequestParam("itemId") Long itemId,
-                                                                               @RequestHeader("jwt") String jwt) {
-
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext= false;
+    public ApiResult<HomeResponse<ItemHomeResponse>> getItemListFilterByIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
+                                                                                    @RequestParam("itemId") Long itemId,
+                                                                                    @RequestHeader("jwt") String jwt) {
         Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈 + 아이돌 필터링
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = itemService.filterByIdolGroupV3(idolGroupId, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return OK(new HomeResponse(hasNext, null, itemList));
-        }
-        // HINT : 회원에게 보여줄 홈 + 아이돌 필터링
-        else {
-            User user = userRepository.findById(userId).get();
-            List<ItemHomeResponse> itemList = itemService.filterByIdolGroupV3(userId, idolGroupId, itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
-
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
-        }
+        HomeResponse homeResponse = itemService.getItemListFilterByIdolGroupV3(userId, idolGroupId, itemId);
+        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        return OK(homeResponse);
     }
 
     // TODO : 이후에 거래완료 필터링에서 제거
@@ -233,54 +172,19 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 조회 + 전체 필터링 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")
     @Transactional
-    public ApiResult<HomeResponse<ItemHomeResponse>> filterItemWithAllV3(@RequestParam(value = "idolGroup") Long idolGroupId,
-                                                                         @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
-                                                                         @RequestParam(value = "tradeType", required = false) TradeType tradeType,
-                                                                         @RequestParam(value = "category", required = false) Long categoryItemId,
-                                                                         @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
-                                                                         @RequestParam(value = "minPrice", required = false) Long minPrice,
-                                                                         @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                         @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
-
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
-        Boolean hasNext= false;
+    public ApiResult<HomeResponse<ItemHomeResponse>> getItemListFilterByAllV3(@RequestParam(value = "idolGroup") Long idolGroupId,
+                                                                              @RequestParam(value = "idolMember", required = false) List<Long> idolMembersId,
+                                                                              @RequestParam(value = "tradeType", required = false) TradeType tradeType,
+                                                                              @RequestParam(value = "category", required = false) Long itemCategoryId,
+                                                                              @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
+                                                                              @RequestParam(value = "minPrice", required = false) Long minPrice,
+                                                                              @RequestParam(value = "maxPrice", required = false) Long maxPrice,
+                                                                              @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
         Long userId = userService.checkLoginStatus(jwt);
-
-        // HINT : 비회원에게 보여줄 홈 + 모든 필터링
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = itemService.filterByAllV3(
-                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            return OK(new HomeResponse(hasNext, null, itemList));
-        }
-        // HINT : 회원에게 보여줄 홈 + 모든 필터링
-        else {
-            User user = userRepository.findById(userId).get();
-            List<ItemHomeResponse> itemList = itemService.filterByAllV3(userId,
-                    new ItemFilterDto(idolGroupId, idolMembersId, tradeType, categoryItemId, gradeStatus, minPrice, maxPrice), itemId);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
-
-            NotificationBadgeResponse noty = notificationService.checkNewNotification(userId);
-
-            return OK(new HomeResponse(hasNext, new LoginUser(user), itemList, noty));
-        }
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "카테고리 리스트 불러오기 in 아이템 등록")
-    @GetMapping("/v1/items/category")
-    @Transactional
-    public ApiResult<List<CategoryItemDto>> getCategoryItem() {
-        return OK(categoryItemRepository.findAll().stream()
-                .map(categoryItem -> new CategoryItemDto(categoryItem))
-                .collect(Collectors.toList()));
+        ItemFilterDto itemFilterDto = new ItemFilterDto(idolGroupId, idolMembersId, tradeType, itemCategoryId, gradeStatus, minPrice, maxPrice);
+        HomeResponse homeResponse = itemService.getItemListFilterByAllV3(userId, itemFilterDto, itemId);
+        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        return OK(homeResponse);
     }
 
     @NoCheckJwt
