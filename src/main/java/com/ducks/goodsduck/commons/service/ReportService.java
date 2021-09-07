@@ -1,16 +1,22 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryResponse;
-import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryDto;
 import com.ducks.goodsduck.commons.model.dto.report.*;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.category.Category;
-import com.ducks.goodsduck.commons.model.entity.category.CommentReportCategory;
+import com.ducks.goodsduck.commons.model.entity.report.CommentReport;
+import com.ducks.goodsduck.commons.model.entity.report.ItemReport;
+import com.ducks.goodsduck.commons.model.entity.report.PostReport;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.ReportRepository.ReportRepository;
 import com.ducks.goodsduck.commons.repository.category.CategoryRepository;
 import com.ducks.goodsduck.commons.repository.category.CommentReportCategoryRepository;
 import com.ducks.goodsduck.commons.repository.category.ItemReportCategoryRepository;
 import com.ducks.goodsduck.commons.repository.category.PostReportCategoryRepository;
+import com.ducks.goodsduck.commons.repository.comment.CommentRepository;
+import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,8 +26,6 @@ import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.ducks.goodsduck.commons.model.enums.UserRole.*;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,46 +34,14 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     private final CategoryRepository categoryRepository;
     private final PostReportCategoryRepository postReportCategoryRepository;
     private final ItemReportCategoryRepository itemReportCategoryRepository;
     private final CommentReportCategoryRepository commentReportCategoryRepository;
-
-//    public CategoryReportResponse getCategoryReportWithUserNickName(String bcryptId) {
-//        User receiver = userRepository.findByBcryptId(bcryptId);
-//        if (receiver == null) {
-//            throw new NoResultException("User not founded.");
-//        }
-//        List<CategoryReportGetResponse> categoryReports = categoryReportRepository.findAll()
-//                .stream()
-//                .map(categoryReport -> new CategoryReportGetResponse(categoryReport))
-//                .collect(Collectors.toList());
-//        return new CategoryReportResponse(receiver.getNickName(), categoryReports);
-//    }
-//
-//    public ReportResponse addReportFromUser(Long userId, ReportRequest reportRequest) {
-//        User sender = userRepository.findById(userId).orElseThrow(() -> {
-//            throw new NoResultException("User not founded.");
-//        });
-//
-//        User receiver = userRepository.findByBcryptId(reportRequest.getReceiverBcryptId());
-//
-//        CategoryReport categoryReport = categoryReportRepository.findById(reportRequest.getCategoryReportId())
-//                .orElseThrow(() -> {
-//                    throw new NoResultException("CategoryReport not founded.");
-//                });
-//
-////        if (reportRepository.existsByUserAndSenderId(receiver, sender.getId())) {
-////            return new ReportResponse();
-////        }
-//
-//        return new ReportResponse();
-//
-////        return new ReportResponse(
-////                reportRepository.save(new Report(reportRequest, categoryReport, receiver, sender))
-////        );
-//    }
 
     public ReportResponse addReportV2(Long userId, ReportRequest reportRequest) {
         User sender = userRepository.findById(userId)
@@ -80,14 +52,32 @@ public class ReportService {
             throw new NoResultException("Not Find User in CategoryService.addReport");
         }
 
-        Category category = categoryRepository.findById(reportRequest.getReportCategoryId())
+        Category reportCategory = categoryRepository.findById(reportRequest.getReportCategoryId())
                 .orElseThrow(() -> { throw new NoResultException("Not Find ReportCategory in CategoryService.addReport");});
 
         if(reportRepository.existsByReceiverAndSenderId(receiver, sender.getId())) {
             return new ReportResponse();
         }
 
-        return new ReportResponse(reportRepository.save(new Report(reportRequest, category, receiver, sender)));
+        // TODO : 삭제시 연관관계 끊어야함 (Post, Comment)
+        if(reportRequest.getType().equals("ItemReport")) {
+            Item item = itemRepository.findById(reportRequest.getId()).get();
+            ItemReport itemReport = new ItemReport(reportRequest, reportCategory, sender, receiver, item);
+            return new ReportResponse(reportRepository.save(itemReport));
+        }
+        else if(reportRequest.getType().equals("PostReport")) {
+            Post post = postRepository.findById(reportRequest.getId()).get();
+            PostReport postReport = new PostReport(reportRequest, reportCategory, sender, receiver, post);
+            return new ReportResponse(reportRepository.save(postReport));
+        }
+        else if(reportRequest.getType().equals("CommentReport")) {
+            Comment comment = commentRepository.findById(reportRequest.getId()).get();
+            CommentReport commentReport = new CommentReport(reportRequest, reportCategory, sender, receiver, comment);
+            return new ReportResponse(reportRepository.save(commentReport));
+        }
+        else {
+            return null;
+        }
     }
 
     public ReportCategoryResponse getItemReportCategory(String bcryptId) {
@@ -97,9 +87,9 @@ public class ReportService {
             throw new NoResultException("Not Find User in CategoryService.getItemReportCategory");
         }
 
-        List<ReportCategoryDto> reportCategoryList = itemReportCategoryRepository.findAll()
+        List<CategoryResponse> reportCategoryList = itemReportCategoryRepository.findAll()
                 .stream()
-                .map(postReportCategory -> new ReportCategoryDto(postReportCategory))
+                .map(postReportCategory -> new CategoryResponse(postReportCategory))
                 .collect(Collectors.toList());
 
         return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);
@@ -112,9 +102,9 @@ public class ReportService {
             throw new NoResultException("Not Find User in CategoryService.getPostReportCategory");
         }
 
-        List<ReportCategoryDto> reportCategoryList = postReportCategoryRepository.findAll()
+        List<CategoryResponse> reportCategoryList = postReportCategoryRepository.findAll()
                 .stream()
-                .map(postReportCategory -> new ReportCategoryDto(postReportCategory))
+                .map(postReportCategory -> new CategoryResponse(postReportCategory))
                 .collect(Collectors.toList());
 
         return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);
@@ -127,9 +117,9 @@ public class ReportService {
             throw new NoResultException("Not Find User in CategoryService.getPostReportCategory");
         }
 
-        List<ReportCategoryDto> reportCategoryList = commentReportCategoryRepository.findAll()
+        List<CategoryResponse> reportCategoryList = commentReportCategoryRepository.findAll()
                 .stream()
-                .map(postReportCategory -> new ReportCategoryDto(postReportCategory))
+                .map(postReportCategory -> new CategoryResponse(postReportCategory))
                 .collect(Collectors.toList());
 
         return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);

@@ -9,6 +9,8 @@ import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
+import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
+import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
@@ -69,6 +71,10 @@ public class PostService {
             IdolGroup idolGroup = idolGroupRepository.findById(postUploadRequest.getIdolGroupId()).get();
             post.setIdolGroup(idolGroup);
 
+            /** Post-Category 연관관계 삽입 **/
+            PostCategory postCategory = postCategoryRepository.findByName(postUploadRequest.getPostCategory());
+            post.setPostCategory(postCategory);
+
             /** 이미지 업로드 처리 & Image-Post 연관관계 삽입 **/
             if(multipartFiles != null) {
                 List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.POST, user.getNickName());
@@ -78,8 +84,6 @@ public class PostService {
                     imageRepository.save(postImage);
                 }
             }
-
-            postRepository.save(post);
 
             user.gainExp(10);
 
@@ -124,6 +128,8 @@ public class PostService {
             Post post = postRepository.findById(postId).get();
             post.setTitle(postUpdateRequest.getTitle());
             post.setContent(postUpdateRequest.getContent());
+            PostCategory postCategory = postCategoryRepository.findByName(postUpdateRequest.getPostCategory());
+            post.setPostCategory(postCategory);
 
             /**
              * 기존 이미지 수정 (Url)

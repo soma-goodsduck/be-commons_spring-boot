@@ -305,21 +305,6 @@ public class UserService {
         }
     }
 
-//    public UserDto checkPhoneNumber(String phoneNumber) {
-//
-//        User user = userRepository.findByPhoneNumber(phoneNumber);
-//
-//        if(user != null) {
-//            SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
-//            UserDto userDto = new UserDto(user);
-//            userDto.setSocialType(socialAccount.getType());
-//            userDto.setSocialAccountId(socialAccount.getId());
-//            return userDto;
-//        } else {
-//            return UserDto.createUserDto(UserRole.ANONYMOUS);
-//        }
-//    }
-
     public Boolean checkNickname(String nickname) {
 
         User user = userRepository.findByNickName(nickname);
@@ -340,7 +325,6 @@ public class UserService {
             return true;
         }
     }
-
 
     public OtherUserPageDto showOtherUserPage(String bcryptId) {
 

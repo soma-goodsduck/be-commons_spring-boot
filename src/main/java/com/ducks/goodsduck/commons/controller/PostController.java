@@ -113,12 +113,4 @@ public class PostController {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(postService.getPostListFilterByIdolGroup(userId, idolGroupId, postId));
     }
-
-    @NoCheckJwt
-    @ApiOperation(value = "포스트 카테고리 불러오기 in 포스트 등록")
-    @GetMapping("/v1/posts/category")
-    @Transactional
-    public ApiResult<List<CategoryResponse>> getPostCategory() {
-        return OK(postService.getPostCategory());
-    }
 }

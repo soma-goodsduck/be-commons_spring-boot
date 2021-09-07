@@ -30,6 +30,7 @@ public class User {
     private String imageUrl;
     private Integer level;
     private Integer exp;
+    private Integer reportCount;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 
@@ -59,6 +60,7 @@ public class User {
         this.role = UserRole.USER;
         this.level = 1;
         this.exp = 0;
+        this.reportCount = 0;
         this.bcryptId = createBcryptId();
     }
 

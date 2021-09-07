@@ -29,24 +29,6 @@ public class ReportController {
         return OK(reportService.addReportV2(userId, reportRequest));
     }
 
-    @GetMapping("/v1/items/report-category/{bcryptId}")
-    @ApiOperation("아이템 게시글 신고 유형 보기 및 신고 대상 닉네임 확인")
-    public ApiResult<ReportCategoryResponse> getItemReportCategory(@PathVariable("bcryptId") String bcryptId, HttpServletRequest request) {
-        return OK(reportService.getItemReportCategory(bcryptId));
-    }
-
-    @GetMapping("/v1/posts/report-category/{bcryptId}")
-    @ApiOperation("커뮤니티 게시글 신고 유형 보기 및 신고 대상 닉네임 확인")
-    public ApiResult<ReportCategoryResponse> getPostReportCategory(@PathVariable("bcryptId") String bcryptId, HttpServletRequest request) {
-        return OK(reportService.getPostReportCategory(bcryptId));
-    }
-
-    @GetMapping("/v1/comments/report-category/{bcryptId}")
-    @ApiOperation("커뮤니티 게시글 신고 유형 보기 및 신고 대상 닉네임 확인")
-    public ApiResult<ReportCategoryResponse> getCommentReportCategory(@PathVariable("bcryptId") String bcryptId, HttpServletRequest request) {
-        return OK(reportService.getCommentReportCategory(bcryptId));
-    }
-
 //    // TODO : 백오피스로 ㄱㄱ
 //    @PostMapping("/v1/category-report")
 //    @ApiOperation("(관리자) 신고 유형 추가")

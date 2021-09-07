@@ -10,4 +10,10 @@ public class ReportRequest {
     private String receiverBcryptId;
     private Long reportCategoryId;
     private String content;
+
+    // ItemReport, PostReport, CommentReport
+    private String type;
+
+    // Item, Post, CommentId
+    private Long id;
 }

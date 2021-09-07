@@ -9,6 +9,8 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserItem;
@@ -17,6 +19,8 @@ import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
+import com.ducks.goodsduck.commons.repository.image.ImageRepository;
+import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -99,7 +103,7 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기 (요약)")
     @GetMapping("/v1/items/{itemId}/summary")
-    public ApiResult<ItemSummaryDto> showItemDetailSummary(@RequestHeader("jwt") String jwt, @PathVariable("itemId") Long itemId) {
+    public ApiResult<ItemSummaryDto> showItemDetailSummary(@PathVariable("itemId") Long itemId) {
         return OK(itemService.showDetailSummary(itemId));
     }
 
@@ -112,8 +116,7 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 수정 V2")
     @PutMapping("/v2/items/{itemId}")
-    public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId,
-                                      @RequestParam String stringItemDto,
+    public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto,
                                       @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                       HttpServletRequest request) throws JsonProcessingException {
 
@@ -182,14 +185,6 @@ public class ItemController {
         HomeResponse homeResponse = itemService.getItemListFilterByAllV3(userId, itemFilterDto, itemId);
         homeResponse.setNoty(notificationService.checkNewNotification(userId));
         return OK(homeResponse);
-    }
-
-    @NoCheckJwt
-    @ApiOperation(value = "아이템 카테고리 불러오기 in 아이템 등록")
-    @GetMapping("/v1/items/category")
-    @Transactional
-    public ApiResult<List<CategoryResponse>> getItemCategory() {
-        return OK(itemService.getItemCategory());
     }
 
     @NoCheckJwt

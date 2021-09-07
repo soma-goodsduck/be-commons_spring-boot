@@ -1,6 +1,6 @@
-package com.ducks.goodsduck.commons.repository;
+package com.ducks.goodsduck.commons.repository.ReportRepository;
 
-import com.ducks.goodsduck.commons.model.entity.Report;
+import com.ducks.goodsduck.commons.model.entity.report.Report;
 import com.ducks.goodsduck.commons.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

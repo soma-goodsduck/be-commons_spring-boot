@@ -44,5 +44,4 @@ public class Swagger2Config {
                 .description("Backend Api description for GoodsDuck")
                 .build();
     }
-
 }

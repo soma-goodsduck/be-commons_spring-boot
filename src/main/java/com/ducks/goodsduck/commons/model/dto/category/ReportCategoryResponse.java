@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.model.dto.category;
 
-import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryDto;
 import lombok.Data;
 
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.List;
 public class ReportCategoryResponse {
 
     private String receiverNickName;
-    private List<ReportCategoryDto> reportCategoryList;
+    private List<CategoryResponse> reportCategoryList;
 
-    public ReportCategoryResponse(String receiverNickName, List<ReportCategoryDto> reportCategoryList) {
+    public ReportCategoryResponse(String receiverNickName, List<CategoryResponse> reportCategoryList) {
         this.receiverNickName = receiverNickName;
         this.reportCategoryList = reportCategoryList;
     }

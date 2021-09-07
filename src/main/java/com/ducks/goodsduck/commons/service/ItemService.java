@@ -12,10 +12,12 @@ import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
+import com.ducks.goodsduck.commons.model.entity.report.ItemReport;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.ReportRepository.ItemReportRepository;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
@@ -65,6 +67,7 @@ public class ItemService {
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final ItemImageRepository itemImageRepository;
+    private final ItemReportRepository itemReportRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -181,6 +184,8 @@ public class ItemService {
 
     public Long editV2(Long itemId, ItemUpdateRequestV2 itemUpdateRequest, List<MultipartFile> multipartFiles, Long userId) {
 
+        // TODO : 빈리스트 올 경우 처리
+        
         try {
             /**
              * 기존 아이템 정보 수정
@@ -304,10 +309,21 @@ public class ItemService {
             }
             chatRepository.deleteInBatch(deleteChats);
 
-            // review 연관 삭제
+            // TODO : 0번 아이템 만든 후에 체크
+//            Item replaceItem = itemRepository.findById(0L).get();
+
+            // review 연관 삭제 (삭제용 데이터 0번 아이템으로 교체)
             List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(itemId);
             for (Review deleteItemOfReview : deleteItemOfReviews) {
-                deleteItemOfReview.deleteItem();
+                // TODO : 0번 아이템 만든 후에 체크
+//                deleteItemOfReview.setItem(replaceItem);
+            }
+
+            // itemReport 연관 삭제 (삭제용 데이터 0번 아이템으로 교체)
+            List<ItemReport> itemReports = itemReportRepository.findByItemId(itemId);
+            for (ItemReport itemReport : itemReports) {
+                // TODO : 0번 아이템 만든 후에 체크
+//                itemReport.setItem(replaceItem);
             }
 
             // userItem 연관 삭제

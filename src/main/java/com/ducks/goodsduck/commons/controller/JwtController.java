@@ -26,7 +26,7 @@ public class JwtController {
     @NoCheckJwt
     @GetMapping("/gen/token")
     public ApiResult<Map<String, Object>> genToken(@RequestParam(value="subject") String subject) {
-        String token = jwtService.createJwt(subject, 2L);
+        String token = jwtService.createJwt(subject, 1L);
         Map<String, Object> map = new HashMap<>();
         map.put("result", token);
         return OK(map);

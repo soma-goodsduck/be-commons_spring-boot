@@ -162,16 +162,15 @@ public class UserController {
 
     @NoCheckJwt
     @ApiOperation(value = "다른 유저의 프로필 보기")
-    @GetMapping("/v1/users/{bcryptUserId}")
-    @Transactional
-    public ApiResult<OtherUserPageDto> showOtherUserPage(@PathVariable("bcryptUserId") String bcryptId) {
+    @GetMapping("/v1/users/{bcryptId}")
+    public ApiResult<OtherUserPageDto> showOtherUserPage(@PathVariable("bcryptId") String bcryptId) {
         return OK(userService.showOtherUserPage(bcryptId));
     }
 
     @NoCheckJwt
     @ApiOperation(value = "다른 유저의 프로필 보기에서 전체 상품 보기", notes = "초기 tradeStatus 값은 selling으로 설정")
-    @GetMapping("/v1/users/{bcryptUserId}/items")
-    public ApiResult<List<ItemSummaryDto>> getItemsOfOtherUser(@PathVariable("bcryptUserId") String bcryptId,
+    @GetMapping("/v1/users/{bcryptId}/items")
+    public ApiResult<List<ItemSummaryDto>> getItemsOfOtherUser(@PathVariable("bcryptId") String bcryptId,
                                                                @RequestParam("tradeStatus") String stringTradeStatus) {
         TradeStatus tradeStatus = valueOf(stringTradeStatus.toUpperCase());
         return OK(itemService.getItemsOfOtherUser(bcryptId, tradeStatus));

@@ -6,12 +6,11 @@ import lombok.Data;
 @Data
 public class CategoryResponse {
 
-    // TODO : itemCategoryId, itemCategoryName;
-    private Long CategoryItemId;
-    private String CategoryItemName;
+    private Long categoryId;
+    private String categoryName;
 
     public CategoryResponse(Category category) {
-        this.CategoryItemId = category.getId();
-        this.CategoryItemName = category.getName();
+        this.categoryId = category.getId();
+        this.categoryName = category.getName();
     }
 }

@@ -1,9 +1,10 @@
 plugins {
 	id 'org.springframework.boot' version '2.4.8'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	// QueryDSL 추가
-	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id 'java'
+
+	// QueryDSL
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.ducks.goodsduck'
@@ -24,6 +25,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation group: 'org.json', name: 'json', version: '20210307'
+
+	// AWS Secret Manager
 	implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
 
