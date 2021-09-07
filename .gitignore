@@ -44,3 +44,4 @@ out/
 **/src/test/*
 goodsduck-service-account.json
 newrelic/
+logback-spring.xml
