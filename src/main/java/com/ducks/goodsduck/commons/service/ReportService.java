@@ -39,6 +39,7 @@ public class ReportService {
     private final ItemReportCategoryRepository itemReportCategoryRepository;
     private final CommentReportCategoryRepository commentReportCategoryRepository;
     private final ChatReportCategoryRepository chatReportCategoryRepository;
+    private final UserReportCategoryRepository userReportCategoryRepository;
 
     public ReportResponse addReport(Long userId, ReportRequest reportRequest) {
         User sender = userRepository.findById(userId)
@@ -139,7 +140,22 @@ public class ReportService {
 
         List<CategoryResponse> reportCategoryList = chatReportCategoryRepository.findAll()
                 .stream()
-                .map(chat -> new CategoryResponse(chat))
+                .map(chatReportCategory -> new CategoryResponse(chatReportCategory))
+                .collect(Collectors.toList());
+
+        return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);
+    }
+
+    public ReportCategoryResponse getUserReportCategory(String bcryptId) {
+
+        User receiver = userRepository.findByBcryptId(bcryptId);
+        if (receiver == null) {
+            throw new NoResultException("Not Find User in CategoryService.getUserReportCategory");
+        }
+
+        List<CategoryResponse> reportCategoryList = userReportCategoryRepository.findAll()
+                .stream()
+                .map(userReportCategory -> new CategoryResponse(userReportCategory))
                 .collect(Collectors.toList());
 
         return new ReportCategoryResponse(receiver.getNickName(), reportCategoryList);

@@ -44,6 +44,12 @@ public class CategoryController {
         return OK(postService.getPostCategory());
     }
 
+    @GetMapping("/v1/users/report-category/{bcryptId}")
+    @ApiOperation("유저 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
+    public ApiResult<ReportCategoryResponse> getUserReportCategory(@PathVariable("bcryptId") String bcryptId) {
+        return OK(reportService.getUserReportCategory(bcryptId));
+    }
+
     @GetMapping("/v1/items/report-category/{bcryptId}")
     @ApiOperation("아이템 게시글 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")
     public ApiResult<ReportCategoryResponse> getItemReportCategory(@PathVariable("bcryptId") String bcryptId) {
