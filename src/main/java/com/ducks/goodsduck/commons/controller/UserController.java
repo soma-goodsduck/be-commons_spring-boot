@@ -15,8 +15,11 @@ import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
+import com.ducks.goodsduck.commons.repository.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
@@ -58,20 +61,22 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final DeviceRepository deviceRepository;
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/naver")
     public ApiResult<UserDto> authorizeNaver(@RequestParam("code") String code,
                                              @RequestParam("state") String state,
-                                             @RequestParam("clientId") String clientId) throws ParseException {
+                                             @RequestParam("clientId") String clientId) {
         return OK(userService.oauth2AuthorizationNaver(code, state, clientId));
     }
 
     @NoCheckJwt
     @ApiOperation("소셜로그인_KAKAO 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/kakao")
-    public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) throws ParseException {
+    public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) {
+        log.debug("Request code of Kakao's login: " + code);
         return OK(userService.oauth2AuthorizationKakao(code));
     }
 
@@ -137,8 +142,11 @@ public class UserController {
         String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
         response.setHeader("jwt", newJwt);
 
-        UserDto userDto = new UserDto(userRepository.findById(userId).get());
+        User user = userRepository.findById(userId).get();
+        Device device = deviceRepository.findByUser(user);
+        UserDto userDto = new UserDto(user);
         userDto.setJwt(newJwt);
+        userDto.setAgreeToNotification(device.getIsAllowed());
         return OK(userDto);
     }
 
@@ -214,11 +222,18 @@ public class UserController {
     }
 
     @PostMapping("/v1/users/device")
-    @ApiOperation("(FCM) 사용자 디바이스의 Registration Token을 등록하는 API")
+    @ApiOperation("사용자 디바이스의 FCM Registration Token을 등록하는 API (알림 권한 허용 시에도 사용)")
     public ApiResult registerDevice(HttpServletRequest request, @RequestHeader("registrationToken") String registrationToken) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        Device savedDevice = deviceService.registerFCMToken(userId, registrationToken);
-        return OK(new DeviceResponse(savedDevice.getUuid()));
+        return OK(deviceService.register(userId, registrationToken));
+    }
+
+    @DeleteMapping("/v1/users/device")
+    @ApiOperation("사용자 디바이스의 알림 여부 차단")
+    public ApiResult discardDevice(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        deviceService.discard(userId);
+        return OK(true);
     }
 
     @GetMapping("/v1/users/notifications")
@@ -226,6 +241,13 @@ public class UserController {
     public ApiResult<List<NotificationResponse>> getNotificationsOfUser(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(notificationService.getNotificationsOfUserId(userId));
+    }
+
+    @GetMapping("/v2/users/notifications")
+    @ApiOperation("사용자가 받은 알림 목록 조회 API V2")
+    public ApiResult<List<NotificationRedisResponse>> getNotificationsOfUserV2(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(notificationService.getNotificationsOfUserIdV2(userId));
     }
 
     @NoCheckJwt

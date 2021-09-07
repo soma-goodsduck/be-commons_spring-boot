@@ -6,13 +6,20 @@ import com.ducks.goodsduck.commons.model.entity.Item;
 import lombok.Data;
 
 @Data
-public class ChatAndItemDto {
+public class ChatRoomDto {
 
     private String chatId;
     private ItemSummaryDto itemSimpleDto;
+    private String senderNickName;
 
-    public ChatAndItemDto(Chat chat, Item item) {
+    public ChatRoomDto(Chat chat, Item item) {
         this.chatId = chat.getId();
         this.itemSimpleDto = new ItemSummaryDto(item);
+    }
+
+    public ChatRoomDto(Chat chat, Item item, String senderNickName) {
+        this.chatId = chat.getId();
+        this.itemSimpleDto = new ItemSummaryDto(item);
+        this.senderNickName = senderNickName;
     }
 }

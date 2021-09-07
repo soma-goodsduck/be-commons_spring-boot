@@ -1,7 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
-import com.ducks.goodsduck.commons.model.dto.chat.ChatAndItemDto;
+import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.entity.*;
@@ -32,6 +32,9 @@ public class UserChatService {
     private final UserRepository userRepository;
     private final PriceProposeRepository priceProposeRepository;
     private final ReviewRepository reviewRepository;
+    private final ImageRepository imageRepository;
+    private final ItemImageRepository itemImageRepository;
+    private final ImageRepositoryCustomImpl imageRepositoryCustomImpl;
 
     public Boolean createWithImmediateTrade(String chatId, Long userId, Long itemId) {
 
@@ -109,20 +112,37 @@ public class UserChatService {
         return new UserChatDto(userList, userChatList.get(0).getItem());
     }
 
-    public List<ChatAndItemDto> getChatInfoOfUser(Long userId) {
+    public List<ChatRoomDto> getChatRooms(Long userId) {
 
         List<Tuple> chatAndItemByUserIdTuple = userChatRepositoryCustom.findChatAndItemByUserId(userId);
 
-        List<ChatAndItemDto> chatAndItemList = chatAndItemByUserIdTuple.stream().
+        List<ChatRoomDto> chatAndItemList = chatAndItemByUserIdTuple.stream().
                 map(tuple -> {
                     Chat chat = tuple.get(0, Chat.class);
-                    Item item = tuple.get(1, Item.class);
+                Item item = tuple.get(1, Item.class);
 
-                    return new ChatAndItemDto(chat, item);
+                    return new ChatRoomDto(chat, item);
                 })
                 .collect(Collectors.toList());
 
         return chatAndItemList;
+    }
+
+    public List<ChatRoomDto> getChatRoomsV2(Long userId) {
+
+        List<UserChat> userChats = userChatRepository.findAll();
+
+        return userChats.stream()
+                .map(userChat -> {
+                    Chat chat = userChat.getChat();
+                    Item item = userChat.getItem();
+
+                    User user = userChat.getUser();
+
+                    return new ChatRoomDto(chat, item, user.getNickName());
+                })
+                .collect(Collectors.toList());
+
     }
 
     public String getChatIdByUserIdAndItemOwnerId(Long userId) {

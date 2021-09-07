@@ -9,4 +9,6 @@ import java.util.List;
 public interface ImageRepositoryCustom {
 
     List<Image> findByImageUrls(List<String> imageUrls);
+    List<Image> findItemImages();
+//    List<Image> findByImageType(ImageType imageType);
 }

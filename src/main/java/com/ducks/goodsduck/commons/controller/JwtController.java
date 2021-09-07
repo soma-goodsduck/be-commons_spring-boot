@@ -24,9 +24,9 @@ public class JwtController {
 
     // 개발 테스트용 (토큰 발급)
     @NoCheckJwt
-    @GetMapping("/gen/token")
-    public ApiResult<Map<String, Object>> genToken(@RequestParam(value="subject") String subject) {
-        String token = jwtService.createJwt(subject, 1L);
+    @GetMapping("/gen/token/{itemId}")
+    public ApiResult<Map<String, Object>> genToken(@RequestParam(value="subject") String subject, @PathVariable("itemId") Long itemId) {
+        String token = jwtService.createJwt(subject, itemId);
         Map<String, Object> map = new HashMap<>();
         map.put("result", token);
         return OK(map);

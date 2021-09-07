@@ -59,6 +59,7 @@ public class OauthKakaoLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
+            log.debug("Result of getting access token from Kakao: \n" + response.toString());
             return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
         } catch (RestClientException | JsonProcessingException ex) {
             log.debug("exception occured in request to authorize with Kakao : {}", ex.getMessage(), ex);
@@ -81,6 +82,7 @@ public class OauthKakaoLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
+            log.debug("Result of user information from Kakao: \n" + response.toString());
             return response.getBody();
         } catch (RestClientException ex) {
             log.debug("exception occured in getting access token with Kakao : {}", ex.getMessage(), ex);

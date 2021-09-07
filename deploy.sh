@@ -24,10 +24,11 @@ echo "> JAR PATH: $JAR_PATH"
 echo "> $JAR_PATH 배포"
 
 JAR_NAME=$(ls -tr $JAR_PATH/*.jar | tail -n 1)
-TEST_PATH=$(ls $ENV_PATH/application-db.yml)
 
-echo "ENV PATH 인식 > $TEST_PATH"
+echo "ENV PATH 인식 > $ENV_PATH"
 
 nohup java -javaagent:/opt/newrelic/newrelic.jar \
         -jar -Dspring.config.location=classpath:/application.yml,$ENV_PATH/application-develop.yml,$ENV_PATH/application-s3.yml \
         $JAR_NAME > $JAR_PATH/nohup.out 2>&1 &
+
+sudo chmod 777 $JAR_PATH/nohup.out

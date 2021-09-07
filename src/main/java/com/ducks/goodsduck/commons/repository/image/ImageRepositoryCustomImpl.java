@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.repository.image;
 
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.QImage;
+import com.ducks.goodsduck.commons.model.entity.Image.QItemImage;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,7 @@ public class ImageRepositoryCustomImpl implements ImageRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private QImage image = QImage.image;
+    private QItemImage itemImage = QItemImage.itemImage;
 
     public ImageRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -33,6 +35,15 @@ public class ImageRepositoryCustomImpl implements ImageRepositoryCustom {
                 .select(image)
                 .from(image)
                 .where(builder)
+                .fetch();
+    }
+
+    @Override
+    public List<Image> findItemImages() {
+        return queryFactory
+                .select(image)
+                .from(image)
+                .leftJoin(itemImage).on(image.id.eq(itemImage.id))
                 .fetch();
     }
 }
