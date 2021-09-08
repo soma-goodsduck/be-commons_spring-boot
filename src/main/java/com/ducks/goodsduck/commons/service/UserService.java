@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.*;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserPhoneNumberRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -43,6 +45,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.ducks.goodsduck.commons.model.enums.UserRole.*;
 
 @Service
 @RequiredArgsConstructor
@@ -176,7 +180,7 @@ public class UserService {
                 .orElseGet(() -> {
                     UserDto userDto = new UserDto();
                     userDto.setSocialAccountId(userInfoFromOauth2);
-                    userDto.setRole(UserRole.ANONYMOUS);
+                    userDto.setRole(ANONYMOUS);
 
                     return userDto;
                 });
@@ -394,5 +398,18 @@ public class UserService {
         Long reviewCount = reviewRepositoryCustom.countByReveiverId(userId);
 
         return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
+    }
+
+    public Boolean resign(Long userId, UserPhoneNumberRequest userPhoneNumberRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
+
+        if (!user.getPhoneNumber().equals(userPhoneNumberRequest.getPhoneNumber())) {
+            return false;
+        }
+
+        return userRepositoryCustom.updateRoleByUserId(userId, RESIGNED) > 0 ? true : false;
     }
 }

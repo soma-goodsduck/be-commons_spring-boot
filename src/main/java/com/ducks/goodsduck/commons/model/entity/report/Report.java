@@ -42,6 +42,6 @@ public class Report {
         this.receiver = receiver;
         this.content = reportRequest.getContent() == null ? category.getName() : reportRequest.getContent();
         this.reportCategory = category;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
     }
 }

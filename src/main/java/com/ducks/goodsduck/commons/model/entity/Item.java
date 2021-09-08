@@ -67,8 +67,8 @@ public class Item {
         this.description = itemUploadRequest.getDescription();
         this.views = 0;
         this.likesItemCount = 0;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-        this.updatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         if(tradeType.equals(TradeType.BUY)) {
             this.tradeStatus = TradeStatus.BUYING;
         } else {

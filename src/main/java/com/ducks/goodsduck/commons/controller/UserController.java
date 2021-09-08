@@ -97,6 +97,13 @@ public class UserController {
         return OK(userService.signUp(userSignUpRequest));
     }
 
+    @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
+    @PatchMapping("/v1/users")
+    public ApiResult resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.resign(userId, userPhoneNumberRequest));
+    }
+
     @NoCheckJwt
     @ApiOperation("전화번호 중복 확인 API")
     @PostMapping("/v1/users/phone-number-check")
