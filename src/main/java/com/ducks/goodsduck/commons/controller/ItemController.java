@@ -222,9 +222,9 @@ public class ItemController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         UserItem userItem = userItemService.doLike(userId, itemId);
 
-        User receiveUser = userItem.getItem().getUser();
-        Notification userItemNotification = new Notification(receiveUser, userItem);
-        notificationService.sendMessage(userItemNotification);
+//        User receiveUser = userItem.getItem().getUser();
+//        Notification userItemNotification = new Notification(receiveUser, userItem);
+//        notificationService.sendMessage(userItemNotification);
 
         return OK(new UserItemResponse(userItem));
     }

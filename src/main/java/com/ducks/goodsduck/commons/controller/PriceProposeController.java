@@ -37,7 +37,6 @@ public class PriceProposeController {
     private final UserRepository userRepository;
     
     @PostMapping("/v1/items/{itemId}/price-propose")
-    @Transactional
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
     public ApiResult<PriceProposeResponse> proposePrice(@PathVariable("itemId") Long itemId,
                                                         @RequestBody PriceProposeRequest priceProposeRequest,

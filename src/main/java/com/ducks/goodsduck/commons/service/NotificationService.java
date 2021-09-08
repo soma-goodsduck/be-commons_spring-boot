@@ -27,7 +27,7 @@ import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
 import static com.google.firebase.messaging.Notification.*;
 
 @Service
-@Transactional
+//@Transactional
 @Slf4j
 public class NotificationService {
 
