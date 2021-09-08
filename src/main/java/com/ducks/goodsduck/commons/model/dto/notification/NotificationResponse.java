@@ -50,16 +50,6 @@ public class NotificationResponse {
                 messageUri = messageUri.concat(String.format("/price/%d", itemId));
                 break;
 
-            case USER_ITEM:
-                body = body.concat(String.format("를 %s했어요.", type.getKorName()));
-                messageUri = messageUri.concat(String.format("/item/%d", itemId));
-                break;
-
-            case CHAT:
-                body = body.concat(String.format("에 %s를 보냈어요.", type.getKorName()));
-                messageUri = messageUri.concat("/chatting");
-                break;
-
             case REVIEW:
                 body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
                 messageUri = messageUri.concat("/reviews");
