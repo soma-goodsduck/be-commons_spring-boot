@@ -30,7 +30,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -79,6 +78,16 @@ public class UserController {
     public ApiResult<UserDto> authorizeKakao(@RequestParam("code") String code) {
         log.debug("Request code of Kakao's login: " + code);
         return OK(userService.oauth2AuthorizationKakao(code));
+    }
+
+    @NoCheckJwt
+    @ApiOperation("소셜로그인_APPLE 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
+    @GetMapping("/v1/users/login/apple")
+    public ApiResult<UserDto> authorizeApple(@RequestParam("state") String state,
+                                             @RequestParam("code") String code,
+                                             @RequestParam("idToken") String idToken) throws JsonProcessingException {
+        log.debug("Request of Apple's login: \n\tstate: {}, code: {}, idToken: {}", state, code, idToken);
+        return OK(userService.oauth2AuthorizationApple(state, code, idToken));
     }
 
     @NoCheckJwt
