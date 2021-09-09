@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 
 /** 모든 API 반환 형식의 통일을 위한 Error DTO */
@@ -13,9 +14,18 @@ public class ApiError {
         this(throwable.getMessage(), status);
     }
 
+    public ApiError(ApplicationException applicationException) {
+        this(applicationException.getMessage(), applicationException.getErrorCode());
+    }
+
     public ApiError(String errorMessage, HttpStatus status) {
         this.message = errorMessage;
         this.status = status.value();
+    }
+
+    public ApiError(String errorMessage, int errorCode) {
+        this.message = errorMessage;
+        this.status = errorCode;
     }
 
     public String getMessage() {

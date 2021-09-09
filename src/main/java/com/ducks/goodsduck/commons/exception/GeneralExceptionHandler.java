@@ -1,5 +1,8 @@
 package com.ducks.goodsduck.commons.exception;
 
+import com.ducks.goodsduck.commons.exception.common.*;
+import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
+import com.ducks.goodsduck.commons.exception.user.InvalidUserRoleException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +31,19 @@ public class GeneralExceptionHandler {
         return new ResponseEntity<>(ERROR(throwable, status), headers, status);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResult<?>> handleNotFoundException(Exception e) {
-        return newResponse(e, HttpStatus.NOT_FOUND);
+    private ResponseEntity<ApiResult<?>> newApplicationResponse(ApplicationException applicationException, HttpStatus status) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        return new ResponseEntity<>(ERROR(applicationException), headers, status);
+    }
+
+    // HINT: 어플리케이션 내에서 발생하는 예외처리에 사용
+    @ExceptionHandler({DuplicatedDataException.class, DeletedDataException.class,
+            InvalidRequestDataException.class, InvalidJwtException.class,
+            NotFoundDataException.class, InvalidUserRoleException.class,
+            InvalidStateException.class})
+    public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
+        return newApplicationResponse(e, HttpStatus.OK);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -42,6 +55,11 @@ public class GeneralExceptionHandler {
     public ResponseEntity<ApiResult<?>> handleUnauthorizedException(Exception e) {
         log.debug("Unauthorized exception occured: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResult<?>> handleNotFoundException(Exception e) {
+        return newResponse(e, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({NoResultException.class, DuplicateRequestException.class,

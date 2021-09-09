@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
@@ -15,7 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.NoResultException;
@@ -35,6 +34,7 @@ public class PriceProposeController {
     private final PriceProposeService priceProposeService;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
     
     @PostMapping("/v1/items/{itemId}/price-propose")
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
@@ -49,7 +49,7 @@ public class PriceProposeController {
         // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
         User user = userRepository.findById(priceProposeResponse.getReceiverId())
                 .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
+                    throw new NoResultException();
                 });
 
         // TODO: 프론트 연동 테스트 후 문제 없을 시 sendMessageV2로 변경

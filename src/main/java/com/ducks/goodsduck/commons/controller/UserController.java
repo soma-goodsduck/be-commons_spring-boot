@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.checksame.EmailCheckRequest;
@@ -153,7 +154,7 @@ public class UserController {
 
         Long userId = userService.checkLoginStatus(jwt);
         if(userId.equals(-1L)) {
-            return ERROR(null, "There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+            throw new InvalidJwtException();
         }
 
         String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);

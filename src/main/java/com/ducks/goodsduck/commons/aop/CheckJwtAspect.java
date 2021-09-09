@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.aop;
 
+import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.service.JwtService;
 import com.ducks.goodsduck.commons.service.UserService;
@@ -38,7 +39,7 @@ public class CheckJwtAspect {
 
         // HINT: jwt의 payloads를 통해 userId를 읽었을 경우 UnAuthorized 에러 반환
         if (userId.equals(-1L)) {
-            return ERROR("There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+            throw new InvalidJwtException();
         }
 
         request.setAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS, userId);
