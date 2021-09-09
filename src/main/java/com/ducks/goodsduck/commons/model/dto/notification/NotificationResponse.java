@@ -47,17 +47,22 @@ public class NotificationResponse {
         switch (type) {
             case PRICE_PROPOSE:
                 body = body.concat(String.format("에 %s을 했어요. [%d원]", type.getKorName(), price));
-                messageUri = messageUri.concat(String.format("/price/%d", itemId));
+                messageUri = messageUri.concat(String.format("price/%d", itemId));
                 break;
 
             case REVIEW:
                 body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
-                messageUri = messageUri.concat("/reviews");
+                messageUri = messageUri.concat("reviews");
                 break;
 
             case REVIEW_FIRST:
                 body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 %s를 남겨보세요!", senderNickName, type.getKorName(), type.getKorName());
-                messageUri = messageUri.concat(String.format("/review-back/%d", itemId));
+                messageUri = messageUri.concat(String.format("review-back/%d", itemId));
+                break;
+
+            case CHAT:
+                body = body.concat(String.format("에 %s를 보냈어요.", type.getKorName()));
+                messageUri = messageUri.concat("chatting");
                 break;
 
             default:

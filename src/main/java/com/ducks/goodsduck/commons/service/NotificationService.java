@@ -93,19 +93,24 @@ public class NotificationService {
         NotificationRedis notificationRedis;
 
         if (notificationType.equals(REVIEW) || notificationType.equals(REVIEW_FIRST)) {
-            notificationRedis = new NotificationRedis(notificationType, notification.getReviewId(), notification.getSenderNickName());
+            notificationRedis = new NotificationRedis(notificationType,
+                    notification.getReviewId(),
+                    notification.getItemId(),
+                    notification.getItemName(),
+                    notification.getSenderNickName(),
+                    notification.getSenderImageUrl());
 
         } else if (notificationType.equals(PRICE_PROPOSE)) {
             notificationRedis = new NotificationRedis(notification.getPriceProposeId(),
                     notification.getPrice(),
                     notification.getItemId(),
                     notification.getItemName(),
-                    notification.getSenderNickName());
+                    notification.getSenderNickName(),
+                    notification.getSenderImageUrl());
         } else {
             return;
         }
 
-        // TODO: Redis에 알림 데이터 담기
         notificationRedisTemplate.saveNotificationKeyAndValueByUserId(notification.getUser().getId(), notificationRedis);
 
         try {
@@ -271,6 +276,9 @@ public class NotificationService {
                                 .setIcon(notificationMessage.getIconUri())
                                 .setClickAction(notificationMessage.getMessageUri())
                                 .build())
+                        .build())
+                .setApnsConfig(ApnsConfig.builder()
+                        .putCustomData("clickAction", notificationMessage.getMessageUri())
                         .build())
                 .setWebpushConfig(WebpushConfig.builder()
                         .setNotification(WebpushNotification.builder()
