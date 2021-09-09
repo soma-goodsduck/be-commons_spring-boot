@@ -289,7 +289,8 @@ public class NotificationService {
                                 .build())
                         .build())
                 .addAllTokens(registrationTokens)
-                .putData("type", notification.getType().toString());
+                .putData("type", notification.getType().toString())
+                .putData("clickAction", notificationMessage.getMessageUri());
     }
 
     public List<NotificationResponse> getNotificationsOfUserId(Long userId) {
