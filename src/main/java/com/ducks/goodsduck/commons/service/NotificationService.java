@@ -269,6 +269,7 @@ public class NotificationService {
                                 .setBody(notificationMessage.getMessageBody())
                                 .setImage(notificationMessage.getIconUri())
                                 .setIcon(notificationMessage.getIconUri())
+                                .setClickAction(notificationMessage.getMessageUri())
                                 .build())
                         .build())
                 .setWebpushConfig(WebpushConfig.builder()
