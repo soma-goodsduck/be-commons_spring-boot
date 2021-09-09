@@ -20,6 +20,7 @@ public class NotificationRedisResponse implements Serializable {
     private Long priceProposeId;
     private Integer priceProposePrice;
     private String senderNickName;
+    private String senderImageUrl;
     private Long itemId;
     private String itemName;
     private LocalDateTime createdAt;
@@ -40,6 +41,7 @@ public class NotificationRedisResponse implements Serializable {
         this.priceProposeId = notificationRedis.getPriceProposeId();
         this.priceProposePrice = notificationRedis.getPriceProposePrice();
         this.senderNickName = notificationRedis.getSenderNickName();
+        this.senderImageUrl = notificationRedis.getSenderImageUrl();
         this.itemId = notificationRedis.getItemId();
         this.itemName = notificationRedis.getItemName();
         this.createdAt =  notificationRedis.getCreatedAt();
