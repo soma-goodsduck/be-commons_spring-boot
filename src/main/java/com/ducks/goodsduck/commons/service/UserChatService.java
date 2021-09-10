@@ -83,9 +83,7 @@ public class UserChatService {
     public Boolean deleteChat(String chatId) throws Exception {
 
         try {
-            chatRepository.deleteById(chatId);
             List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
-            userChatRepository.deleteInBatch(userChatList);
 
             for (UserChat userChat : userChatList) {
                 Long userId = userChat.getUser().getId();
@@ -96,6 +94,9 @@ public class UserChatService {
                     pricePropose.setStatus(PriceProposeStatus.CANCELED);
                 }
             }
+
+            userChatRepository.deleteInBatch(userChatList);
+            chatRepository.deleteById(chatId);
 
             return true;
         } catch (Exception e) {

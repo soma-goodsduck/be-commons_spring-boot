@@ -24,7 +24,7 @@ public class UserChat {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
 
