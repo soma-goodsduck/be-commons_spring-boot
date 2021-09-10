@@ -48,7 +48,7 @@ public class UserDto {
         this.imageUrl = user.getImageUrl();
         this.role = user.getRole();
         this.level = user.getLevel();
-        this.exp = user.getLevel();
+        this.exp = user.getExp();
         this.likeIdolGroups = user.getUserIdolGroups().stream()
                                 .map(userIdolGroup -> new UserIdolGroupDto(userIdolGroup))
                                 .collect(Collectors.toList());
