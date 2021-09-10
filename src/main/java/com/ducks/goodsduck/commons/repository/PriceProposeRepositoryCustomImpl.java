@@ -112,11 +112,11 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
     }
 
     @Override
-    public Long countSuggestedInItems(List<Item> itemsByUserId) {
+    public Long countSuggestedInItems(Long userId) {
         return queryFactory
                 .select(pricePropose)
                 .from(pricePropose)
-                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(PriceProposeStatus.SUGGESTED)))
+                .where(pricePropose.user.id.eq(userId).and(pricePropose.status.eq(PriceProposeStatus.SUGGESTED)))
                 .fetchCount();
     }
 }

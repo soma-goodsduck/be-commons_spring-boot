@@ -18,7 +18,9 @@ public interface PriceProposeRepositoryCustom {
     List<Tuple> findByUserId(Long userId);
     Long updatePrice(Long userId, Long priceProposeId, int price);
     Long updateStatus(Long priceProposeId, PriceProposeStatus status);
-    Long countSuggestedInItems(List<Item> itemsByUserId);
+    Long countSuggestedInItems(Long userId);
 
     List<PricePropose> findAllByItemIdWithAllStatus(Long itemId);
+
+    L
 }

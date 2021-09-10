@@ -131,6 +131,10 @@ public class ItemController {
         return OK(itemService.delete(itemId));
     }
 
+    @ApiOperation(value = "아이템 삭제 V2")
+    @DeleteMapping("/v2/items/{itemId}")
+    public ApiResult<Long> deleteItemV2(@PathVariable("itemId") Long itemId) { return OK(itemService.deleteV2(itemId)); }
+
     @NoCheckJwt
     @ApiOperation(value = "아이템 검색 (회원/비회원)")
     @GetMapping("/v1/items/search")

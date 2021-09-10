@@ -38,6 +38,7 @@ public class UserChatService {
     private final ImageRepository imageRepository;
     private final ItemImageRepository itemImageRepository;
     private final ImageRepositoryCustomImpl imageRepositoryCustomImpl;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
 
     public Boolean createWithImmediateTrade(String chatId, Long userId, Long itemId) {
 
@@ -84,6 +85,9 @@ public class UserChatService {
             chatRepository.deleteById(chatId);
             List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
             userChatRepository.deleteInBatch(userChatList);
+
+            price
+
             return true;
         } catch (Exception e) {
             throw new Exception("Fail to delete Chat");

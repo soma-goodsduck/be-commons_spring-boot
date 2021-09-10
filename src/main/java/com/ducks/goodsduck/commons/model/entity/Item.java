@@ -34,6 +34,7 @@ public class Item {
     private Integer likesItemCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
     private TradeType tradeType;
@@ -68,7 +69,7 @@ public class Item {
         this.views = 0;
         this.likesItemCount = 0;
         this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
-        this.updatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.updatedAt = LocalDateTime.now();
         if(tradeType.equals(TradeType.BUY)) {
             this.tradeStatus = TradeStatus.BUYING;
         } else {

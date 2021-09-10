@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.Optional;
@@ -316,6 +317,7 @@ public class ItemService {
             List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(itemId);
             for (Review deleteItemOfReview : deleteItemOfReviews) {
                 // TODO : 0번 아이템 만든 후에 체크
+                deleteItemOfReview.setItem(null);
 //                deleteItemOfReview.setItem(replaceItem);
             }
 
@@ -326,6 +328,16 @@ public class ItemService {
             // item 삭제
             itemRepository.delete(deleteItem);
 
+            return 1L;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long deleteV2(Long itemId) {
+        try {
+            Item item = itemRepository.findById(itemId).get();
+            item.setDeletedAt(LocalDateTime.now());
             return 1L;
         } catch (Exception e) {
             return -1L;
@@ -390,6 +402,7 @@ public class ItemService {
     public List<ItemHomeResponse> getItemListForAnonymousV3(Long itemId) {
 
         List<Item> items = itemRepositoryCustom.findAllV3(itemId);
+
         List<ItemHomeResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemHomeResponse(item))
@@ -739,8 +752,6 @@ public class ItemService {
                 .map(item -> ItemSummaryDto.of(item, item.getImages().get(0).getUrl()))
                 .collect(Collectors.toList());
 
-        List<Item> itemsByUserId = itemRepository.findByUserId(userId);
-
         // 찜 Count
         Long countOfLikes = userItemRepository.countByUserId(userId);
 
@@ -748,7 +759,7 @@ public class ItemService {
         Long countOfReceivedReviews = reviewRepositoryCustom.countByReveiverId(userId);
 
         // 가격제시 Count
-        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);
+        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(userId);
 
         MypageResponse mypageResponse = new MypageResponse(myItems);
 
@@ -892,6 +903,10 @@ public class ItemService {
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
             List<ItemHomeResponse> itemList = getItemListForAnonymousV3(itemId);
+
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@LLLLLLLLL");
+            System.out.println(itemList.size());
+
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -903,6 +918,9 @@ public class ItemService {
         else {
             User user = userRepository.findById(userId).get();
             List<ItemHomeResponse> itemList = getItemListForUserV3(userId, itemId);
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println(itemList.size());
+
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);

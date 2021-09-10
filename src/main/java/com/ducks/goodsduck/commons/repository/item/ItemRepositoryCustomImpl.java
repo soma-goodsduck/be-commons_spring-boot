@@ -104,7 +104,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -161,7 +161,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -274,7 +274,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -328,7 +328,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .join(item.idolMember.idolGroup, idolGroup)
                 .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -413,7 +413,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -529,7 +529,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember.idolGroup, idolGroup)
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -618,7 +618,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -640,7 +640,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .where(builder)
+                .where(builder.and(item.deletedAt.isNull()))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();

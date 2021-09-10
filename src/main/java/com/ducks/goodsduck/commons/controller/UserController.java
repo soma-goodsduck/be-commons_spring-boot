@@ -162,7 +162,7 @@ public class UserController {
                 .orElseThrow(() -> new Exception("not find user id")));
     }
     
-    @ApiOperation(value = "마이페이지의 아이템 거래내역 불러오기 API")
+    @ApiOperation(value = "마이페이지 + 아이템 거래내역 불러오기 API")
     @GetMapping("/v1/users/items")
     public ApiResult<MypageResponse> getMyItemList(HttpServletRequest request, @RequestParam("tradeStatus") String tradeStatus) {
 
