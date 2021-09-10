@@ -1,12 +1,9 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.model.entity.Notification;
-import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeRequest;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
-import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.PriceProposeService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -14,10 +11,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -33,9 +28,7 @@ public class PriceProposeController {
 
     private final PriceProposeService priceProposeService;
     private final NotificationService notificationService;
-    private final UserRepository userRepository;
-    private final MessageSource messageSource;
-    
+
     @PostMapping("/v1/items/{itemId}/price-propose")
     @ApiOperation(value = "가격 제안 요청 API", notes = "SUGGEST 상태의 가격 제안 중복 요청 불가능")
     public ApiResult<PriceProposeResponse> proposePrice(@PathVariable("itemId") Long itemId,
@@ -43,18 +36,9 @@ public class PriceProposeController {
                                                         HttpServletRequest request) throws IOException {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice())
-                .orElseThrow(() -> new RuntimeException("Cannot propose the price."));
+        PriceProposeResponse priceProposeResponse = priceProposeService.proposePrice(userId, itemId, priceProposeRequest.getPrice());
 
-        // TODO: Controller에서 Repository 호출하는 로직에 대한 검토
-        User user = userRepository.findById(priceProposeResponse.getReceiverId())
-                .orElseThrow(() -> {
-                    throw new NoResultException();
-                });
-
-        // TODO: 프론트 연동 테스트 후 문제 없을 시 sendMessageV2로 변경
-//        notificationService.sendMessage(new Notification(user, priceProposeResponse));
-        notificationService.sendMessageV2(new Notification(user, priceProposeResponse));
+        notificationService.sendMessageOfPricePropose(userId, priceProposeResponse);
 
         return OK(priceProposeResponse);
     }
@@ -63,15 +47,10 @@ public class PriceProposeController {
     @ApiOperation(value = "요청했던 가격 제안에 대한 취소 요청 API", notes = "SUGGEST 상태인 가격 제안에 대해서만 취소 가능")
     public ApiResult<PriceProposeResponse> cancelPropose(@PathVariable("itemId") Long itemId,
                                                          @PathVariable("priceProposeId") Long priceProposeId,
-                                                         HttpServletRequest request) throws IllegalAccessException {
+                                                         HttpServletRequest request) {
 
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        try {
-            return OK(priceProposeService.cancelPropose(userId, priceProposeId)
-                    .orElseThrow(() -> new RuntimeException("Cannot cancel the propose of price.")));
-        } catch (IllegalAccessException e) {
-            throw e;
-        }
+        return OK(priceProposeService.cancelPropose(userId, priceProposeId));
     }
 
     @PatchMapping("/v1/items/{itemId}/price-propose/{priceProposeId}")
