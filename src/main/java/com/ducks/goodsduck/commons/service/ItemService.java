@@ -752,6 +752,8 @@ public class ItemService {
                 .map(item -> ItemSummaryDto.of(item, item.getImages().get(0).getUrl()))
                 .collect(Collectors.toList());
 
+        List<Item> itemsByUserId = itemRepository.findByUserId(userId);
+
         // 찜 Count
         Long countOfLikes = userItemRepository.countByUserId(userId);
 
@@ -759,7 +761,7 @@ public class ItemService {
         Long countOfReceivedReviews = reviewRepositoryCustom.countByReveiverId(userId);
 
         // 가격제시 Count
-        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(userId);
+        Long countOfReceievedPriceProposes = priceProposeRepositoryCustom.countSuggestedInItems(itemsByUserId);
 
         MypageResponse mypageResponse = new MypageResponse(myItems);
 

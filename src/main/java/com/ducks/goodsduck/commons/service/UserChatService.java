@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustomImpl;
@@ -86,7 +87,15 @@ public class UserChatService {
             List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
             userChatRepository.deleteInBatch(userChatList);
 
-            price
+            for (UserChat userChat : userChatList) {
+                Long userId = userChat.getUser().getId();
+                Long itemId = userChat.getItem().getId();
+                PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemIdForChat(userId, itemId);
+
+                if(pricePropose != null) {
+                    pricePropose.setStatus(PriceProposeStatus.CANCELED);
+                }
+            }
 
             return true;
         } catch (Exception e) {
