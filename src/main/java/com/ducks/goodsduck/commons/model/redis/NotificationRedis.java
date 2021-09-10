@@ -28,6 +28,7 @@ public class NotificationRedis implements Serializable {
     private Long priceProposeId;
     private Integer priceProposePrice;
     private String senderNickName;
+    private String senderImageUrl;
     private Long itemId;
     private String itemName;
 
@@ -45,21 +46,25 @@ public class NotificationRedis implements Serializable {
     }
 
     // HINT: REVIEW
-    public NotificationRedis(NotificationType type, Long reviewId, String senderNickName) {
+    public NotificationRedis(NotificationType type, Long reviewId, Long itemId, String itemName, String senderNickName, String senderImageUrl) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.reviewId = reviewId;
+        this.itemId = itemId;
+        this.itemName = itemName;
         this.senderNickName = senderNickName;
+        this.senderImageUrl = senderImageUrl;
         this.createdAt = LocalDateTime.now();
         this.expiredAt = createdAt.plusWeeks(2L);
         this.isRead = false;
     }
 
     // HINT: PricePropose
-    public NotificationRedis(Long priceProposeId, Integer priceProposePrice, Long itemId, String itemName, String senderNickName) {
+    public NotificationRedis(Long priceProposeId, Integer priceProposePrice, Long itemId, String itemName, String senderNickName, String senderImageUrl) {
         this.id = UUID.randomUUID().toString();
         this.type = PRICE_PROPOSE;
         this.senderNickName = senderNickName;
+        this.senderImageUrl = senderImageUrl;
         this.priceProposeId = priceProposeId;
         this.priceProposePrice = priceProposePrice;
         this.itemId = itemId;

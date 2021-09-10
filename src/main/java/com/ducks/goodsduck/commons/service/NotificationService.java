@@ -1,10 +1,13 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatMessageRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
+import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
@@ -15,6 +18,7 @@ import com.ducks.goodsduck.commons.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +42,7 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final NotificationRedisTemplate notificationRedisTemplate;
     private final ChatRedisTemplate chatRedisTemplate;
+    private final MessageSource messageSource;
 
     public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom,
                                NotificationRepository notificationRepository,
@@ -45,7 +50,7 @@ public class NotificationService {
                                UserChatRepositoryCustomImpl userChatRepositoryCustom,
                                UserRepository userRepository,
                                NotificationRedisTemplate notificationRedisTemplate,
-                               ChatRedisTemplate chatRedisTemplate) {
+                               ChatRedisTemplate chatRedisTemplate, MessageSource messageSource) {
         this.deviceRepositoryCustom = userDeviceRepositoryCustom;
         this.notificationRepository = notificationRepository;
         this.notificationRepositoryCustomImpl = notificationRepositoryCustomImpl;
@@ -53,64 +58,133 @@ public class NotificationService {
         this.userRepository = userRepository;
         this.notificationRedisTemplate = notificationRedisTemplate;
         this.chatRedisTemplate = chatRedisTemplate;
+        this.messageSource = messageSource;
     }
 
-    public void sendMessage(Notification notification) {
+    // TODO: 리팩토링 메서드 문제 없을 시 삭제 예정
+//    public void sendMessage(Notification notification) {
+//
+//        // 알림 데이터 저장 (DB)
+//        notificationRepository.save(notification);
+//
+//        try {
+//            // 사용자가 등록한 Device(FCM 토큰) 조회
+//            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(notification.getUser().getId());
+//
+//            if (registrationTokens.isEmpty()) {
+//                log.debug("Device for notification not founded.");
+//                return;
+//            }
+//
+//            // HINT: 알림 Message 구성
+//            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
+//                    .build();
+//            log.debug("firebase message is : \n" + message.toString());
+//
+//            // HINT: 파이어베이스에 Cloud Messaging 요청
+//            requestCloudMessagingToFirebase(registrationTokens, message);
+//
+//        } catch (FirebaseMessagingException e) {
+//            log.debug(e.getMessage(), e);
+////            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+//        } catch (Exception e) {
+//            log.debug(e.getMessage(), e);
+////            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+//        }
+//    }
+//
+//    public void sendMessageV2(Notification notification) throws JsonProcessingException {
+//
+//        // 알림 데이터 저장 (DB)
+//        NotificationType notificationType = notification.getType();
+//        NotificationRedis notificationRedis;
+//
+//        if (notificationType.equals(REVIEW) || notificationType.equals(REVIEW_FIRST)) {
+//            notificationRedis = new NotificationRedis(notificationType,
+//                    notification.getReviewId(),
+//                    notification.getItemId(),
+//                    notification.getItemName(),
+//                    notification.getSenderNickName(),
+//                    notification.getSenderImageUrl());
+//
+//        } else if (notificationType.equals(PRICE_PROPOSE)) {
+//            notificationRedis = new NotificationRedis(notification.getPriceProposeId(),
+//                    notification.getPrice(),
+//                    notification.getItemId(),
+//                    notification.getItemName(),
+//                    notification.getSenderNickName(),
+//                    notification.getSenderImageUrl());
+//        } else {
+//            return;
+//        }
+//
+//        saveNotificationAndRequestCloudMessaging(notification.getUser(), notification, notificationRedis, notification.getUser().getId());
+//    }
 
-        // 알림 데이터 저장 (DB)
-        notificationRepository.save(notification);
+    /**
+     * PricePropose 용 알림 메서드
+     * Redis에 저장 + FCM 전송
+     * @param senderId
+     * @param priceProposeResponse
+     * @throws JsonProcessingException
+     */
+    public void sendMessageOfPricePropose(Long senderId, PriceProposeResponse priceProposeResponse) throws JsonProcessingException {
+
+        User receiver = userRepository.findById(priceProposeResponse.getReceiverId())
+            .orElseThrow(() -> {
+                throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null));
+            });
+
+        Notification notification = new Notification(receiver, priceProposeResponse);
+
+        NotificationRedis notificationRedis = new NotificationRedis(notification.getPriceProposeId(),
+                notification.getPrice(),
+                notification.getItemId(),
+                notification.getItemName(),
+                notification.getSenderNickName(),
+                notification.getSenderImageUrl());
+
+        saveNotificationAndRequestCloudMessaging(notification.getUser(), notification, notificationRedis, receiver.getId());
+    }
+
+    /**
+     * Review 용(REVIEW_FIRST, REVIEW) 알림 메서드
+     * Redis에 저장 + FCM 전송
+     * @param reviewType
+     * @param savedReview
+     * @throws JsonProcessingException
+     */
+    public void sendMessageOfReview(NotificationType reviewType, Review savedReview) throws JsonProcessingException {
+
+        User sender = savedReview.getUser();
+
+        User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"User"}, null));
+        });
+
+        sender.gainExp(20);
+
+        Notification notification = new Notification(savedReview, receiver, reviewType);
+
+        NotificationRedis notificationRedis = new NotificationRedis(reviewType,
+                notification.getReviewId(),
+                notification.getItemId(),
+                notification.getItemName(),
+                notification.getSenderNickName(),
+                notification.getSenderImageUrl());
+
+        saveNotificationAndRequestCloudMessaging(receiver, notification, notificationRedis, receiver.getId());
+
+    }
+
+    private void saveNotificationAndRequestCloudMessaging(User receiver, Notification notification, NotificationRedis notificationRedis, Long receiverId) throws JsonProcessingException {
+        notificationRedisTemplate.saveNotificationKeyAndValueByUserId(receiver.getId(), notificationRedis);
 
         try {
             // 사용자가 등록한 Device(FCM 토큰) 조회
-            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(notification.getUser().getId());
-
-            if (registrationTokens.isEmpty()) {
-                log.debug("Device for notification not founded.");
-                return;
-            }
-
-            // HINT: 알림 Message 구성
-            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
-                    .build();
-            log.debug("firebase message is : \n" + message.toString());
-
-            // HINT: 파이어베이스에 Cloud Messaging 요청
-            requestCloudMessagingToFirebase(registrationTokens, message);
-
-        } catch (FirebaseMessagingException e) {
-            log.debug(e.getMessage(), e);
-//            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
-        } catch (Exception e) {
-            log.debug(e.getMessage(), e);
-//            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
-        }
-    }
-
-    public void sendMessageV2(Notification notification) throws JsonProcessingException {
-
-        // 알림 데이터 저장 (DB)
-        NotificationType notificationType = notification.getType();
-        NotificationRedis notificationRedis;
-
-        if (notificationType.equals(REVIEW) || notificationType.equals(REVIEW_FIRST)) {
-            notificationRedis = new NotificationRedis(notificationType, notification.getReviewId(), notification.getSenderNickName());
-
-        } else if (notificationType.equals(PRICE_PROPOSE)) {
-            notificationRedis = new NotificationRedis(notification.getPriceProposeId(),
-                    notification.getPrice(),
-                    notification.getItemId(),
-                    notification.getItemName(),
-                    notification.getSenderNickName());
-        } else {
-            return;
-        }
-
-        // TODO: Redis에 알림 데이터 담기
-        notificationRedisTemplate.saveNotificationKeyAndValueByUserId(notification.getUser().getId(), notificationRedis);
-
-        try {
-            // 사용자가 등록한 Device(FCM 토큰) 조회
-            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(notification.getUser().getId());
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiverId);
 
             if (registrationTokens.isEmpty()) {
                 log.debug("Device for notification not founded.");
@@ -265,9 +339,11 @@ public class NotificationService {
                         .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
-//                                .setTitle(notificationMessage.getMessageTitle())
-//                                .setBody(notificationMessage.getMessageBody())
+                                .setTitle(notificationMessage.getMessageTitle())
+                                .setBody(notificationMessage.getMessageBody())
+                                .setImage(notificationMessage.getIconUri())
                                 .setIcon(notificationMessage.getIconUri())
+                                .setClickAction(notificationMessage.getMessageUri())
                                 .build())
                         .build())
                 .setWebpushConfig(WebpushConfig.builder()
@@ -279,7 +355,8 @@ public class NotificationService {
                                 .build())
                         .build())
                 .addAllTokens(registrationTokens)
-                .putData("type", notification.getType().toString());
+                .putData("type", notification.getType().toString())
+                .putData("clickAction", notificationMessage.getMessageUri());
     }
 
     public List<NotificationResponse> getNotificationsOfUserId(Long userId) {

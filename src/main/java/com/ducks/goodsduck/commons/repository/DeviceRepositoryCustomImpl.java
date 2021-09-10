@@ -24,7 +24,7 @@ public class DeviceRepositoryCustomImpl implements DeviceRepositoryCustom {
     public List<String> getRegistrationTokensByUserId(Long userId) {
         return queryFactory.select(device.registrationToken)
                 .from(device)
-                .where(device.user.id.eq(userId))
+                .where(device.user.id.eq(userId).and(device.isAllowed.isTrue()))
                 .fetch();
     }
 

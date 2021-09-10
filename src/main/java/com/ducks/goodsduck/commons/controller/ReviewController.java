@@ -4,12 +4,7 @@ import com.ducks.goodsduck.commons.model.dto.review.ReviewBackResponse;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
-import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.Review;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.repository.item.ItemRepository;
-import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
-import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustomImpl;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
@@ -21,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -58,24 +52,9 @@ public class ReviewController {
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
                                          @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException, JsonProcessingException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        Review savedReview = reviewService.saveReview(userId, reviewRequest)
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("Error occurred during save review.");
-                });
+        Review savedReview = reviewService.saveReview(userId, reviewRequest);
 
-        User sender = userRepository.findById(userId).orElseThrow(() -> {
-            throw new NoResultException("Sender not founded.");
-        });
-
-        User receiver = userRepository.findById(savedReview.getReceiverId()).orElseThrow(() -> {
-            throw new NoResultException("Receiver not founded.");
-        });
-
-        sender.gainExp(20);
-
-        // TODO: 프론트 연동 테스트 후 문제 없을 시 sendMessageV2로 변경
-//        notificationService.sendMessage(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
-        notificationService.sendMessageV2(new Notification(savedReview, receiver, reviewRequest.getReviewType()));
+        notificationService.sendMessageOfReview(reviewRequest.getReviewType(), savedReview);
         return OK(true);
     }
 

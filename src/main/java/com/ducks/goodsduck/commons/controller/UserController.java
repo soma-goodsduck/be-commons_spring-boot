@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.model.dto.*;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.dto.checksame.EmailCheckRequest;
@@ -30,7 +31,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -82,10 +82,27 @@ public class UserController {
     }
 
     @NoCheckJwt
+    @ApiOperation("소셜로그인_APPLE 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
+    @GetMapping("/v1/users/login/apple")
+    public ApiResult<UserDto> authorizeApple(@RequestParam("state") String state,
+                                             @RequestParam("code") String code,
+                                             @RequestParam("idToken") String idToken) throws JsonProcessingException {
+        log.debug("Request of Apple's login: \n\tstate: {}, code: {}, idToken: {}", state, code, idToken);
+        return OK(userService.oauth2AuthorizationApple(state, code, idToken));
+    }
+
+    @NoCheckJwt
     @ApiOperation("회원가입 API")
     @PostMapping("/v1/users/sign-up")
     public ApiResult<UserDto> signUpUser(@RequestBody UserSignUpRequest userSignUpRequest) {
         return OK(userService.signUp(userSignUpRequest));
+    }
+
+    @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
+    @PatchMapping("/v1/users")
+    public ApiResult resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.resign(userId, userPhoneNumberRequest));
     }
 
     @NoCheckJwt
@@ -137,7 +154,7 @@ public class UserController {
 
         Long userId = userService.checkLoginStatus(jwt);
         if(userId.equals(-1L)) {
-            return ERROR(null, "There is no jwt or not be able to get payloads.", HttpStatus.UNAUTHORIZED);
+            throw new InvalidJwtException();
         }
 
         String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);

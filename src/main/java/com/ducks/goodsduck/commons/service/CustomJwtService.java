@@ -2,19 +2,20 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-//import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +25,13 @@ import java.util.Map;
 public class CustomJwtService implements JwtService {
 
     private final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
+    private final ObjectMapper objectMapper;
 
     private final String STRING_EXPIRE_TIME = jsonOfAwsSecrets.optString("spring.security.jwt.expire-time", "10000000000");
     private final String SECRET_KEY = jsonOfAwsSecrets.optString("spring.security.jwt.secret-key", "QW76QWORJOQPWNTHOWQN2QWBLK1QWBTKLQQIHR5W7QHWI6WQWBR7KLQWBK4LRQWRQWKNR48QWTOWQ:ORNQWLQ2NRWQ6K3BRKQWORJQOQ");
 
-    public CustomJwtService() throws ParseException {
+    public CustomJwtService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     public Jws<Claims> getClaims(String jwt) {
@@ -36,6 +39,15 @@ public class CustomJwtService implements JwtService {
                 .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
                 .build()
                 .parseClaimsJws(jwt);
+    }
+
+    public Map<String, Object> getClaimsWithoutSignedKey(String jwt) throws JsonProcessingException {
+        String[] charactors = jwt.split("[.]");
+        Base64.Decoder decoder = Base64.getDecoder();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String string = new String(decoder.decode(charactors[0]));
+
+        return objectMapper.readValue(string, Map.class);
     }
 
     @Override
@@ -64,13 +76,18 @@ public class CustomJwtService implements JwtService {
     }
 
     @Override
+    public String getSubject(String jwt) {
+        return (String) getPayloads(jwt).get("sub");
+    }
+
+    @Override
     public Map<String, Object> getPayloads(String jwt) { return new HashMap<>(getClaims(jwt).getBody()); }
 
     @Override
     public Map<String, Object> getHeader(String jwt) { return getClaims(jwt).getHeader(); }
 
     @Override
-    public String getSubject(String jwt) {
-        return (String) getPayloads(jwt).get("sub");
+    public Map<String, Object> getHeaderWithoutSignedKey(String jwt) throws JsonProcessingException {
+        return getClaimsWithoutSignedKey(jwt);
     }
 }

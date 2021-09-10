@@ -39,6 +39,6 @@ public class PricePropose {
         this.item = item;
         this.status = PriceProposeStatus.SUGGESTED;
         this.price = price;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
     }
 }

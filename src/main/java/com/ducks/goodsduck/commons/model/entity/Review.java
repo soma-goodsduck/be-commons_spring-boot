@@ -39,6 +39,6 @@ public class Review {
         this.receiverId = receiverId;
         this.content = content;
         this.score = score;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
     }
 }

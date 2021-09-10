@@ -53,9 +53,7 @@ public class User {
         this.nickName = nickName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-//        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.createdAt = LocalDateTime.now();
-//        this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.lastLoginAt = LocalDateTime.now();
         this.role = UserRole.USER;
         this.level = 1;
@@ -82,7 +80,6 @@ public class User {
     }
 
     public void updateLastLoginAt() {
-//        this.lastLoginAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
         this.lastLoginAt = LocalDateTime.now();
     }
 

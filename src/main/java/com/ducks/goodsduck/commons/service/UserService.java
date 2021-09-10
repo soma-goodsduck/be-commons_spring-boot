@@ -2,14 +2,11 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
-import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
-import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
-import com.ducks.goodsduck.commons.model.dto.item.ItemHomeResponse;
-import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
-import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
+import com.ducks.goodsduck.commons.model.dto.oauth2.*;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserDto;
+import com.ducks.goodsduck.commons.model.dto.user.UserPhoneNumberRequest;
 import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
@@ -23,10 +20,14 @@ import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
+import com.ducks.goodsduck.commons.util.OauthAppleLoginUtil;
 import com.ducks.goodsduck.commons.util.OauthKakaoLoginUtil;
 import com.ducks.goodsduck.commons.util.OauthNaverLoginUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -34,11 +35,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
+import static com.ducks.goodsduck.commons.model.enums.UserRole.*;
 
 @Service
 @RequiredArgsConstructor
@@ -77,9 +85,6 @@ public class UserService {
 
         // 비회원 체크
         JSONObject jsonUserInfo = new JSONObject(userInfoFromNaver);
-//        JSONParser parser = new JSONParser();
-//        Object obj = parser.parse(userInfoFromNaver);
-//        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
 
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
@@ -87,27 +92,7 @@ public class UserService {
         // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
         log.debug(userInfoFromNaver);
 
-        return socialAccountRepository.findById(userSocialAccountId)
-                // socialAccount가 이미 등록되어 있는 경우, 기존 정보를 담은 userDto(USER) 반환
-                .map(socialAccount -> {
-                    User user = socialAccount.getUser();
-                    Device device = deviceRepository.findByUser(user)
-                            .orElseGet(() -> new Device(user));
-                    UserDto userDto = new UserDto(user);
-                    userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
-                    userDto.setAgreeToNotification(device.getIsAllowed());
-
-                    return userDto;
-                })
-                // socialAccount가 등록되어 있지 않은 경우, userDto(ANONUMOUS) 반환
-                .orElseGet(() -> {
-                    UserDto userDto = new UserDto();
-                    userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setRole(UserRole.ANONYMOUS);
-
-                    return userDto;
-                });
+        return checkUserAndGetInfo(userSocialAccountId);
     }
 
     // 카카오로 인증받기
@@ -122,20 +107,71 @@ public class UserService {
 
         // 비회원 체크
         JSONObject jsonUserInfo = new JSONObject(userInfoFromKakao);
-//        JSONParser parser = new JSONParser();
-//        Object obj = parser.parse(userInfoFromKakao);
-//        JSONObject jsonUserInfo = (org.json.simple.JSONObject) obj;
-
         String userSocialAccountId = jsonUserInfo.get("id").toString();
 
         // 회원 로그인, 비회원 로그인 체크
-        return socialAccountRepository.findById(userSocialAccountId)
+        return checkUserAndGetInfo(userSocialAccountId);
+    }
+
+    public UserDto oauth2AuthorizationApple(String state, String code, String idToken) {
+
+        // Apple 서버 - 소셜 로그인 정보 요청 및 응답
+        Claims claims = getClaimsBy(idToken);
+        log.debug("Information of User from Apple Server: {}", claims);
+        String subOfUser = claims.get("sub").toString();
+
+        return checkUserAndGetInfo(subOfUser);
+    }
+
+    public Claims getClaimsBy(String idToken) {
+        try {
+            Map<String, Object> headers = jwtService.getHeaderWithoutSignedKey(idToken);
+            String kidOfIdToken = (String) headers.get("kid");
+            List<PublicKeyOfApple> publicKeyOfApples = OauthAppleLoginUtil.callPublicToken();
+            PublicKeyOfApple realPublicKey = null;
+            for (PublicKeyOfApple publicKeyOfApple : publicKeyOfApples) {
+                if (kidOfIdToken.equals(publicKeyOfApple.getKid())) {
+                    realPublicKey = publicKeyOfApple;
+                    break;
+                }
+            }
+
+            if (realPublicKey == null) {
+                throw new RuntimeException("Can't get information from Apple server.");
+            }
+
+            byte[] nBytes = Base64.getUrlDecoder().decode(realPublicKey.getN());
+            byte[] eBytes = Base64.getUrlDecoder().decode(realPublicKey.getE());
+
+            BigInteger n = new BigInteger(1, nBytes);
+            BigInteger e = new BigInteger(1, eBytes);
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
+            KeyFactory keyFactory = KeyFactory.getInstance(realPublicKey.getKty());
+            PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+
+            return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(idToken).getBody();
+        } catch (NoSuchAlgorithmException e) {
+            log.info("", e);
+            return null;
+        } catch (InvalidKeySpecException e) {
+            log.info("", e);
+            return null;
+        } catch (JsonProcessingException e) {
+            log.info("", e);
+            return null;
+        }
+    }
+
+    // 회원 로그인, 비회원 로그인 체크
+    public UserDto checkUserAndGetInfo(String userInfoFromOauth2) {
+        return socialAccountRepository.findById(userInfoFromOauth2)
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
                     Device device = deviceRepository.findByUser(user)
                             .orElseGet(() -> new Device(user));
+                    deviceRepository.save(device);
                     UserDto userDto = new UserDto(user);
-                    userDto.setSocialAccountId(userSocialAccountId);
+                    userDto.setSocialAccountId(userInfoFromOauth2);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
                     userDto.setAgreeToNotification(device.getIsAllowed());
 
@@ -143,8 +179,8 @@ public class UserService {
                 })
                 .orElseGet(() -> {
                     UserDto userDto = new UserDto();
-                    userDto.setSocialAccountId(userSocialAccountId);
-                    userDto.setRole(UserRole.ANONYMOUS);
+                    userDto.setSocialAccountId(userInfoFromOauth2);
+                    userDto.setRole(ANONYMOUS);
 
                     return userDto;
                 });
@@ -280,7 +316,6 @@ public class UserService {
 
     public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException, ImageProcessingException, MetadataException {
         User user = userRepository.findById(userId).get();
-        System.out.println(user);
 
         return imageUploadService.uploadImage(multipartFile, imageType, user.getNickName()).getUrl();
     }
@@ -363,5 +398,18 @@ public class UserService {
         Long reviewCount = reviewRepositoryCustom.countByReveiverId(userId);
 
         return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
+    }
+
+    public Boolean resign(Long userId, UserPhoneNumberRequest userPhoneNumberRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NoResultException("User not founded.");
+                });
+
+        if (!user.getPhoneNumber().equals(userPhoneNumberRequest.getPhoneNumber())) {
+            return false;
+        }
+
+        return userRepositoryCustom.updateRoleByUserId(userId, RESIGNED) > 0 ? true : false;
     }
 }

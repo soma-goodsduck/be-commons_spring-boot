@@ -38,7 +38,7 @@ public class ReviewService {
         this.itemRepository = itemRepository;
     }
 
-    public Optional<Review> saveReview(Long senderId, ReviewRequest reviewRequest) throws IllegalAccessException {
+    public Review saveReview(Long senderId, ReviewRequest reviewRequest) throws IllegalAccessException {
 
         String chatRoomId = reviewRequest.getChatRoomId();
         UserChat receiverChat = userChatRepositoryCustom.findBySenderIdAndChatRoomId(senderId, chatRoomId);
@@ -66,7 +66,7 @@ public class ReviewService {
             throw new IllegalAccessException("Reviewer must be in chat room.");
         }
 
-        return Optional.ofNullable(reviewRepository.save(new Review(sender, tradeCompletedItem, receiverId, reviewRequest.getContent(), reviewRequest.getScore())));
+        return reviewRepository.save(new Review(sender, tradeCompletedItem, receiverId, reviewRequest.getContent(), reviewRequest.getScore()));
     }
 
     public List<ReviewResponse> getReviewsOfItemOwner(Long itemId) {

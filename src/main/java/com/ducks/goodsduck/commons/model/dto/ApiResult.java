@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.dto;
 
+import com.ducks.goodsduck.commons.exception.ApplicationException;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
@@ -22,6 +23,10 @@ public class ApiResult<T> {
 
     public static ApiResult<?> ERROR(Throwable throwable, HttpStatus status) {
         return new ApiResult<>(false, null, new ApiError(throwable, status));
+    }
+
+    public static ApiResult<?> ERROR(ApplicationException applicationException) {
+        return new ApiResult<>(false, null, new ApiError(applicationException));
     }
 
     public static ApiResult<?> ERROR(String errorMessage, HttpStatus status) {

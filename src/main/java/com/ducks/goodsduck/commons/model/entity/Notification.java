@@ -67,7 +67,7 @@ public class Notification {
         this.itemId = userItem.getItem().getId();
         this.itemName = userItem.getItem().getName();
         this.type = NotificationType.USER_ITEM;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
         this.isRead = false;
     }
 
@@ -89,7 +89,7 @@ public class Notification {
         this.senderImageUrl = senderImageUrl;
         this.itemName = itemName;
         this.type = type;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
         this.isRead = false;
     }
 
@@ -101,7 +101,7 @@ public class Notification {
         this.itemName = itemName;
         this.type = type;
         this.price = price;
-        this.createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Asia/Seoul"));
+        this.createdAt = LocalDateTime.now();
         this.isRead = false;
     }
 }

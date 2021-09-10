@@ -1,5 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
+import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
+import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.PricePropose;
@@ -9,13 +14,11 @@ import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.querydsl.core.Tuple;
-import com.sun.jdi.request.DuplicateRequestException;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.enums.PriceProposeStatus.*;
@@ -29,59 +32,65 @@ public class PriceProposeService {
     private final ItemRepositoryCustom itemRepositoryCustom;
     private final PriceProposeRepository priceProposeRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final MessageSource messageSource;
 
-    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl) {
+    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.itemRepositoryCustom = itemRepositoryCustom;
         this.priceProposeRepository = priceProposeRepository;
         this.priceProposeRepositoryCustom = priceProposeRepositoryCustomImpl;
+        this.messageSource = messageSource;
     }
 
-    public Optional<PriceProposeResponse> proposePrice(Long userId, Long itemId, int price) {
+    public PriceProposeResponse proposePrice(Long userId, Long itemId, int price) {
 
         // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인
         PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
 
         if (pricePropose != null) {
-            throw new DuplicateRequestException("Propose of price already exists.");
+            throw new DuplicatedDataException((messageSource.getMessage(DuplicatedDataException.class.getSimpleName(),
+                    new Object[]{"PricePropose"}, null)));
         }
 
         var findUser = userRepository.findById(userId)
             .orElseThrow(
-                    () -> new NoResultException("User not founded."));
+                    () -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"User"}, null)));
 
         var findItem = itemRepository.findById(itemId)
             .orElseThrow(
-                    () -> new NoResultException("Item not founded."));
+                    () -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"Item"}, null)));
 
         if (findItem.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Cannot propose yourself to yourself.");
+            throw new UnauthorizedException();
         }
 
         var newPricePropose = new PricePropose(findUser, findItem, price);
 
         PricePropose savedPricePropose = priceProposeRepository.save(newPricePropose);
-        PriceProposeResponse priceProposeResponse = new PriceProposeResponse(findUser, findItem, savedPricePropose);
 
-        return Optional.ofNullable(priceProposeResponse);
+        return new PriceProposeResponse(findUser, findItem, savedPricePropose);
     }
 
-    public Optional<PriceProposeResponse> cancelPropose(Long userId, Long priceProposeId) throws IllegalAccessException {
+    public PriceProposeResponse cancelPropose(Long userId, Long priceProposeId) {
         PricePropose findPricePropose = priceProposeRepository.findById(priceProposeId)
                 .orElseThrow(
-                        () -> new NoResultException("PricePropose not founded."));
+                        () -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                                new Object[]{"PricePropose"}, null)));
 
         // HINT: 취소하려는 가격 제안의 주체가 요청한 사용자가 아닌 경우, SUGGESTED 상태가 아닌 경우는 처리하지 않는다.
         if (!findPricePropose.getUser().getId().equals(userId)) {
-            throw new IllegalAccessException("Propose of price is not given by this user.");
+            throw new InvalidJwtException();
         } else if (!findPricePropose.getStatus().equals(SUGGESTED)) {
-            throw new IllegalArgumentException("Propose is not in SUGGESTED.");
+            throw new InvalidStateException(messageSource.getMessage(InvalidStateException.class.getSimpleName(),
+                    new Object[]{"PricePropose"}, null));
         }
 
         findPricePropose.setStatus(CANCELED);
 
-        return Optional.ofNullable(new PriceProposeResponse(findPricePropose));
+        return new PriceProposeResponse(findPricePropose);
 
     }
 
@@ -97,7 +106,8 @@ public class PriceProposeService {
     public List<PriceProposeResponse> findAllReceiveProposeByUser(Long userId) {
         List<Item> myItemList = itemRepository.findByUserId(userId);
         User findUser = userRepository.findById(userId).orElseThrow(
-                () -> new NoResultException("User is not founded."));
+                () -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
 
         return priceProposeRepositoryCustom.findByItems(myItemList)
                 .stream()
@@ -128,7 +138,8 @@ public class PriceProposeService {
     public List<PriceProposeResponse> findAllGiveProposeByUser(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoResultException("User is not founded."));
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
 
         return priceProposeRepositoryCustom.findByUserId(userId)
                 .stream()
@@ -162,14 +173,15 @@ public class PriceProposeService {
     public Boolean checkStatus(Long priceProposeId) {
         PricePropose pricePropose = priceProposeRepository.findById(priceProposeId)
                 .orElseThrow(() -> {
-                    throw new NoResultException("No pricePropose founded.");
+                    throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"PricePropose"}, null));
                 });
 
-        if (pricePropose.getStatus().equals(CANCELED) ||
-                pricePropose.getStatus().equals(REFUSED)) {
+        PriceProposeStatus priceProposeStatus = pricePropose.getStatus();
+        if (priceProposeStatus.equals(CANCELED) ||
+                priceProposeStatus.equals(REFUSED)) {
             return false;
         }
-
         return true;
     }
 }
