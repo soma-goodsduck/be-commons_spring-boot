@@ -12,11 +12,15 @@ public class UserSimpleDto {
     private String bcryptId;
     private String nickName;
     private String imageUrl;
+    private Integer level;
+    private Integer exp;
 
     public UserSimpleDto(User user) {
         this.userId = user.getId();
         this.bcryptId = user.getBcryptId();
         this.nickName = user.getNickName();
         this.imageUrl = user.getImageUrl();
+        this.level = user.getLevel();
+        this.exp = user.getExp();
     }
 }

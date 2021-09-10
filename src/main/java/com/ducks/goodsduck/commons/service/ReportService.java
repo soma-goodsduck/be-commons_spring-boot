@@ -53,6 +53,7 @@ public class ReportService {
         Category reportCategory = categoryRepository.findById(reportRequest.getReportCategoryId())
                 .orElseThrow(() -> { throw new NoResultException("Not Find ReportCategory in CategoryService.addReport");});
 
+        // TODO : 로직변경
         if(reportRepository.existsByReceiverAndSenderId(receiver, sender.getId())) {
             return new ReportResponse();
         }

@@ -24,6 +24,8 @@ public class UserDto {
     private String imageUrl;
     private String jwt;
     private UserRole role;
+    private Integer level;
+    private Integer exp;
     private List<UserIdolGroupDto> likeIdolGroups = new ArrayList<>();
     private Boolean isAgreeToNotification;
     private LocalDateTime createdAt;
@@ -45,6 +47,8 @@ public class UserDto {
         this.email = user.getEmail();
         this.imageUrl = user.getImageUrl();
         this.role = user.getRole();
+        this.level = user.getLevel();
+        this.exp = user.getLevel();
         this.likeIdolGroups = user.getUserIdolGroups().stream()
                                 .map(userIdolGroup -> new UserIdolGroupDto(userIdolGroup))
                                 .collect(Collectors.toList());
