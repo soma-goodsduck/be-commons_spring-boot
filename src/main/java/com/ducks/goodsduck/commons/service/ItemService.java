@@ -103,7 +103,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
-            log.debug("Exception occurred during uploading Item", e, e.getStackTrace())
+            log.debug("Exception occurred during uploading Item", e, e.getStackTrace());
             return -1L;
         }
     }
@@ -180,6 +180,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
+            log.debug("Exception occurred during editing Item", e, e.getStackTrace());
             return -1L;
         }
     }
@@ -278,6 +279,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
+            log.debug("Exception occurred during editing Item", e, e.getStackTrace());
             return -1L;
         }
     }
@@ -341,6 +343,7 @@ public class ItemService {
             item.setDeletedAt(LocalDateTime.now());
             return 1L;
         } catch (Exception e) {
+            log.debug("Exception occurred during deleting Item", e, e.getStackTrace());
             return -1L;
         }
     }
