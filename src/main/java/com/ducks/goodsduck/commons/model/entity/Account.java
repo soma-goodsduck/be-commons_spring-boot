@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.model.dto.AccountDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,21 +14,20 @@ import javax.persistence.*;
 public class Account {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ACCOUNT_ID")
+    @Column(name = "account_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String name;
     private String bank;
     private String accountNumber;
 
-    public Account(User user, String name, String bank, String accountNumber) {
-        this.user = user;
-        this.name = name;
-        this.bank = bank;
-        this.accountNumber = accountNumber;
+    public Account(AccountDto accountDto) {
+        this.name = accountDto.getName();
+        this.bank = accountDto.getBank();
+        this.accountNumber = accountDto.getAccountNumber();
     }
 }

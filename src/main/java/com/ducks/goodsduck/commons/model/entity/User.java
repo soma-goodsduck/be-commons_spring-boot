@@ -8,9 +8,7 @@ import lombok.Setter;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -45,9 +43,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Address> addresses = new ArrayList<>();
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;

@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.NoticeDto;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
 import com.ducks.goodsduck.commons.repository.NoticeRepository;
@@ -16,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -28,11 +31,11 @@ public class NoticeController {
     @NoCheckJwt
     @GetMapping("/v1/notices")
     @ApiOperation(value = "공지사항 조회 (비회원)")
-    public List<NoticeDto> getNotices() {
-        return noticeRepository.findAll()
+    public ApiResult<List<NoticeDto>> getNotices() {
+        return OK(noticeRepository.findAll()
                 .stream()
                 .map(notice -> new NoticeDto(notice))
                 .sorted(Comparator.comparing(NoticeDto::getUpdatedAt).reversed())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 }

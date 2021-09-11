@@ -56,7 +56,7 @@ public class Item {
     @JoinColumn(name = "idol_member_id")
     private IdolMember idolMember;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
     private ItemCategory itemCategory;
 

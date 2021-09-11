@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.model.dto.AddressDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,21 +14,20 @@ import javax.persistence.*;
 public class Address {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
+    @Column(name = "delivery_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     private String name;
     private String phoneNumber;
-    private String fullAddress;
+    private String detailAddress;
 
-    public Address(User user, String name, String phoneNumber, String fullAddress) {
-        this.user = user;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.fullAddress = fullAddress;
+    public Address(AddressDto addressDto) {
+        this.name = addressDto.getName();
+        this.phoneNumber = addressDto.getPhoneNumber();
+        this.detailAddress = addressDto.getDetailAddress();
     }
 }
