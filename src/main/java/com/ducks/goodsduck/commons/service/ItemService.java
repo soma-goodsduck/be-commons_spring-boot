@@ -103,6 +103,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
+            log.debug("Exception occurred during uploading Item", e, e.getStackTrace())
             return -1L;
         }
     }
