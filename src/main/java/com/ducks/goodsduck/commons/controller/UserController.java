@@ -31,7 +31,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +58,8 @@ public class UserController {
     private final JwtService jwtService;
     private final NotificationService notificationService;
     private final SmsAuthenticationService smsAuthenticationService;
+    private final AddressService addressService;
+    private final AccountService accountService;
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -285,6 +286,48 @@ public class UserController {
         String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
         String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
         return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
+    }
+
+    @GetMapping("/v1/users/address")
+    @ApiOperation("배송정보 가져오기 (회원)")
+    public ApiResult<AddressDto> getAddress(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(addressService.getAddress(userId));
+    }
+
+    @PostMapping("/v1/users/address")
+    @ApiOperation("배송정보 등록하기 (회원)")
+    public ApiResult<Boolean> registerAddress(@RequestBody AddressDto addressDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(addressService.registerAddress(userId, addressDto));
+    }
+
+    @PutMapping("/v1/users/address")
+    @ApiOperation("배송정보 수정하기 (회원)")
+    public ApiResult<Boolean> editAddress(@RequestBody AddressDto addressDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(addressService.editAddress(userId, addressDto));
+    }
+
+    @GetMapping("/v1/users/account")
+    @ApiOperation("계좌정보 가져오기 (회원)")
+    public ApiResult<AccountDto> getAccount(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(accountService.getAccount(userId));
+    }
+
+    @PostMapping("/v1/users/account")
+    @ApiOperation("계좌정보 등록하기 (회원)")
+    public ApiResult<Boolean> registerAccount(@RequestBody AccountDto accountDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(accountService.registerAccount(userId, accountDto));
+    }
+
+    @PutMapping("/v1/users/account")
+    @ApiOperation("계좌정보 수정하기 (회원)")
+    public ApiResult<Boolean> editAccount(@RequestBody AccountDto accountDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(accountService.editAccount(userId, accountDto));
     }
 
     @NoCheckJwt
