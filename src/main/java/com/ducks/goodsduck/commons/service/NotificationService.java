@@ -340,6 +340,7 @@ public class NotificationService {
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
                                 .setTitle(notificationMessage.getMessageTitle())
+                                .setColor("ffce00")
                                 .setBody(notificationMessage.getMessageBody())
                                 .setImage(notificationMessage.getIconUri())
                                 .setIcon(notificationMessage.getIconUri())
