@@ -103,7 +103,7 @@ public class ItemService {
 
             return item.getId();
         } catch (Exception e) {
-            log.debug("Exception occurred during uploading Item", e, e.getStackTrace());
+            log.debug("Exception occured during uploading Item: {}", e, e.getStackTrace());
             return -1L;
         }
     }
@@ -139,12 +139,12 @@ public class ItemService {
             itemDetailResponse.likesOfMe();
         }
 
+        // 받은 가격 제안 정보 조회
+        List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
+        itemDetailResponse.addProposedList(priceProposes);
+
         // 아이템 주인인 경우
         if (item.getUser().getId().equals(userId)) {
-            // 받은 가격 제안 정보 조회
-            List<PricePropose> priceProposes = priceProposeRepositoryCustom.findAllByItemId(itemId);
-            itemDetailResponse.addProposedList(priceProposes);
-            
             // 내 아이템 체크
             itemDetailResponse.myItem();
         } else {
