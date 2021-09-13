@@ -1,26 +1,17 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
 import com.ducks.goodsduck.commons.model.dto.*;
-import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.item.*;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
-import com.ducks.goodsduck.commons.model.entity.Image.Image;
-import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
-import com.ducks.goodsduck.commons.model.entity.Notification;
-import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserItem;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
-import com.ducks.goodsduck.commons.repository.image.ImageRepository;
-import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,9 +44,9 @@ public class ItemController {
     private final UserService userService;
     private final UserItemService userItemService;
     private final NotificationService notificationService;
+    private final ImageUploadService imageUploadService;
 
     // TODO : 워터마크 테스트용 추후 삭제
-    private final ImageUploadService imageUploadService;
 //    @NoCheckJwt
 //    @ApiOperation(value = "(테스트 중) 워터마크 테스트 API")
 //    @PostMapping("/v1/check/watermark")
@@ -118,7 +109,7 @@ public class ItemController {
     @PutMapping("/v2/items/{itemId}")
     public ApiResult<Long> editItemV2(@PathVariable("itemId") Long itemId, @RequestParam String stringItemDto,
                                       @RequestParam(required = false) List<MultipartFile> multipartFiles,
-                                      HttpServletRequest request) throws JsonProcessingException {
+                                      HttpServletRequest request) throws IOException {
 
         ItemUpdateRequestV2 itemUpdateRequest = new ObjectMapper().readValue(stringItemDto, ItemUpdateRequestV2.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -127,13 +118,13 @@ public class ItemController {
 
     @ApiOperation(value = "아이템 삭제")
     @DeleteMapping("/v1/items/{itemId}")
-    public ApiResult<Long> deleteItem(@PathVariable("itemId") Long itemId) {
+    public ApiResult deleteItem(@PathVariable("itemId") Long itemId) {
         return OK(itemService.delete(itemId));
     }
 
     @ApiOperation(value = "아이템 삭제 V2")
     @DeleteMapping("/v2/items/{itemId}")
-    public ApiResult<Long> deleteItemV2(@PathVariable("itemId") Long itemId) { return OK(itemService.deleteV2(itemId)); }
+    public ApiResult deleteItemV2(@PathVariable("itemId") Long itemId) { return OK(itemService.deleteV2(itemId)); }
 
     @NoCheckJwt
     @ApiOperation(value = "아이템 검색 (회원/비회원)")
@@ -211,8 +202,8 @@ public class ItemController {
         try {
             status = valueOf(tradeStatus.getTradeStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
-            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e);
-            throw new IllegalArgumentException("There is no tradeStatus inserted");
+            log.debug("Exception occurred in parsing tradeStatus: {}", e.getMessage(), e.getStackTrace());
+            throw new InvalidStateException("Invalid tradeStatuu was inserted.");
         }
 
         return OK(itemService.updateTradeStatus(userId, item_id, status));
