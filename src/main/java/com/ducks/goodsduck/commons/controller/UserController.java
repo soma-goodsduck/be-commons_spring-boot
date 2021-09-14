@@ -14,15 +14,10 @@ import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
-import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
-import com.ducks.goodsduck.commons.repository.DeviceRepository;
-import com.ducks.goodsduck.commons.repository.item.ItemRepository;
-import com.ducks.goodsduck.commons.repository.UserRepository;
 import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -61,10 +55,6 @@ public class UserController {
     private final AddressService addressService;
     private final AccountService accountService;
 
-    private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
-    private final DeviceRepository deviceRepository;
-
     @NoCheckJwt
     @ApiOperation("소셜로그인_NAVER 토큰 발급 및 사용자 정보 조회 with 인가코드 API")
     @GetMapping("/v1/users/login/naver")
@@ -87,7 +77,7 @@ public class UserController {
     @GetMapping("/v1/users/login/apple")
     public ApiResult<UserDto> authorizeApple(@RequestParam("state") String state,
                                              @RequestParam("code") String code,
-                                             @RequestParam("idToken") String idToken) throws JsonProcessingException {
+                                             @RequestParam("idToken") String idToken) {
         log.debug("Request of Apple's login: \n\tstate: {}, code: {}, idToken: {}", state, code, idToken);
         return OK(userService.oauth2AuthorizationApple(state, code, idToken));
     }
@@ -147,6 +137,7 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
+    //TODO: jwt를 클라이언트에서 사용하고 있는지 확인 필요
     @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
@@ -160,24 +151,15 @@ public class UserController {
 
         String newJwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, userId);
         response.setHeader("jwt", newJwt);
-
-        User user = userRepository.findById(userId).get();
-
-        Device device = deviceRepository.findByUser(user)
-                .orElseGet(() -> new Device(user));
-        UserDto userDto = new UserDto(user);
-        userDto.setJwt(newJwt);
-        userDto.setAgreeToNotification(device.getIsAllowed());
-        return OK(userDto);
+        return OK(userService.findUserInfoByUserId(userId, newJwt));
     }
 
     @ApiOperation("jwt를 통한 유저 ID 조회 API")
     @GetMapping("/v1/users/look-up-id")
     @Transactional
-    public ApiResult<UserSimpleDto> getUserIdByJwt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ApiResult<UserSimpleDto> getUserIdByJwt(HttpServletRequest request, HttpServletResponse response) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(userRepository.findById(userId).map(user -> new UserSimpleDto(user))
-                .orElseThrow(() -> new Exception("not find user id")));
+        return OK(userService.findByUserId(userId));
     }
     
     @ApiOperation(value = "마이페이지 + 아이템 거래내역 불러오기 API")
@@ -211,11 +193,7 @@ public class UserController {
     public ApiResult<TradeCompleteReponse> getUserChatListByItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
 
-        Item tradeCompletedItem = itemRepository.findById(itemId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("Item not founded.");
-                });
-
+        Item tradeCompletedItem = itemService.findById(itemId);
         List<UserChatResponse> userChats = userChatService.findByItemId(userId, itemId);
 
         return OK(new TradeCompleteReponse(tradeCompletedItem, userChats));
@@ -223,7 +201,7 @@ public class UserController {
 
     @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API V2 (게시물 주인 jwt 필요)")
     @GetMapping("/v2/users/items/{itemId}/chat")
-    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+    public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.findByItemIdV2(userId, itemId));
     }

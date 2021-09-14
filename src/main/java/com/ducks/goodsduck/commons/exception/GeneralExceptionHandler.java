@@ -5,6 +5,8 @@ import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
 import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
 import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.exception.user.InvalidUserRoleException;
+import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
+import com.ducks.goodsduck.commons.exception.user.SmsAuthorizationException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.google.api.gax.rpc.InvalidArgumentException;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -41,11 +43,11 @@ public class GeneralExceptionHandler {
     }
 
     // HINT: 어플리케이션 내에서 발생하는 예외처리에 사용
-    @ExceptionHandler({DuplicatedDataException.class, DeletedDataException.class,
-            InvalidRequestDataException.class, InvalidJwtException.class,
-            NotFoundDataException.class, InvalidUserRoleException.class,
-            InvalidStateException.class, ImageProcessException.class,
-            InvalidMetadataException.class})
+    @ExceptionHandler({DuplicatedDataException.class, InvalidRequestDataException.class,
+            InvalidJwtException.class, NotFoundDataException.class,
+            InvalidUserRoleException.class, InvalidStateException.class,
+            ImageProcessException.class, InvalidMetadataException.class,
+            Oauth2Exception.class, SmsAuthorizationException.class})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
     }

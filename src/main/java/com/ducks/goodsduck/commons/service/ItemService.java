@@ -886,25 +886,6 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemSummaryDto showDetailSummary(Long itemId) {
-        return ItemSummaryDto.of(itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                        new Object[]{"Item"}, null))));
-    }
-
-    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
-        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
-        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
-    }
-
-    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
-        return pageable.isPaged() && content.size() > pageable.getPageSize();
-    }
-
-    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
-        return content.subList(0, pageable.getPageSize());
-    }
-
     public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
@@ -1032,5 +1013,30 @@ public class ItemService {
                 .stream()
                 .map(itemCategory -> new CategoryResponse(itemCategory))
                 .collect(Collectors.toList());
+    }
+
+    public Item findById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null)));
+    }
+
+    public ItemSummaryDto showDetailSummary(Long itemId) {
+        return ItemSummaryDto.of(itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null))));
+    }
+
+    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
+        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
+        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
+    }
+
+    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
+        return pageable.isPaged() && content.size() > pageable.getPageSize();
+    }
+
+    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
+        return content.subList(0, pageable.getPageSize());
     }
 }

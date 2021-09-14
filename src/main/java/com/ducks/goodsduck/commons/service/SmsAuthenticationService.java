@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.user.SmsAuthorizationException;
 import com.ducks.goodsduck.commons.repository.SmsAuthenticationRepository;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -25,7 +26,7 @@ public class SmsAuthenticationService {
 
     private final SmsAuthenticationRepository smsAuthenticationRepository;
 
-    public Boolean sendSmsOfAuthentication(String phoneNumber) throws Exception {
+    public Boolean sendSmsOfAuthentication(String phoneNumber) {
         if (jsonOfAwsSecrets.isEmpty()) {
             apiKey = PropertyUtil.getProperty("coolsms.apikey");
             apiSecret = PropertyUtil.getProperty("coolsms.apisecret");
@@ -51,9 +52,9 @@ public class SmsAuthenticationService {
             }
             smsAuthenticationRepository.saveKeyAndValueOfSMS(phoneNumber, authenticationNumber);
         } catch (CoolsmsException e) {
-            throw new CoolsmsException("Exception of CoolSMS: " + e.getMessage(), e.getCode());
+            throw new SmsAuthorizationException("Exception message CoolSMS : " + e.getMessage() + "\nError code: " + e.getCode());
         } catch (Exception e) {
-            throw new Exception("Exception occurred in sending CoolSms: " + e.getMessage());
+            throw new SmsAuthorizationException("Exception occurred in sending CoolSms: " + e.getMessage());
         }
         return true;
     }

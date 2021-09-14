@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.entity.Device;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.repository.DeviceRepository;
@@ -7,10 +8,9 @@ import com.ducks.goodsduck.commons.repository.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.DeviceRepositoryCustomImpl;
 import com.ducks.goodsduck.commons.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.NoResultException;
 
 @Service
 @Transactional
@@ -20,11 +20,13 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
 
-    public DeviceService(DeviceRepository deviceRepository, DeviceRepositoryCustomImpl deviceRepositoryCustom, UserRepository userRepository) {
+    public DeviceService(DeviceRepository deviceRepository, DeviceRepositoryCustomImpl deviceRepositoryCustom, UserRepository userRepository, MessageSource messageSource) {
         this.deviceRepository = deviceRepository;
         this.deviceRepositoryCustom = deviceRepositoryCustom;
         this.userRepository = userRepository;
+        this.messageSource = messageSource;
     }
 
     public Boolean register(Long userId, String registrationToken) {
@@ -35,9 +37,8 @@ public class DeviceService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
 
         deviceRepository.save(new Device(user, registrationToken));
         return true;
