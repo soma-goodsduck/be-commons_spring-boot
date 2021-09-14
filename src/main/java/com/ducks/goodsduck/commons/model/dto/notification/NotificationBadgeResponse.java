@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class NotificationBadgeResponse {
 
-    private Boolean hasNewNotification = true;
-    private Boolean hasNewChat = true;
+    private Boolean hasNewNotification;
+    private Boolean hasNewChat;
 
     public NotificationBadgeResponse() {
         this.hasNewNotification = false;

@@ -141,11 +141,11 @@ public class ItemController {
     @ApiOperation(value = "아이템 리스트 조회 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items")
     @Transactional
-    public ApiResult<HomeResponse<ItemHomeResponse>> getItemList(@RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
+    public ApiResult<HomeResponse<ItemHomeResponse>> getItemList(@RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) throws JsonProcessingException {
 
         Long userId = userService.checkLoginStatus(jwt);
         HomeResponse homeResponse = itemService.getItemListV3(userId, itemId);
-        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        homeResponse.setNoty(notificationService.checkNewNotificationV2(userId));
         return OK(homeResponse);
     }
 
@@ -155,10 +155,10 @@ public class ItemController {
     @Transactional
     public ApiResult<HomeResponse<ItemHomeResponse>> getItemListFilterByIdolGroupV3(@RequestParam("idolGroup") Long idolGroupId,
                                                                                     @RequestParam("itemId") Long itemId,
-                                                                                    @RequestHeader("jwt") String jwt) {
+                                                                                    @RequestHeader("jwt") String jwt) throws JsonProcessingException {
         Long userId = userService.checkLoginStatus(jwt);
         HomeResponse homeResponse = itemService.getItemListFilterByIdolGroupV3(userId, idolGroupId, itemId);
-        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        homeResponse.setNoty(notificationService.checkNewNotificationV2(userId));
         return OK(homeResponse);
     }
 
@@ -174,11 +174,11 @@ public class ItemController {
                                                                               @RequestParam(value = "gradeStatus", required = false) GradeStatus gradeStatus,
                                                                               @RequestParam(value = "minPrice", required = false) Long minPrice,
                                                                               @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                              @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
+                                                                              @RequestParam("itemId") Long itemId, @RequestHeader("jwt") String jwt) throws JsonProcessingException {
         Long userId = userService.checkLoginStatus(jwt);
         ItemFilterDto itemFilterDto = new ItemFilterDto(idolGroupId, idolMembersId, tradeType, itemCategoryId, gradeStatus, minPrice, maxPrice);
         HomeResponse homeResponse = itemService.getItemListFilterByAllV3(userId, itemFilterDto, itemId);
-        homeResponse.setNoty(notificationService.checkNewNotification(userId));
+        homeResponse.setNoty(notificationService.checkNewNotificationV2(userId));
         return OK(homeResponse);
     }
 

@@ -377,12 +377,26 @@ public class NotificationService {
         return notificationRedisTemplate.findByUserId(userId);
     }
 
-    /** 읽지 않은 알림 유무 체크 */
+    /** 읽지 않은 알림 유무 체크 (From MySQL) */
     public NotificationBadgeResponse checkNewNotification(Long userId) {
         NotificationBadgeResponse notificationBadgeResponse = new NotificationBadgeResponse();
         if (!notificationRepository.existsByUserIdAndTypeNotAndIsReadFalse(userId, CHAT)) notificationBadgeResponse.setHasNewNotification(false);
         if (!notificationRepository.existsByUserIdAndTypeIsAndIsReadFalse(userId, CHAT)) notificationBadgeResponse.setHasNewChat(false);
 
+        return notificationBadgeResponse;
+    }
+
+    /** 읽지 않은 알림 유무 체크 (From Redis) */
+    public NotificationBadgeResponse checkNewNotificationV2(Long userId) throws JsonProcessingException {
+        // HINT: hasNewNotification=false (default) / Chat에 대해서는 동작하지 않음
+        NotificationBadgeResponse notificationBadgeResponse = new NotificationBadgeResponse();
+        List<NotificationRedisResponse> notificationList = notificationRedisTemplate.findByUserId(userId);
+        if (!notificationList.isEmpty()) {
+            if (notificationList.get(0).getIsRead()) {
+                notificationBadgeResponse.setHasNewNotification(true);
+                return notificationBadgeResponse;
+            }
+        }
         return notificationBadgeResponse;
     }
 }
