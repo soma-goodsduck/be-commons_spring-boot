@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class Address {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "delivery_id")
+    @Column(name = "address_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

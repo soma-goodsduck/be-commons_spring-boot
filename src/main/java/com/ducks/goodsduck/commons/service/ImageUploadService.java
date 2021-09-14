@@ -92,12 +92,6 @@ public class ImageUploadService {
         String ext = EXT.toLowerCase();
         Long bytes = multipartFile.getSize();
 
-
-        GifDecoder gifDecoder = new GifDecoder();
-        gifDecoder.read(multipartFile.getInputStream());
-
-//        gifDecoder.getDelay()
-
         if(!ext.equals("gif")) {
 
             BufferedImage image = ImageIO.read(multipartFile.getInputStream());
