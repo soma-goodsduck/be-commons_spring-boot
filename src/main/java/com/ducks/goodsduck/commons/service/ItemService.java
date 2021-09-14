@@ -127,6 +127,11 @@ public class ItemService {
     public ItemDetailResponse showDetail(Long itemId) {
 
         Item item = itemRepository.findById(itemId).get();
+        if(item.getDeletedAt() != null) {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"Item"}, null));
+        }
+
         item.increaseView();
 
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
@@ -142,12 +147,18 @@ public class ItemService {
         User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
+
         if(loginUser == null) {
             return showDetail(itemId);
         }
 
         Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
+        if(item.getDeletedAt() != null) {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"Item"}, null));
+        }
+
         item.increaseView();
 
         ItemDetailResponse itemDetailResponse = new ItemDetailResponse(item);
@@ -364,10 +375,40 @@ public class ItemService {
     }
 
     public Boolean deleteV2(Long itemId) {
-        Item item = itemRepository.findById(itemId)
+        Item deleteItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"Item"}, null)));
-        item.setDeletedAt(LocalDateTime.now());
+
+        deleteItem.setDeletedAt(LocalDateTime.now());
+
+        // user's Item 목록 삭제
+        User user = deleteItem.getUser();
+        List<Item> itemsOfUser = user.getItems();
+        itemsOfUser.remove(deleteItem);
+
+        // image 연관 삭제
+        List<ItemImage> deleteImages = deleteItem.getImages();
+        itemImageRepository.deleteInBatch(deleteImages);
+
+        // pricePropose 연관 삭제
+        List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(itemId);
+        priceProposeRepository.deleteInBatch(deletePriceProposes);
+
+        // userChat 연관 삭제
+        List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(itemId);
+        userChatRepository.deleteInBatch(deleteUserChats);
+
+        // chat 삭제
+        List<Chat> deleteChats = new ArrayList<>();
+        for (UserChat deleteUserChat : deleteUserChats) {
+            deleteChats.add(deleteUserChat.getChat());
+        }
+        chatRepository.deleteInBatch(deleteChats);
+
+        // userItem 연관 삭제
+        List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(itemId);
+        userItemRepository.deleteInBatch(deleteUserItems);
+
         return true;
     }
 
@@ -887,9 +928,17 @@ public class ItemService {
     }
 
     public ItemSummaryDto showDetailSummary(Long itemId) {
-        return ItemSummaryDto.of(itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                        new Object[]{"Item"}, null))));
+
+        Item item = itemRepository.findById(itemId).
+                orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                new Object[]{"Item"}, null)));
+
+        if(item.getDeletedAt() != null) {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"Item"}, null));
+        }
+
+        return ItemSummaryDto.of(item);
     }
 
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {

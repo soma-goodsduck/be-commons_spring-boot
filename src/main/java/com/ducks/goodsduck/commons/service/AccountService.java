@@ -60,7 +60,7 @@ public class AccountService {
             }
 
             account.setName(accountDto.getName());
-            account.setBank(account.getBank());
+            account.setBank(accountDto.getBank());
             account.setAccountNumber(accountDto.getAccountNumber());
 
             return true;

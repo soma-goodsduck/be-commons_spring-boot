@@ -16,7 +16,7 @@ public interface ItemRepositoryCustom {
     long updateTradeStatus(Long itemId, TradeStatus status);
 
 
-    // 마이 페이지 거래내역
+    // 마이페이지 & 다른유저페이지 거래내역
     List<Item> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
     
     // 좋아요 확인
