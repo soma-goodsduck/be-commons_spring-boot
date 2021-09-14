@@ -10,6 +10,8 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.ducks.goodsduck.commons.model.enums.PriceProposeStatus.*;
+
 @Repository
 public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryCustom {
 
@@ -29,7 +31,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .from(pricePropose)
                 .where(pricePropose.user.id.eq(userId).and(
                         pricePropose.item.id.eq(itemId)
-                ).and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
+                ).and(pricePropose.status.in(ACCEPTED, SUGGESTED)))
                 .fetchOne();
     }
 
@@ -39,7 +41,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .select(pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.item.id.eq(itemId)
-                .and(pricePropose.status.in(PriceProposeStatus.ACCEPTED, PriceProposeStatus.SUGGESTED)))
+                .and(pricePropose.status.in(ACCEPTED, SUGGESTED)))
                 .orderBy(pricePropose.id.desc())
                 .fetch();
     }
@@ -60,7 +62,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .set(pricePropose.price, price)
                 .set(pricePropose.createdAt, LocalDateTime.now())
                 .where(pricePropose.id.eq(priceProposeId).and(
-                        pricePropose.user.id.eq(userId)).and(pricePropose.status.eq(PriceProposeStatus.SUGGESTED))
+                        pricePropose.user.id.eq(userId)).and(pricePropose.status.eq(SUGGESTED))
                 )
                 .execute();
     }
@@ -71,7 +73,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .select(pricePropose.item, pricePropose.user, pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.item.in(items).and(
-                        pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
+                        pricePropose.status.eq(SUGGESTED)
                 ))
                 .orderBy(pricePropose.id.desc())
                 .fetch();
@@ -84,7 +86,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
                 .from(pricePropose)
                 .join(pricePropose.user, user)
                 .where(pricePropose.item.id.eq(itemId).and(
-                        pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
+                        pricePropose.status.eq(SUGGESTED)
                 ))
                 .orderBy(pricePropose.id.desc())
                 .fetch();
@@ -95,7 +97,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
         return queryFactory.select(pricePropose.item, pricePropose)
                 .from(pricePropose)
                 .where(pricePropose.user.id.eq(userId).and(
-                        pricePropose.status.in(PriceProposeStatus.SUGGESTED, PriceProposeStatus.REFUSED)
+                        pricePropose.status.in(SUGGESTED, REFUSED)
                 ))
                 .orderBy(pricePropose.id.desc())
                 .fetch();
@@ -106,7 +108,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
         return queryFactory.update(pricePropose)
                 .set(pricePropose.status, status)
                 .where(pricePropose.id.eq(priceProposeId).and(
-                        pricePropose.status.eq(PriceProposeStatus.SUGGESTED)
+                        pricePropose.status.eq(SUGGESTED)
                 ))
                 .execute();
     }
@@ -116,7 +118,7 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
         return queryFactory
                 .select(pricePropose)
                 .from(pricePropose)
-                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(PriceProposeStatus.SUGGESTED)))
+                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(SUGGESTED)))
                 .fetchCount();
     }
 

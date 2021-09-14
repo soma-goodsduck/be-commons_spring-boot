@@ -1,9 +1,12 @@
 package com.ducks.goodsduck.commons.exception;
 
 import com.ducks.goodsduck.commons.exception.common.*;
+import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
+import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
 import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.exception.user.InvalidUserRoleException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
+import com.google.api.gax.rpc.InvalidArgumentException;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
@@ -41,7 +44,8 @@ public class GeneralExceptionHandler {
     @ExceptionHandler({DuplicatedDataException.class, DeletedDataException.class,
             InvalidRequestDataException.class, InvalidJwtException.class,
             NotFoundDataException.class, InvalidUserRoleException.class,
-            InvalidStateException.class})
+            InvalidStateException.class, ImageProcessException.class,
+            InvalidMetadataException.class})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
     }
@@ -64,7 +68,8 @@ public class GeneralExceptionHandler {
 
     @ExceptionHandler({NoResultException.class, DuplicateRequestException.class,
                        IllegalArgumentException.class, IllegalStateException.class,
-                       MultipartException.class, MissingServletRequestParameterException.class})
+                       MultipartException.class, MissingServletRequestParameterException.class,
+                        InvalidArgumentException.class})
     public ResponseEntity<ApiResult<?>> handleInvalidInputDataException(Exception e) {
         log.debug("Bad request exception occured: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.BAD_REQUEST);

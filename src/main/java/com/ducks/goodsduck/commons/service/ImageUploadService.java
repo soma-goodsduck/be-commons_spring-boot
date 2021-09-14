@@ -100,7 +100,7 @@ public class ImageUploadService {
             int orientation = 1;
             Metadata metadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
             ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if(directory != null && directory.getTagCount() != 0) {
+            if(directory != null && directory.getTagCount() != 0 && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
             }
 
