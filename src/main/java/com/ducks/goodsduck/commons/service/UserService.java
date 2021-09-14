@@ -205,6 +205,7 @@ public class UserService {
                          userSignUpRequest.getPhoneNumber())
         );
         user.addSocialAccount(socialAccount);
+        user.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
 
         List<Long> likeIdolGroupsId = userSignUpRequest.getLikeIdolGroupsId();
         for (Long likeIdolGroupId : likeIdolGroupsId) {

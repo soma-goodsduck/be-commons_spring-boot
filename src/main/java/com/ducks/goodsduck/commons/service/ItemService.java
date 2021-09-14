@@ -906,9 +906,6 @@ public class ItemService {
         if(userId.equals(-1L)) {
             List<ItemHomeResponse> itemList = getItemListForAnonymousV3(itemId);
 
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@LLLLLLLLL");
-            System.out.println(itemList.size());
-
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -920,8 +917,6 @@ public class ItemService {
         else {
             User user = userRepository.findById(userId).get();
             List<ItemHomeResponse> itemList = getItemListForUserV3(userId, itemId);
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-            System.out.println(itemList.size());
 
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
