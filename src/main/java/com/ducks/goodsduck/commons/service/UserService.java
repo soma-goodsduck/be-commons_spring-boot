@@ -385,7 +385,10 @@ public class UserService {
         Long userId = user.getId();
 
         // 판매상품
-        List<Item> items = user.getItems();
+        List<Item> items = user.getItems()
+                .stream()
+                .filter(item -> item.getUser() != null)
+                .collect(Collectors.toList());
         List<Item> showItems = new ArrayList<>();
         List<Item> sortedItems = items.stream()
                 .sorted((item1, item2) -> item2.getId().compareTo(item1.getId()))
