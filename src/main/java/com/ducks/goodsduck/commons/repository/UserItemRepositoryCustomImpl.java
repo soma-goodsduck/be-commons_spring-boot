@@ -44,6 +44,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
                 .join(idolMember.idolGroup, idolGroup)
                 .join(userItem.user, user)
                 .where(userItem.user.id.eq(userId))
+                .orderBy(userItem.id.desc())
                 .fetch();
     }
 
