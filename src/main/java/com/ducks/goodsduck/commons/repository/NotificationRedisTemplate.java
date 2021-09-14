@@ -1,7 +1,6 @@
 package com.ducks.goodsduck.commons.repository;
 
 import com.ducks.goodsduck.commons.model.redis.NotificationRedis;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +38,9 @@ public class NotificationRedisTemplate {
         redisTemplate.opsForList().leftPush(key, stringFromNotificationRedis);
     }
 
-    public List<NotificationRedisResponse> findByUserId(Long userId) throws JsonProcessingException {
+    public List<NotificationRedis> findByUserId(Long userId) throws JsonProcessingException {
         String key = PREFIX_OF_USER + userId + PREFIX_OF_NOTIFICATION;
-        List<NotificationRedis> notificationRedisList = redisDtoListOperations.range(key, 0, -1)
+        return redisDtoListOperations.range(key, 0, -1)
                 .stream()
                 .map(stringAsNotificationRedis -> {
                     NotificationRedis notificationRedis = null;
@@ -52,28 +51,16 @@ public class NotificationRedisTemplate {
                         return null;
                     }
                 })
-                .collect(Collectors.toList());;
-        List<NotificationRedisResponse> notificationRedisResponses = notificationRedisList
-                .stream()
-                .map(notificationRedis -> new NotificationRedisResponse(notificationRedis))
                 .collect(Collectors.toList());
+    }
 
-        int size = notificationRedisList.size()-1;
-        while ( size >= 0 && notificationRedisList.get(size).getExpiredAt().isBefore(LocalDateTime.now())) {
-            redisDtoListOperations.rightPop(key);
-            size--;
-        }
+    public void rightPopByUserId(Long userId) {
+        String key = PREFIX_OF_USER + userId + PREFIX_OF_NOTIFICATION;
+        redisDtoListOperations.rightPop(key);
+    }
 
-        NotificationRedis notificationRedis;
-        String stringAsNotificationRedis;
-        for (int i = 0; i <= size; i++) {
-            notificationRedis = notificationRedisList.get(i);
-            if (notificationRedis.getIsRead()) break;
-            notificationRedis.read();
-            stringAsNotificationRedis = objectMapper.writeValueAsString(notificationRedis);
-            redisDtoListOperations.set(key, i, stringAsNotificationRedis);
-        }
-
-        return notificationRedisResponses;
+    public void setKeyAndValueWithIndexByUserId(Long userId, long index, String stringAsNotificationRedis) {
+        String key = PREFIX_OF_USER + userId + PREFIX_OF_NOTIFICATION;
+        redisDtoListOperations.set(key, index, stringAsNotificationRedis);
     }
 }

@@ -16,6 +16,7 @@ import com.ducks.goodsduck.commons.model.redis.NotificationRedis;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
 import com.ducks.goodsduck.commons.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,13 +46,15 @@ public class NotificationService {
     private final ChatRedisTemplate chatRedisTemplate;
     private final MessageSource messageSource;
 
+    private final ObjectMapper objectMapper;
+
     public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom,
                                NotificationRepository notificationRepository,
                                NotificationRepositoryCustomImpl notificationRepositoryCustomImpl,
                                UserChatRepositoryCustomImpl userChatRepositoryCustom,
                                UserRepository userRepository,
                                NotificationRedisTemplate notificationRedisTemplate,
-                               ChatRedisTemplate chatRedisTemplate, MessageSource messageSource) {
+                               ChatRedisTemplate chatRedisTemplate, MessageSource messageSource, ObjectMapper objectMapper) {
         this.deviceRepositoryCustom = userDeviceRepositoryCustom;
         this.notificationRepository = notificationRepository;
         this.notificationRepositoryCustomImpl = notificationRepositoryCustomImpl;
@@ -59,6 +63,7 @@ public class NotificationService {
         this.notificationRedisTemplate = notificationRedisTemplate;
         this.chatRedisTemplate = chatRedisTemplate;
         this.messageSource = messageSource;
+        this.objectMapper = objectMapper;
     }
 
     // TODO: 리팩토링 메서드 문제 없을 시 삭제 예정
@@ -374,7 +379,30 @@ public class NotificationService {
 
     public List<NotificationRedisResponse> getNotificationsOfUserIdV2(Long userId) throws JsonProcessingException {
 
-        return notificationRedisTemplate.findByUserId(userId);
+        List<NotificationRedis> notificationRedisList = notificationRedisTemplate.findByUserId(userId);
+
+        List<NotificationRedisResponse> notificationRedisResponses = notificationRedisList
+                .stream()
+                .map(notificationRedis -> new NotificationRedisResponse(notificationRedis))
+                .collect(Collectors.toList());
+
+        int size = notificationRedisList.size()-1;
+        while ( size >= 0 && notificationRedisList.get(size).getExpiredAt().isBefore(LocalDateTime.now())) {
+            notificationRedisTemplate.rightPopByUserId(userId);
+            size--;
+        }
+
+        NotificationRedis notificationRedis;
+        String stringAsNotificationRedis;
+        for (int i = 0; i <= size; i++) {
+            notificationRedis = notificationRedisList.get(i);
+            if (notificationRedis.getIsRead()) break;
+            notificationRedis.read();
+            stringAsNotificationRedis = objectMapper.writeValueAsString(notificationRedis);
+            notificationRedisTemplate.setKeyAndValueWithIndexByUserId(userId, i, stringAsNotificationRedis);
+        }
+
+        return notificationRedisResponses;
     }
 
     /** 읽지 않은 알림 유무 체크 (From MySQL) */
@@ -390,9 +418,9 @@ public class NotificationService {
     public NotificationBadgeResponse checkNewNotificationV2(Long userId) throws JsonProcessingException {
         // HINT: hasNewNotification=false (default) / Chat에 대해서는 동작하지 않음
         NotificationBadgeResponse notificationBadgeResponse = new NotificationBadgeResponse();
-        List<NotificationRedisResponse> notificationList = notificationRedisTemplate.findByUserId(userId);
-        if (!notificationList.isEmpty()) {
-            if (!notificationList.get(0).getIsRead()) {
+        List<NotificationRedis> notificationRedisList = notificationRedisTemplate.findByUserId(userId);
+        if (!notificationRedisList.isEmpty()) {
+            if (!notificationRedisList.get(0).getIsRead()) {
                 notificationBadgeResponse.setHasNewNotification(true);
                 return notificationBadgeResponse;
             }
