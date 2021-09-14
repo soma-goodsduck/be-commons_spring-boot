@@ -392,7 +392,7 @@ public class NotificationService {
         NotificationBadgeResponse notificationBadgeResponse = new NotificationBadgeResponse();
         List<NotificationRedisResponse> notificationList = notificationRedisTemplate.findByUserId(userId);
         if (!notificationList.isEmpty()) {
-            if (notificationList.get(0).getIsRead()) {
+            if (!notificationList.get(0).getIsRead()) {
                 notificationBadgeResponse.setHasNewNotification(true);
                 return notificationBadgeResponse;
             }
