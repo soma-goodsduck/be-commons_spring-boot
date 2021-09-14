@@ -571,7 +571,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(item.user.id.eq(userId).and(conditionOfTradeStatus))
+                .where(item.user.id.eq(userId).and(conditionOfTradeStatus).and(item.deletedAt.isNull()))
                 .orderBy(getStatusCompareExpression().desc(), item.updatedAt.desc())
                 .fetch();
     }
