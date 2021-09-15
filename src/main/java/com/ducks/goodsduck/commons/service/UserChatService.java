@@ -206,4 +206,23 @@ public class UserChatService {
 
         return new TradeCompleteReponse(item, userChatResponses);
     }
+
+    public List<ChatRoomDto> getChatRoomsWithNotOwner(Long userId) {
+        List<UserChat> userChats = userChatRepository.findByUserId(userId);
+
+        return userChats.stream()
+                .filter(userChat -> {
+                    Item item = userChat.getItem();
+                    return item.getUser().getId() != userId;
+                })
+                .map(userChat -> {
+                    Chat chat = userChat.getChat();
+                    Item item = userChat.getItem();
+
+                    User user = userChat.getUser();
+
+                    return new ChatRoomDto(chat, item, user.getNickName());
+                })
+                .collect(Collectors.toList());
+    }
 }

@@ -81,7 +81,7 @@ public class ChatController {
         return OK(true);
     }
 
-    @ApiOperation("유저가 속한 채팅방 목록 조회 API")
+    @ApiOperation("유저가 알림 받은 채팅방 목록 조회 API")
     @GetMapping("/v1/users/chats")
     public ApiResult getChatRooms(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -89,7 +89,7 @@ public class ChatController {
         return OK(true);
     }
 
-    @ApiOperation("유저가 속한 채팅방 목록 조회 API")
+    @ApiOperation("유저가 알림 받은 채팅방 목록 조회 API")
     @GetMapping("/v2/users/chats")
     public ApiResult<List<ChatRoomResponse>> getChatRoomsV2(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -111,6 +111,12 @@ public class ChatController {
         return OK(chatService.checkUnreadChat(userId));
     }
 
+    @ApiOperation("거래 요청한 입장인 채팅방 목록 조회 API (아이템 주인이 아닌 경우에 한함)")
+    @GetMapping("/v2/users/chatRooms")
+    public ApiResult<List<ChatRoomDto>> getChatRoomsWithNowOwner(HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userChatService.getChatRoomsWithNotOwner(userId));
+    }
 
     @ApiOperation("(삭제예정) 채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
