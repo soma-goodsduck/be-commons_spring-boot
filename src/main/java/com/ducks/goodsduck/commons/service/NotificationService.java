@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatMessageRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
@@ -73,66 +74,6 @@ public class NotificationService {
         this.messageSource = messageSource;
         this.objectMapper = objectMapper;
     }
-
-    // TODO: 리팩토링 메서드 문제 없을 시 삭제 예정
-//    public void sendMessage(Notification notification) {
-//
-//        // 알림 데이터 저장 (DB)
-//        notificationRepository.save(notification);
-//
-//        try {
-//            // 사용자가 등록한 Device(FCM 토큰) 조회
-//            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(notification.getUser().getId());
-//
-//            if (registrationTokens.isEmpty()) {
-//                log.debug("Device for notification not founded.");
-//                return;
-//            }
-//
-//            // HINT: 알림 Message 구성
-//            MulticastMessage message = getMulticastMessage(notification, registrationTokens)
-//                    .build();
-//            log.debug("firebase message is : \n" + message.toString());
-//
-//            // HINT: 파이어베이스에 Cloud Messaging 요청
-//            requestCloudMessagingToFirebase(registrationTokens, message);
-//
-//        } catch (FirebaseMessagingException e) {
-//            log.debug(e.getMessage(), e);
-////            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
-//        } catch (Exception e) {
-//            log.debug(e.getMessage(), e);
-////            throw new IOException(e.getMessage()); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
-//        }
-//    }
-//
-//    public void sendMessageV2(Notification notification) throws JsonProcessingException {
-//
-//        // 알림 데이터 저장 (DB)
-//        NotificationType notificationType = notification.getType();
-//        NotificationRedis notificationRedis;
-//
-//        if (notificationType.equals(REVIEW) || notificationType.equals(REVIEW_FIRST)) {
-//            notificationRedis = new NotificationRedis(notificationType,
-//                    notification.getReviewId(),
-//                    notification.getItemId(),
-//                    notification.getItemName(),
-//                    notification.getSenderNickName(),
-//                    notification.getSenderImageUrl());
-//
-//        } else if (notificationType.equals(PRICE_PROPOSE)) {
-//            notificationRedis = new NotificationRedis(notification.getPriceProposeId(),
-//                    notification.getPrice(),
-//                    notification.getItemId(),
-//                    notification.getItemName(),
-//                    notification.getSenderNickName(),
-//                    notification.getSenderImageUrl());
-//        } else {
-//            return;
-//        }
-//
-//        saveNotificationAndRequestCloudMessaging(notification.getUser(), notification, notificationRedis, notification.getUser().getId());
-//    }
 
     /**
      * PricePropose 용 알림 메서드
@@ -222,7 +163,7 @@ public class NotificationService {
     public void sendMessageOfChat(Long userId, NotificationRequest notificationRequest) throws IOException, IllegalAccessException {
 
         if (!userId.equals(notificationRequest.getSenderId())) {
-            throw new IllegalAccessException("Login user is not matched with senderId.");
+            throw new UnauthorizedException("Login user is not matched with senderId.");
         }
 
         Notification notification;
@@ -235,7 +176,8 @@ public class NotificationService {
                     .collect(Collectors.toList());
 
             if (userChats.isEmpty()) {
-                throw new NoResultException("UserChat not founded.");
+                throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"UserChat"}, null));
             } else if (userChats.size() > 1) {
                 log.debug("UserChats exist total: " + userChats.size());
             }
@@ -243,9 +185,8 @@ public class NotificationService {
             var userChat = userChats.get(0);
             var receiver = userChat.getUser();
             var sender = userRepository.findById(notificationRequest.getSenderId())
-                    .orElseThrow(() -> {
-                        throw new NoResultException("User who send notification not founded.");
-                    });
+                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                                new Object[]{"User"}, null)));
 
             notification = new Notification(receiver, sender.getNickName(), sender.getImageUrl(), userChat.getItem().getName(), CHAT);
 
@@ -265,17 +206,15 @@ public class NotificationService {
 
         } catch (FirebaseMessagingException e) {
             log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e);
-//            throw new IOException(e.getMessage());
         } catch (Exception e) {
             log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e);
-//            throw new IOException(e.getMessage());
         }
     }
 
     public void sendMessageOfChatV2(Long userId, ChatMessageRequest chatMessageRequest) throws IOException, IllegalAccessException, FirebaseMessagingException {
 
         if (!userId.equals(chatMessageRequest.getSenderId())) {
-            throw new IllegalAccessException("Login user is not matched with senderId.");
+            throw new UnauthorizedException("Login user is not matched with senderId.");
         }
 
 
@@ -286,7 +225,8 @@ public class NotificationService {
                 .collect(Collectors.toList());
 
         if (userChats.isEmpty()) {
-            throw new NoResultException("UserChat not founded.");
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"UserChat"}, null));
         } else if (userChats.size() > 1) {
             log.debug("UserChats exist total: " + userChats.size());
         }
@@ -294,9 +234,8 @@ public class NotificationService {
         var userChat = userChats.get(0);
         var receiver = userChat.getUser();
         User sender = userRepository.findById(chatMessageRequest.getSenderId())
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
 
         Notification notification = new Notification(receiver, sender.getNickName(), sender.getImageUrl(), userChat.getItem().getName(), CHAT);
         List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());

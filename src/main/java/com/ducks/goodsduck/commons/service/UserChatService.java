@@ -160,10 +160,6 @@ public class UserChatService {
 
     }
 
-    public String getChatIdByUserIdAndItemOwnerId(Long userId) {
-        return "1";
-    }
-
     public List<UserChatResponse> findByItemId(Long itemOwnerId, Long itemId) throws IllegalAccessException {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),

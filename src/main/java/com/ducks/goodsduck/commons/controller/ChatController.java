@@ -1,7 +1,5 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.chat.*;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
@@ -116,7 +114,7 @@ public class ChatController {
 
     @ApiOperation("(삭제예정) 채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
-    public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) throws IllegalAccessException {
+    public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.getChatInfo(chatId, userId));
     }

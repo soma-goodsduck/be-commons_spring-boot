@@ -43,11 +43,11 @@ public class GeneralExceptionHandler {
     }
 
     // HINT: 어플리케이션 내에서 발생하는 예외처리에 사용
-    @ExceptionHandler({DuplicatedDataException.class, InvalidRequestDataException.class,
-            InvalidJwtException.class, NotFoundDataException.class,
-            InvalidUserRoleException.class, InvalidStateException.class,
-            ImageProcessException.class, InvalidMetadataException.class,
-            Oauth2Exception.class, SmsAuthorizationException.class})
+    @ExceptionHandler({DuplicatedDataException.class, InvalidJwtException.class,
+                        InvalidUserRoleException.class, InvalidStateException.class,
+                        ImageProcessException.class, InvalidMetadataException.class,
+                        Oauth2Exception.class, SmsAuthorizationException.class,
+                        NotFoundDataException.class,})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
     }
@@ -68,7 +68,7 @@ public class GeneralExceptionHandler {
         return newResponse(e, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({NoResultException.class, DuplicateRequestException.class,
+    @ExceptionHandler({InvalidRequestDataException.class, DuplicateRequestException.class,
                        IllegalArgumentException.class, IllegalStateException.class,
                        MultipartException.class, MissingServletRequestParameterException.class,
                         InvalidArgumentException.class})
@@ -77,7 +77,7 @@ public class GeneralExceptionHandler {
         return newResponse(e, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(CoolsmsException.class)
+    @ExceptionHandler({NoResultException.class, CoolsmsException.class})
     public ResponseEntity<ApiResult<?>> handleCoolSmsException(CoolsmsException e) {
         log.debug("Error occured during sending CoolSMS (code: {}): {} ", e.getCode(), e.getMessage(), e);
         return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
