@@ -171,6 +171,14 @@ public class UserController {
         return OK(itemService.findMyItem(userId, status));
     }
 
+    @ApiOperation(value = "마이 페이지 아이템 중 거래 미완료 상품 번호 조회 API")
+    @GetMapping("/v1/users/items/not-complete")
+    public ApiResult<List<Long>> getMyItemNumbersNotCompleted(HttpServletRequest request) {
+
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(itemService.getMyItemNumbersNotCompleted(userId));
+    }
+
     @NoCheckJwt
     @ApiOperation(value = "다른 유저의 프로필 보기")
     @GetMapping("/v1/users/{bcryptId}")

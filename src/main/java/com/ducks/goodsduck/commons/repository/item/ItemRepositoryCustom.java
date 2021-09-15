@@ -18,6 +18,7 @@ public interface ItemRepositoryCustom {
 
     // 마이페이지 & 다른유저페이지 거래내역
     List<Item> findAllByUserIdAndTradeStatus(Long userId, TradeStatus status);
+    List<Long> findAllByUserIdAndNotCompleted(Long userId);
     
     // 좋아요 확인
     Tuple findByIdWithUserItem(Long userId, Long itemId);

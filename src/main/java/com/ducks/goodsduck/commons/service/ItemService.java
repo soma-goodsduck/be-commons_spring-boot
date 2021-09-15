@@ -1079,6 +1079,10 @@ public class ItemService {
         return ItemSummaryDto.of(item);
     }
 
+    public List<Long> getMyItemNumbersNotCompleted(Long userId) {
+        return itemRepositoryCustom.findAllByUserIdAndNotCompleted(userId);
+    }
+
     public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
         final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
         return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
