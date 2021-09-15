@@ -37,7 +37,7 @@ import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = "아이템 CRUD APIs")
+@Api(tags = "아이템 관련 APIs")
 public class ItemController {
 
     private final ItemService itemService;

@@ -112,7 +112,7 @@ public class ChatController {
     }
 
     @ApiOperation("거래 요청한 입장인 채팅방 목록 조회 API (아이템 주인이 아닌 경우에 한함)")
-    @GetMapping("/v2/users/chatRooms")
+    @GetMapping("/v2/users/chat-rooms")
     public ApiResult<List<ChatRoomDto>> getChatRoomsWithNowOwner(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.getChatRoomsWithNotOwner(userId));
