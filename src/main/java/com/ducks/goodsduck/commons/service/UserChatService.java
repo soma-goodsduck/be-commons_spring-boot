@@ -134,7 +134,7 @@ public class UserChatService {
         List<ChatRoomDto> chatAndItemList = chatAndItemByUserIdTuple.stream().
                 map(tuple -> {
                     Chat chat = tuple.get(0, Chat.class);
-                Item item = tuple.get(1, Item.class);
+                    Item item = tuple.get(1, Item.class);
 
                     return new ChatRoomDto(chat, item);
                 })
@@ -145,7 +145,7 @@ public class UserChatService {
 
     public List<ChatRoomDto> getChatRoomsV2(Long userId) {
 
-        List<UserChat> userChats = userChatRepository.findAll();
+        List<UserChat> userChats = userChatRepository.findByUserId(userId);
 
         return userChats.stream()
                 .map(userChat -> {
