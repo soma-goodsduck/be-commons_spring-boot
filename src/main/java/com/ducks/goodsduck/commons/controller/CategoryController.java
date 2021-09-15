@@ -1,10 +1,8 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryResponse;
-import com.ducks.goodsduck.commons.repository.ReportRepository.ItemReportRepository;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.ReportService;

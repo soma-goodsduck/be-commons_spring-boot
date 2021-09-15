@@ -1,16 +1,10 @@
 package com.ducks.goodsduck.commons.controller;
 
-import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
-import com.ducks.goodsduck.commons.model.dto.LoginUser;
-import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.repository.UserRepository;
-import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.UserPostService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -24,11 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 

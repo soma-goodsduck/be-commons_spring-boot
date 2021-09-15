@@ -2,12 +2,10 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.AccountDto;
-import com.ducks.goodsduck.commons.model.dto.AddressDto;
 import com.ducks.goodsduck.commons.model.entity.Account;
-import com.ducks.goodsduck.commons.model.entity.Address;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.repository.AccountRepository;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;

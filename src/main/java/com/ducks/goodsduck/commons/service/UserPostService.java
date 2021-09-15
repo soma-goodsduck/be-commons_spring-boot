@@ -1,25 +1,19 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.model.dto.ApiResult;
-import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.entity.Post;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserPost;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
-import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

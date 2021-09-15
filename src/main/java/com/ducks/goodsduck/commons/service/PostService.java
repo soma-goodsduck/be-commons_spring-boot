@@ -9,10 +9,8 @@ import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
-import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
-import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
@@ -21,7 +19,7 @@ import com.ducks.goodsduck.commons.repository.image.PostImageRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
-import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 
 @Service
 @RequiredArgsConstructor

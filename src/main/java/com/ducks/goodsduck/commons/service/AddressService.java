@@ -5,7 +5,7 @@ import com.ducks.goodsduck.commons.model.dto.AddressDto;
 import com.ducks.goodsduck.commons.model.entity.Address;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.repository.AddressRepository;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
