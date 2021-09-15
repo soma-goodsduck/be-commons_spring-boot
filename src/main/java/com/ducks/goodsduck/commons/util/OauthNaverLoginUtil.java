@@ -82,6 +82,7 @@ public class OauthNaverLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
+            log.debug("response body before mapping object to AuthorizationDto: {}", response.getBody());
             return objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
 
         } catch (RestClientException | JsonProcessingException ex) {
@@ -106,6 +107,7 @@ public class OauthNaverLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
+            log.debug("response body before mapping object to AuthorizationDto: {}", response.getBody());
             return response.getBody();
         } catch (RestClientException ex) {
             log.debug("exception occured in getting user information with Naver : {}", ex.getMessage(), ex);
