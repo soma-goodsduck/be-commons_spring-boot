@@ -576,6 +576,17 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public List<Long> findAllByUserIdAndNotCompleted(Long userId) {
+        return queryFactory
+                .select(item.id)
+                .from(item)
+                .where(item.user.id.eq(userId)
+                        .and(item.tradeStatus.ne(COMPLETE)))
+                .orderBy(item.id.desc())
+                .fetch();
+    }
+
     private JPQLQuery<Long> isHaveImage(QItemImage subImage) {
         return JPAExpressions
                 .select(subImage.count().add(1))

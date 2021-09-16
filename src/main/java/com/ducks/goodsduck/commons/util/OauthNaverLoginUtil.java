@@ -1,8 +1,7 @@
 package com.ducks.goodsduck.commons.util;
 
+import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationNaverDto;
-import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+
+import static com.ducks.goodsduck.commons.model.enums.SocialType.*;
 
 @Slf4j
 public class OauthNaverLoginUtil {
@@ -81,11 +82,12 @@ public class OauthNaverLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenUri, request, String.class);
+            log.debug("response body before mapping object to AuthorizationDto: {}", response.getBody());
             return objectMapper.readValue(response.getBody(), AuthorizationNaverDto.class);
 
         } catch (RestClientException | JsonProcessingException ex) {
             log.debug("exception occured in request to authorize with Naver : {}", ex.getMessage(), ex);
-            return new AuthorizationNaverDto();
+            throw new Oauth2Exception(NAVER);
         }
     }
 
@@ -105,10 +107,11 @@ public class OauthNaverLoginUtil {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(userInfoUri, request, String.class);
+            log.debug("response body before mapping object to AuthorizationDto: {}", response.getBody());
             return response.getBody();
         } catch (RestClientException ex) {
-            log.debug("exception occured in getting access token with Naver : {}", ex.getMessage(), ex);
-            return "request not available"; //
+            log.debug("exception occured in getting user information with Naver : {}", ex.getMessage(), ex);
+            throw new Oauth2Exception(NAVER);
         }
     }
 }

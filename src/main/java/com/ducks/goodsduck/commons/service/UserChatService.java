@@ -1,24 +1,28 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
-import com.ducks.goodsduck.commons.repository.*;
-import com.ducks.goodsduck.commons.repository.image.ImageRepository;
-import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustomImpl;
-import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
+import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
+import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
+import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,10 +40,8 @@ public class UserChatService {
     private final UserRepository userRepository;
     private final PriceProposeRepository priceProposeRepository;
     private final ReviewRepository reviewRepository;
-    private final ImageRepository imageRepository;
-    private final ItemImageRepository itemImageRepository;
-    private final ImageRepositoryCustomImpl imageRepositoryCustomImpl;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final MessageSource messageSource;
 
     public Boolean createWithImmediateTrade(String chatId, Long userId, Long itemId) {
 
@@ -80,31 +82,27 @@ public class UserChatService {
         return true;
     }
 
-    public Boolean deleteChat(String chatId) throws Exception {
+    public Boolean deleteChat(String chatId) {
 
-        try {
-            List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
+        List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
 
-            for (UserChat userChat : userChatList) {
-                Long userId = userChat.getUser().getId();
-                Long itemId = userChat.getItem().getId();
-                PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemIdForChat(userId, itemId);
+        for (UserChat userChat : userChatList) {
+            Long userId = userChat.getUser().getId();
+            Long itemId = userChat.getItem().getId();
+            PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemIdForChat(userId, itemId);
 
-                if(pricePropose != null) {
-                    pricePropose.setStatus(PriceProposeStatus.CANCELED);
-                }
+            if(pricePropose != null) {
+                pricePropose.setStatus(PriceProposeStatus.CANCELED);
             }
-
-            userChatRepository.deleteInBatch(userChatList);
-            chatRepository.deleteById(chatId);
-
-            return true;
-        } catch (Exception e) {
-            throw new Exception("Fail to delete Chat");
         }
+
+        userChatRepository.deleteInBatch(userChatList);
+        chatRepository.deleteById(chatId);
+
+        return true;
     }
 
-    public UserChatDto getChatInfo(String chatId, Long userId) throws IllegalAccessException {
+    public UserChatDto getChatInfo(String chatId, Long userId) {
 
         User checkUser = userRepository.findById(userId).get();
         Boolean check = false;
@@ -123,7 +121,7 @@ public class UserChatService {
         }
 
         if(!check) {
-            throw new IllegalAccessException("Do not access this chat room");
+            throw new UnauthorizedException();
         }
 
         return new UserChatDto(userList, userChatList.get(0).getItem());
@@ -136,7 +134,7 @@ public class UserChatService {
         List<ChatRoomDto> chatAndItemList = chatAndItemByUserIdTuple.stream().
                 map(tuple -> {
                     Chat chat = tuple.get(0, Chat.class);
-                Item item = tuple.get(1, Item.class);
+                    Item item = tuple.get(1, Item.class);
 
                     return new ChatRoomDto(chat, item);
                 })
@@ -147,7 +145,7 @@ public class UserChatService {
 
     public List<ChatRoomDto> getChatRoomsV2(Long userId) {
 
-        List<UserChat> userChats = userChatRepository.findAll();
+        List<UserChat> userChats = userChatRepository.findByUserId(userId);
 
         return userChats.stream()
                 .map(userChat -> {
@@ -162,21 +160,15 @@ public class UserChatService {
 
     }
 
-    public String getChatIdByUserIdAndItemOwnerId(Long userId) {
-        return "1";
-    }
-
     public List<UserChatResponse> findByItemId(Long itemOwnerId, Long itemId) throws IllegalAccessException {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> {
-                    log.debug("Input itemId is not valid. itemId: {}", itemId);
-                    throw new NoResultException("Item not founded");
-                });
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null)));
 
         // HINT: 해당 유저가 아이템 게시글 주인이 아닌 경우 접근 제한
         if (!item.getUser().getId().equals(itemOwnerId)) {
             log.debug("This user is not owner of this item. itemId: {}", itemId);
-            throw new IllegalAccessException("Cannot access except item owner.");
+            throw new UnauthorizedException();
         }
 
         return userChatRepositoryCustom.findByItemIdExceptItemOwner(itemOwnerId, itemId)
@@ -187,7 +179,7 @@ public class UserChatService {
                 .collect(Collectors.toList());
     }
 
-    public TradeCompleteReponse findByItemIdV2(Long itemOwnerId, Long itemId) throws IllegalAccessException {
+    public TradeCompleteReponse findByItemIdV2(Long itemOwnerId, Long itemId) {
         // HINT: 해당 유저가 굿즈에 대한 리뷰를 남긴 적이 있으면 TradeCompleteResponse.exist = false 넣어서 반환
         if (reviewRepository.existsByItemIdAndUserId(itemId, itemOwnerId)) {
             TradeCompleteReponse emptyTradeCompleteReponse = new TradeCompleteReponse();
@@ -196,15 +188,13 @@ public class UserChatService {
         }
 
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> {
-                    log.debug("Input itemId is not valid. itemId: {}", itemId);
-                    throw new NoResultException("Item not founded");
-                });
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null)));
 
         // HINT: 해당 유저가 아이템 게시글 주인이 아닌 경우 접근 제한
         if (!item.getUser().getId().equals(itemOwnerId)) {
             log.debug("This user is not owner of this item. itemId: {}", itemId);
-            throw new IllegalAccessException("Cannot access except item owner.");
+            throw new UnauthorizedException();
         }
 
         List<UserChatResponse> userChatResponses = userChatRepositoryCustom.findByItemIdExceptItemOwner(itemOwnerId, itemId)
@@ -215,5 +205,24 @@ public class UserChatService {
                 .collect(Collectors.toList());
 
         return new TradeCompleteReponse(item, userChatResponses);
+    }
+
+    public List<ChatRoomDto> getChatRoomsWithNotOwner(Long userId) {
+        List<UserChat> userChats = userChatRepository.findByUserId(userId);
+
+        return userChats.stream()
+                .filter(userChat -> {
+                    Item item = userChat.getItem();
+                    return item.getUser().getId() != userId;
+                })
+                .map(userChat -> {
+                    Chat chat = userChat.getChat();
+                    Item item = userChat.getItem();
+
+                    User user = userChat.getUser();
+
+                    return new ChatRoomDto(chat, item, user.getNickName());
+                })
+                .collect(Collectors.toList());
     }
 }

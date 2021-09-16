@@ -5,7 +5,7 @@ import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.entity.Review;
-import com.ducks.goodsduck.commons.repository.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;

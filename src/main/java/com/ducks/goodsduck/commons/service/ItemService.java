@@ -11,19 +11,19 @@ import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.*;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
-import com.ducks.goodsduck.commons.model.entity.report.ItemReport;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
-import com.ducks.goodsduck.commons.repository.*;
-import com.ducks.goodsduck.commons.repository.ReportRepository.ItemReportRepository;
+import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
+import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
+import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.report.ItemReportRepository;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
@@ -32,6 +32,11 @@ import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.useritem.UserItemRepository;
+import com.ducks.goodsduck.commons.repository.useritem.UserItemRepositoryCustom;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -50,7 +54,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.ducks.goodsduck.commons.model.dto.ApiResult.OK;
 import static com.ducks.goodsduck.commons.model.enums.TradeStatus.*;
 
 @Service
@@ -922,33 +925,6 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemSummaryDto showDetailSummary(Long itemId) {
-
-        Item item = itemRepository.findById(itemId).
-                orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                new Object[]{"Item"}, null)));
-
-        if(item.getDeletedAt() != null) {
-            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                    new Object[]{"Item"}, null));
-        }
-
-        return ItemSummaryDto.of(item);
-    }
-
-    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
-        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
-        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
-    }
-
-    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
-        return pageable.isPaged() && content.size() > pageable.getPageSize();
-    }
-
-    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
-        return content.subList(0, pageable.getPageSize());
-    }
-
     public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
@@ -1076,5 +1052,42 @@ public class ItemService {
                 .stream()
                 .map(itemCategory -> new CategoryResponse(itemCategory))
                 .collect(Collectors.toList());
+    }
+
+    public Item findById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null)));
+    }
+
+    public ItemSummaryDto showDetailSummary(Long itemId) {
+
+        Item item = itemRepository.findById(itemId).
+                orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"Item"}, null)));
+
+        if(item.getDeletedAt() != null) {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"Item"}, null));
+        }
+
+        return ItemSummaryDto.of(item);
+    }
+
+    public List<Long> getMyItemNumbersNotCompleted(Long userId) {
+        return itemRepositoryCustom.findAllByUserIdAndNotCompleted(userId);
+    }
+
+    public static <T> Slice<T> toSlice(final List<T> contents, final Pageable pageable) {
+        final boolean hasNext = isContentSizeGreaterThanPageSize(contents, pageable);
+        return new SliceImpl<>(hasNext ? subListLastContent(contents, pageable) : contents, pageable, hasNext);
+    }
+
+    private static <T> boolean isContentSizeGreaterThanPageSize(final List<T> content, final Pageable pageable) {
+        return pageable.isPaged() && content.size() > pageable.getPageSize();
+    }
+
+    private static <T> List<T> subListLastContent(final List<T> content, final Pageable pageable) {
+        return content.subList(0, pageable.getPageSize());
     }
 }

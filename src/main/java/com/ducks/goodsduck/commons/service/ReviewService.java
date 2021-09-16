@@ -7,18 +7,18 @@ import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
-import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustomImpl;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustomImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

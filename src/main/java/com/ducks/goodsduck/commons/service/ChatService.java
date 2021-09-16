@@ -3,8 +3,8 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatResponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomResponse;
 import com.ducks.goodsduck.commons.model.redis.ChatRedis;
-import com.ducks.goodsduck.commons.repository.ChatRedisTemplate;
-import com.ducks.goodsduck.commons.repository.UserChatRepository;
+import com.ducks.goodsduck.commons.repository.chat.ChatRedisTemplate;
+import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

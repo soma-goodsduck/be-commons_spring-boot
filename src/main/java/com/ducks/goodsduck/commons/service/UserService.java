@@ -2,26 +2,32 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+<<<<<<< HEAD
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.CheckNicknameDto;
+=======
+import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
+import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
+import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
+>>>>>>> 769acfa2dcf098027b22e196b34865045472a439
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.*;
-import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
-import com.ducks.goodsduck.commons.model.dto.user.UserDto;
-import com.ducks.goodsduck.commons.model.dto.user.UserPhoneNumberRequest;
-import com.ducks.goodsduck.commons.model.dto.user.UserSignUpRequest;
+import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ProfileImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
-import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
+import com.ducks.goodsduck.commons.repository.device.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
-import com.ducks.goodsduck.commons.repository.item.ItemRepository;
-import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.useridolgroup.UserIdolGroupRepository;
 import com.ducks.goodsduck.commons.util.OauthAppleLoginUtil;
 import com.ducks.goodsduck.commons.util.OauthKakaoLoginUtil;
 import com.ducks.goodsduck.commons.util.OauthNaverLoginUtil;
@@ -38,7 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -50,6 +55,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.enums.SocialType.APPLE;
 import static com.ducks.goodsduck.commons.model.enums.UserRole.*;
 
 @Service
@@ -64,17 +70,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
-    private final ItemRepository itemRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final IdolGroupRepository idolGroupRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
-    private final UserItemRepository userItemRepository;
-    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ImageRepository imageRepository;
-    private final ReviewRepository reviewRepository;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
-    private final UserImageRepository userImageRepository;
     private final DeviceRepository deviceRepository;
+    private final MessageSource messageSource;
 
     // 네이버 소셜로그인을 통한 유저 정보 반환
     public UserDto oauth2AuthorizationNaver(String code, String state, String clientId) {
@@ -86,6 +88,7 @@ public class UserService {
         // 소셜로그인 정보
         String userInfoFromNaver = OauthNaverLoginUtil.callUserInfoByAccessToken(authorizationNaverDto.getAccess_token());
 
+        // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
         log.debug("Now login user information: \n" + userInfoFromNaver);
 
         // 비회원 체크
@@ -93,9 +96,6 @@ public class UserService {
 
         JSONObject jsonResponseInfo = (JSONObject) jsonUserInfo.get("response");
         String userSocialAccountId = jsonResponseInfo.get("id").toString();
-
-        // COMMENT: 네이버에서 받아오는 String 값 확인 (모바일에서 문제)
-        log.debug(userInfoFromNaver);
 
         return checkUserAndGetInfo(userSocialAccountId);
     }
@@ -142,7 +142,7 @@ public class UserService {
             }
 
             if (realPublicKey == null) {
-                throw new RuntimeException("Can't get information from Apple server.");
+                throw new Oauth2Exception(APPLE);
             }
 
             byte[] nBytes = Base64.getUrlDecoder().decode(realPublicKey.getN());
@@ -196,7 +196,7 @@ public class UserService {
 
         if(userSignUpRequest.getPhoneNumber() == null || userSignUpRequest.getEmail() == null ||
                 userSignUpRequest.getNickName() == null || userSignUpRequest.getLikeIdolGroupsId() == null) {
-            throw new IllegalStateException("No sing-up info in UserController.singUp");
+            throw new InvalidRequestDataException();
         }
 
         SocialAccount socialAccount = socialAccountRepository.save(
@@ -254,84 +254,100 @@ public class UserService {
         else return -1L;
     }
 
-    public Boolean updateProfile(Long userId, MultipartFile multipartFile, UpdateProfileRequest updateProfileRequest) throws Exception {
+    public Boolean updateProfile(Long userId, MultipartFile multipartFile, UpdateProfileRequest updateProfileRequest) throws IOException {
 
-        try {
-            User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).get();
 
-            // 프로필 사진 수정
-            if (multipartFile != null) {
+        // 프로필 사진 수정
+        if (multipartFile != null) {
 
-                // 현재 프로필 사진이 있으면 삭제
-                if (user.getImageUrl() != null) {
-                    Image nowImage = imageRepository.findByUrl(user.getImageUrl());
-                    imageRepository.delete(nowImage);
-                }
-
-                Image image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE, user.getNickName());
-                ProfileImage profileImage = new ProfileImage(image);
-                profileImage.setUser(user);
-
-                user.setImageUrl(image.getUrl());
-                imageRepository.save(profileImage);
+            // 현재 프로필 사진이 있으면 삭제
+            if (user.getImageUrl() != null) {
+                Image nowImage = imageRepository.findByUrl(user.getImageUrl());
+                imageRepository.delete(nowImage);
             }
 
+            Image image = null;
+            try {
+                image = imageUploadService.uploadImage(multipartFile, ImageType.PROFILE, user.getNickName());
+            } catch (ImageProcessingException e) {
+                log.debug("Exception occured during processing ItemImage: {}", e.getMessage(), e.getStackTrace());
+                throw new ImageProcessException();
+            } catch (MetadataException e) {
+                log.debug("Exception occured during reading Metadata of Item: {}", e.getMessage(), e.getStackTrace());
+                throw new InvalidMetadataException();
+            }
+            ProfileImage profileImage = new ProfileImage(image);
+            profileImage.setUser(user);
+            
             // 닉네임 수정
             if(!user.getNickName().equals(updateProfileRequest.getNickName())) {
                 user.setUpdatedAt(LocalDateTime.now());
             }
             user.setNickName(updateProfileRequest.getNickName());
 
-            // 좋아하는 아이돌 수정
-            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
-            userIdolGroupRepository.deleteInBatch(userIdolGroups);
-            userIdolGroups.clear();
-
-            List<Long> likeIdolGroupsId = updateProfileRequest.getLikeIdolGroupsId();
-            for (Long likeIdolGroupId : likeIdolGroupsId) {
-                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
-                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
-                user.addUserIdolGroup(userIdolGroup);
-            }
-            userIdolGroupRepository.saveAll(userIdolGroups);
-
-            return true;
-        } catch (Exception e) {
-            throw new Exception("Fail to edit profile");
+            user.setImageUrl(image.getUrl());
+            imageRepository.save(profileImage);
         }
+
+        // 닉네임 수정
+        user.setNickName(updateProfileRequest.getNickName());
+
+        // 좋아하는 아이돌 수정
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+        userIdolGroupRepository.deleteInBatch(userIdolGroups);
+        userIdolGroups.clear();
+
+        List<Long> likeIdolGroupsId = updateProfileRequest.getLikeIdolGroupsId();
+        for (Long likeIdolGroupId : likeIdolGroupsId) {
+            IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+            UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+            user.addUserIdolGroup(userIdolGroup);
+        }
+        userIdolGroupRepository.saveAll(userIdolGroups);
+
+        return true;
     }
 
     public Long updateLikeIdolGroups(Long userId, List<Long> likeIdolGroupsId) {
 
         User user = userRepository.findById(userId).get();
 
-        try {
-            List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
-            userIdolGroupRepository.deleteInBatch(userIdolGroups);
-            userIdolGroups.clear();
+        List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
+        userIdolGroupRepository.deleteInBatch(userIdolGroups);
+        userIdolGroups.clear();
 
-            for (Long likeIdolGroupId : likeIdolGroupsId) {
-                IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
-                UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
-                user.addUserIdolGroup(userIdolGroup);
-            }
-            userIdolGroupRepository.saveAll(userIdolGroups);
-
-            return userId;
-        } catch (Exception e) {
-            return -1L;
+        for (Long likeIdolGroupId : likeIdolGroupsId) {
+            IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId)
+                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"IdolGroup"}, null)));
+            UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+            user.addUserIdolGroup(userIdolGroup);
         }
+        userIdolGroupRepository.saveAll(userIdolGroups);
+
+        return userId;
     }
 
-    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException, ImageProcessingException, MetadataException {
+    public String uploadChatImage(MultipartFile multipartFile, ImageType imageType, Long userId) throws IOException {
         User user = userRepository.findById(userId).get();
 
-        return imageUploadService.uploadImage(multipartFile, imageType, user.getNickName()).getUrl();
+        try {
+            return imageUploadService.uploadImage(multipartFile, imageType, user.getNickName()).getUrl();
+        } catch (ImageProcessingException e) {
+            log.debug("Exception occured during processing ItemImage: {}", e.getMessage(), e.getStackTrace());
+            throw new ImageProcessException();
+        } catch (MetadataException e) {
+            log.debug("Exception occured during reading Metadata of Item: {}", e.getMessage(), e.getStackTrace());
+            throw new InvalidMetadataException();
+        }
     }
 
     public void updateLastLoginAt(Long userId) {
 
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
         user.updateLastLoginAt();
     }
 
@@ -418,14 +434,32 @@ public class UserService {
 
     public Boolean resign(Long userId, UserPhoneNumberRequest userPhoneNumberRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new NoResultException("User not founded.");
-                });
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
 
         if (!user.getPhoneNumber().equals(userPhoneNumberRequest.getPhoneNumber())) {
             return false;
         }
 
         return userRepositoryCustom.updateRoleByUserId(userId, RESIGNED) > 0 ? true : false;
+    }
+
+    public UserSimpleDto findByUserId(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> new UserSimpleDto(user))
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+    }
+
+    public UserDto findUserInfoByUserId(Long userId, String jwt) {
+        User user = userRepository.findById(userId).get();
+
+        Device device = deviceRepository.findByUser(user)
+                .orElseGet(() -> new Device(user));
+        UserDto userDto = new UserDto(user);
+        userDto.setJwt(jwt);
+        userDto.setAgreeToNotification(device.getIsAllowed());
+
+        return userDto;
     }
 }

@@ -1,8 +1,7 @@
 package com.ducks.goodsduck.commons.util;
 
+import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
 import com.ducks.goodsduck.commons.model.dto.oauth2.AuthorizationKakaoDto;
-import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
-import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+
+import static com.ducks.goodsduck.commons.model.enums.SocialType.KAKAO;
 
 @Slf4j
 public class OauthKakaoLoginUtil {
@@ -63,7 +64,7 @@ public class OauthKakaoLoginUtil {
             return objectMapper.readValue(response.getBody(), AuthorizationKakaoDto.class);
         } catch (RestClientException | JsonProcessingException ex) {
             log.debug("exception occured in request to authorize with Kakao : {}", ex.getMessage(), ex);
-            throw new IllegalStateException();
+            throw new Oauth2Exception(KAKAO);
         }
     }
 
@@ -85,8 +86,8 @@ public class OauthKakaoLoginUtil {
             log.debug("Result of user information from Kakao: \n" + response.toString());
             return response.getBody();
         } catch (RestClientException ex) {
-            log.debug("exception occured in getting access token with Kakao : {}", ex.getMessage(), ex);
-            throw new IllegalStateException();
+            log.debug("exception occured in getting user information from Kakao : {}", ex.getMessage(), ex);
+            throw new Oauth2Exception(KAKAO);
         }
     }
 }
