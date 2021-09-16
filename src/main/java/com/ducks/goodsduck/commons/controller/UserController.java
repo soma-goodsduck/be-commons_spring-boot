@@ -104,6 +104,13 @@ public class UserController {
         return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
     }
 
+    @NoCheckJwt
+    @ApiOperation("닉네임 중복 확인 API (비회원, 회원가입)")
+    @PostMapping("/v1/users/nickname-check-register")
+    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest) {
+        return OK(userService.checkNicknameRegister(nicknameCheckRequest.getNickName()));
+    }
+
     @ApiOperation("닉네임 중복 확인 API (회원)")
     @PostMapping("/v1/users/nickname-check")
     public ApiResult<CheckNicknameDto> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest, HttpServletRequest request) {

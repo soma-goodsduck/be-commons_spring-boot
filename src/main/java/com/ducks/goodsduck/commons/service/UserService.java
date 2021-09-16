@@ -361,12 +361,21 @@ public class UserService {
     public SocialType checkPhoneNumber(String phoneNumber) {
 
         User user = userRepository.findByPhoneNumber(phoneNumber);
-
         if(user != null) {
             SocialAccount socialAccount = socialAccountRepository.findByUserId(user.getId());
             return socialAccount.getType();
         } else {
             return null;
+        }
+    }
+
+    public Boolean checkNicknameRegister(String nickname) {
+
+        User user = userRepository.findByNickName(nickname);
+        if(user != null) {
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -387,7 +396,6 @@ public class UserService {
     public Boolean checkEmail(String email) {
 
         User user = userRepository.findByEmail(email);
-
         if(user != null) {
             return false;
         } else {
