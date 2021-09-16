@@ -382,20 +382,18 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
         User findUser = userRepository.findByNickName(nickname);
-
-        // 다른 유저와 중복 닉네임 X
+        
         if(findUser == null) {
-
-            // 나의 이전 닉네임과 동일
-            if(user.getNickName().equals(nickname)) {
-                return new CheckNicknameDto(user.getUpdatedAt(), false, true);
-            }
-            else {
-                return new CheckNicknameDto(user.getUpdatedAt(), false, false);
-            }
+            return new CheckNicknameDto(user.getUpdatedAt(), false);
         }
+        // 다른 유저와 중복 닉네임인 경우
         else {
-            return new CheckNicknameDto(user.getUpdatedAt(), true);
+            // 나의 이전 닉네임과 동일한 것은 중복처리 X
+            if(user.getNickName().equals(nickname)) {
+                return new CheckNicknameDto(user.getUpdatedAt(), false);
+            } else {
+                return new CheckNicknameDto(user.getUpdatedAt(), true);
+            }
         }
     }
 
