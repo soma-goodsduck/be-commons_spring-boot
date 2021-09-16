@@ -22,6 +22,7 @@ import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -103,11 +104,10 @@ public class UserController {
         return OK(userService.checkPhoneNumber(phoneNumberCheckRequest.getPhoneNumber()));
     }
 
-    @NoCheckJwt
-    @ApiOperation("닉네임 중복 확인 API")
+    @ApiOperation("닉네임 중복 확인 API (회원)")
     @PostMapping("/v1/users/nickname-check")
-    public ApiResult<CheckNicknameDto> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest, @RequestHeader("jwt") String jwt) {
-        Long userId = userService.checkLoginStatus(jwt);
+    public ApiResult<CheckNicknameDto> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.checkNickname(userId, nicknameCheckRequest.getNickName()));
     }
 
