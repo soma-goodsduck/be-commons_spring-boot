@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -15,6 +16,7 @@ public class Chat {
     @Id
     @Column(name = "chat_id")
     private String id;
+    LocalDateTime deletedAt;
 
     public Chat(String id) {
         this.id = id;

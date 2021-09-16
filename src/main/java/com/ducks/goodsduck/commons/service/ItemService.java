@@ -354,14 +354,10 @@ public class ItemService {
         chatRepository.deleteInBatch(deleteChats);
 
         // TODO : 0번 아이템 만든 후에 체크
-//            Item replaceItem = itemRepository.findById(0L).get();
-
         // review 연관 삭제 (삭제용 데이터 0번 아이템으로 교체)
         List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(itemId);
         for (Review deleteItemOfReview : deleteItemOfReviews) {
-            // TODO : 0번 아이템 만든 후에 체크
             deleteItemOfReview.setItem(null);
-//                deleteItemOfReview.setItem(replaceItem);
         }
 
         // userItem 연관 삭제
@@ -379,35 +375,38 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"Item"}, null)));
 
-        deleteItem.setDeletedAt(LocalDateTime.now());
-
         // user's Item 목록 삭제
         User user = deleteItem.getUser();
-        List<Item> itemsOfUser = user.getItems();
-        itemsOfUser.remove(deleteItem);
+        List<Item> deleteItemsOfUser = user.getItems();
+        deleteItemsOfUser.remove(deleteItem);
 
         // image 연관 삭제
-        List<ItemImage> deleteImages = deleteItem.getImages();
-        itemImageRepository.deleteInBatch(deleteImages);
+        List<ItemImage> deleteItemImages = deleteItem.getImages();
+        for (Image deleteImage : deleteItemImages) {
+            deleteImage.setDeletedAt(LocalDateTime.now());
+        }
 
         // pricePropose 연관 삭제
         List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(itemId);
-        priceProposeRepository.deleteInBatch(deletePriceProposes);
-
-        // userChat 연관 삭제
-        List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(itemId);
-        userChatRepository.deleteInBatch(deleteUserChats);
-
-        // chat 삭제
-        List<Chat> deleteChats = new ArrayList<>();
-        for (UserChat deleteUserChat : deleteUserChats) {
-            deleteChats.add(deleteUserChat.getChat());
+        for (PricePropose deletePricePropose : deletePriceProposes) {
+            deletePricePropose.setDeletedAt(LocalDateTime.now());
         }
-        chatRepository.deleteInBatch(deleteChats);
+
+        // userChat, chat 연관 삭제
+        List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(itemId);
+        for (UserChat deleteUserChat : deleteUserChats) {
+            deleteUserChat.setDeletedAt(LocalDateTime.now());
+            deleteUserChat.getChat().setDeletedAt(LocalDateTime.now());
+        }
 
         // userItem 연관 삭제
         List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(itemId);
-        userItemRepository.deleteInBatch(deleteUserItems);
+        for (UserItem deleteUserItem : deleteUserItems) {
+            deleteUserItem.setDeletedAt(LocalDateTime.now());
+        }
+
+        // Item 삭제
+        deleteItem.setDeletedAt(LocalDateTime.now());
 
         return true;
     }
@@ -876,9 +875,7 @@ public class ItemService {
     // FEAT: 비회원용 검색 기능
     public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId) {
 
-        List<String> keywords = List.of(keyword.split(" "));
-
-        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keywords, itemId);
+        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keyword, itemId);
         List<ItemHomeResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemHomeResponse(item))
@@ -890,15 +887,13 @@ public class ItemService {
     // FEAT: 회원용 검색 기능
     public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId) {
 
-        List<String> keywords = List.of(keyword.split(" "));
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keywords, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keyword, itemId);
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()

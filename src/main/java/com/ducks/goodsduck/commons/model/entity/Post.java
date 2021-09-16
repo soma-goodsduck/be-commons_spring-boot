@@ -28,6 +28,7 @@ public class Post {
     private Integer commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_category_id")
@@ -50,7 +51,6 @@ public class Post {
     public Post(PostUploadRequest postUploadRequest) {
         this.title = postUploadRequest.getTitle();
         this.content = postUploadRequest.getContent();
-//        this.postType = postUploadRequest.g
         this.viewCount = 0;
         this.likeCount = 0;
         this.commentCount = 0;

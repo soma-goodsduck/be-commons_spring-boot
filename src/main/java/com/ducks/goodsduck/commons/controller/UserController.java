@@ -116,14 +116,15 @@ public class UserController {
     @NoCheckJwt
     @ApiOperation("닉네임 중복 확인 API")
     @PostMapping("/v1/users/nickname-check")
-    public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest) {
-        return OK(userService.checkNickname(nicknameCheckRequest.getNickName()));
+    public ApiResult<CheckNicknameDto> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest, @RequestHeader("jwt") String jwt) {
+        Long userId = userService.checkLoginStatus(jwt);
+        return OK(userService.checkNickname(userId, nicknameCheckRequest.getNickName()));
     }
 
     @NoCheckJwt
     @ApiOperation("이메일 중복 확인 API")
     @PostMapping("/v1/users/email-check")
-    public ApiResult<Boolean> checkSameEmail(@RequestBody EmailCheckRequest emailCheckRequest) {
+    public ApiResult<Boolean> checkSameEmail(@RequestBody EmailCheckRequest emailCheckRequest, @RequestHeader("jwt") String jwt) {
         return OK(userService.checkEmail(emailCheckRequest.getEmail()));
     }
 

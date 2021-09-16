@@ -30,6 +30,7 @@ public class User {
     private Integer exp;
     private Integer reportCount;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
 
     @Enumerated(EnumType.STRING)

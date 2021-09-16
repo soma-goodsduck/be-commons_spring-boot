@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -27,6 +28,8 @@ public class UserChat {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
+
+    private LocalDateTime deletedAt;
 
     public UserChat(User user, Chat chat, Item item) {
         this.user = user;

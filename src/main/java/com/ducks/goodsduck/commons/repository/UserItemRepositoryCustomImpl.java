@@ -43,7 +43,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
                 .join(item.idolMember, idolMember)
                 .join(idolMember.idolGroup, idolGroup)
                 .join(userItem.user, user)
-                .where(userItem.user.id.eq(userId))
+                .where(userItem.user.id.eq(userId).and(userItem.deletedAt.isNull()))
                 .fetch();
     }
 
@@ -52,7 +52,7 @@ public class UserItemRepositoryCustomImpl implements UserItemRepositoryCustom {
         return queryFactory
                 .select(userItem.item)
                 .from(userItem)
-                .where(userItem.user.id.eq(userId))
+                .where(userItem.user.id.eq(userId).and(userItem.deletedAt.isNull()))
                 .orderBy(userItem.item.id.desc())
                 .fetch();
     }

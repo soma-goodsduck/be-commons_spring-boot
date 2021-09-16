@@ -33,6 +33,7 @@ public class PricePropose {
 
     private int price;
     private LocalDateTime createdAt;
+    private LocalDateTime deletedAt;
 
     public PricePropose(User user, Item item, int price) {
         this.user = user;

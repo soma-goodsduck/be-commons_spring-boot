@@ -113,7 +113,6 @@ public class ChatController {
         return OK(chatService.checkUnreadChat(userId));
     }
 
-
     @ApiOperation("(삭제예정) 채팅방 ID를 통한 User 정보 획득 API")
     @GetMapping("/v1/chat/{chatId}")
     public ApiResult<UserChatDto> getChatInfo(@PathVariable("chatId") String chatId, HttpServletRequest request) throws IllegalAccessException {

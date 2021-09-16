@@ -43,9 +43,10 @@ public class ItemDetailResponse {
         this.itemId = item.getId();
         this.name = item.getName();
         this.description = item.getDescription();
-        this.images = item.getImages().stream()
-                        .map(image -> new ItemDetailResponseImage(image))
-                        .collect(Collectors.toList());
+        this.images = item.getImages()
+                    .stream()
+                    .map(image -> new ItemDetailResponseImage(image))
+                    .collect(Collectors.toList());
         this.price = item.getPrice();
         this.tradeType = item.getTradeType();
         this.tradeStatus = item.getTradeStatus();

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -23,6 +24,8 @@ public class UserItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ITEM_ID")
     private Item item;
+
+    private LocalDateTime deletedAt;
 
     public UserItem(User user, Item item) {
         this.user = user;
