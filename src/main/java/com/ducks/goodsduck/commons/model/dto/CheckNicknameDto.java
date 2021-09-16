@@ -9,9 +9,11 @@ public class CheckNicknameDto {
 
     LocalDateTime updatedAt;
     Boolean isSame;
+    String nickName;
 
-    public CheckNicknameDto(LocalDateTime updatedAt, Boolean isSame) {
+    public CheckNicknameDto(LocalDateTime updatedAt, Boolean isSame, String nickName) {
         this.updatedAt = updatedAt;
         this.isSame = isSame;
+        this.nickName = nickName;
     }
 }
