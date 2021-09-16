@@ -188,7 +188,7 @@ public class ItemService {
 
             // 채팅방 정보
             Chat chat = userChatRepositoryCustom.findByUserIdAndItemId(userId, itemId);
-            if(chat != null) {
+            if(chat.getDeletedAt() == null) {
                 itemDetailResponse.setChatId(chat.getId());
             }
         }
