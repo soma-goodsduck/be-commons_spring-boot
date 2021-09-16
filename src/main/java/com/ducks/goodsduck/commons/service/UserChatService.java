@@ -85,17 +85,11 @@ public class UserChatService {
 
     public Boolean deleteChat(Long exitUserId, String chatId) {
 
-        int exitCount = 0;
         List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
 
         for (UserChat userChat : userChatList) {
             Long userId = userChat.getUser().getId();
             Long itemId = userChat.getItem().getId();
-
-            // 둘다 채팅방을 나갔는지 체크
-            if(userChat.getDeletedAt() != null) {
-                exitCount++;
-            }
 
             if(userId.equals(exitUserId)) {
                 userChat.setDeletedAt(LocalDateTime.now());
@@ -107,13 +101,11 @@ public class UserChatService {
             }
         }
 
-        if(exitCount == 2) {
-            Chat chat = chatRepository.findById(chatId)
-                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                            new Object[]{"ChatRoom"}, null)));
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"ChatRoom"}, null)));
 
-            chat.setDeletedAt(LocalDateTime.now());
-        }
+        chat.setDeletedAt(LocalDateTime.now());
 
         return true;
     }
