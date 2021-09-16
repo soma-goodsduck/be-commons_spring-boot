@@ -59,7 +59,8 @@ public class UserChatRepositoryCustomImpl implements UserChatRepositoryCustom {
                 .from(userChat)
                 .join(userChat.chat, chat)
                 .where(userChat.user.id.eq(userId)
-                        .and(userChat.item.id.eq(itemId)))
+                        .and(userChat.item.id.eq(itemId))
+                        .and(chat.deletedAt.isNull()))
                 .fetchOne();
     }
 
