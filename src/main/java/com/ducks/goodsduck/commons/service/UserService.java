@@ -2,16 +2,13 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
-<<<<<<< HEAD
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.CheckNicknameDto;
-=======
 import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
 import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
 import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
->>>>>>> 769acfa2dcf098027b22e196b34865045472a439
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.*;
 import com.ducks.goodsduck.commons.model.dto.user.*;
@@ -66,7 +63,6 @@ public class UserService {
 
     private final CustomJwtService jwtService;
     private final ImageUploadService imageUploadService;
-    private MessageSource messageSource;
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
@@ -279,7 +275,7 @@ public class UserService {
             }
             ProfileImage profileImage = new ProfileImage(image);
             profileImage.setUser(user);
-            
+
             // 닉네임 수정
             if(!user.getNickName().equals(updateProfileRequest.getNickName())) {
                 user.setUpdatedAt(LocalDateTime.now());
