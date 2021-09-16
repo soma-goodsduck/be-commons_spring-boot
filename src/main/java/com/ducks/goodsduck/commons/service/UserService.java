@@ -403,7 +403,7 @@ public class UserService {
         // 판매상품
         List<Item> items = user.getItems()
                 .stream()
-                .filter(item -> item.getDeletedAt() != null)
+                .filter(item -> item.getDeletedAt() == null)
                 .collect(Collectors.toList());
         List<Item> showItems = new ArrayList<>();
         List<Item> sortedItems = items.stream()
