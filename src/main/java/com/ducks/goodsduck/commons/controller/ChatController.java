@@ -54,8 +54,9 @@ public class ChatController {
 
     @ApiOperation("채팅방 나갔을 때, 채팅방 삭제 API")
     @PostMapping("/v1/chat")
-    public ApiResult<Boolean> deleteChat(@RequestBody ChatRequestDto chatDto) throws Exception {
-        return OK(userChatService.deleteChat(chatDto.getChatId()));
+    public ApiResult<Boolean> deleteChat(@RequestBody ChatRequestDto chatDto, HttpServletRequest request) throws Exception {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userChatService.deleteChat(userId, chatDto.getChatId()));
     }
 
     @ApiOperation("채팅방 이미지 업로드 API")

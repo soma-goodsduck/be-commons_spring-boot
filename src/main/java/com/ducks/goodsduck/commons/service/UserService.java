@@ -383,9 +383,18 @@ public class UserService {
                         new Object[]{"User"}, null)));
         User findUser = userRepository.findByNickName(nickname);
 
+        // 다른 유저와 중복 닉네임 X
         if(findUser == null) {
-            return new CheckNicknameDto(user.getUpdatedAt(), false);
-        } else {
+
+            // 나의 이전 닉네임과 동일
+            if(user.getNickName().equals(nickname)) {
+                return new CheckNicknameDto(user.getUpdatedAt(), false, true);
+            }
+            else {
+                return new CheckNicknameDto(user.getUpdatedAt(), false, false);
+            }
+        }
+        else {
             return new CheckNicknameDto(user.getUpdatedAt(), true);
         }
     }

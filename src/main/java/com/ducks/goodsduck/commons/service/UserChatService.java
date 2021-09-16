@@ -23,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,22 +83,37 @@ public class UserChatService {
         return true;
     }
 
-    public Boolean deleteChat(String chatId) {
+    public Boolean deleteChat(Long exitUserId, String chatId) {
 
+        int exitCount = 0;
         List<UserChat> userChatList = userChatRepositoryCustom.findAllByChatId(chatId);
 
         for (UserChat userChat : userChatList) {
             Long userId = userChat.getUser().getId();
             Long itemId = userChat.getItem().getId();
-            PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemIdForChat(userId, itemId);
 
+            // 둘다 채팅방을 나갔는지 체크
+            if(userChat.getDeletedAt() != null) {
+                exitCount++;
+            }
+
+            if(userId.equals(exitUserId)) {
+                userChat.setDeletedAt(LocalDateTime.now());
+            }
+
+            PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemIdForChat(userId, itemId);
             if(pricePropose != null) {
                 pricePropose.setStatus(PriceProposeStatus.CANCELED);
             }
         }
 
-        userChatRepository.deleteInBatch(userChatList);
-        chatRepository.deleteById(chatId);
+        if(exitCount == 2) {
+            Chat chat = chatRepository.findById(chatId)
+                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"ChatRoom"}, null)));
+
+            chat.setDeletedAt(LocalDateTime.now());
+        }
 
         return true;
     }
@@ -213,7 +229,7 @@ public class UserChatService {
         return userChats.stream()
                 .filter(userChat -> {
                     Item item = userChat.getItem();
-                    return item.getUser().getId() != userId;
+                    return item.getUser().getId() != userId && userChat.getDeletedAt() == null;
                 })
                 .map(userChat -> {
                     Chat chat = userChat.getChat();
