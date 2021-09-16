@@ -72,8 +72,9 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
         return queryFactory
                 .select(pricePropose.item, pricePropose.user, pricePropose)
                 .from(pricePropose)
-                .where(pricePropose.item.in(items).and(
-                        pricePropose.status.eq(SUGGESTED)
+                .where(pricePropose.item.in(items)
+                        .and(pricePropose.status.eq(SUGGESTED)
+                        .and(pricePropose.deletedAt.isNull())
                 ))
                 .orderBy(pricePropose.id.desc())
                 .fetch();

@@ -2,6 +2,8 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.model.dto.CheckNicknameDto;
 import com.ducks.goodsduck.commons.model.dto.OtherUserPageDto;
 import com.ducks.goodsduck.commons.model.dto.oauth2.*;
 import com.ducks.goodsduck.commons.model.dto.user.UpdateProfileRequest;
@@ -31,6 +33,7 @@ import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +60,7 @@ public class UserService {
 
     private final CustomJwtService jwtService;
     private final ImageUploadService imageUploadService;
+    private MessageSource messageSource;
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
@@ -272,6 +277,9 @@ public class UserService {
             }
 
             // 닉네임 수정
+            if(!user.getNickName().equals(updateProfileRequest.getNickName())) {
+                user.setUpdatedAt(LocalDateTime.now());
+            }
             user.setNickName(updateProfileRequest.getNickName());
 
             // 좋아하는 아이돌 수정
@@ -350,13 +358,17 @@ public class UserService {
         }
     }
 
-    public Boolean checkNickname(String nickname) {
+    public CheckNicknameDto checkNickname(Long userId, String nickname) {
 
-        User user = userRepository.findByNickName(nickname);
-        if(user != null) {
-            return false;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+        User findUser = userRepository.findByNickName(nickname);
+
+        if(findUser == null) {
+            return new CheckNicknameDto(user.getUpdatedAt(), false);
         } else {
-            return true;
+            return new CheckNicknameDto(user.getUpdatedAt(), true);
         }
     }
 
@@ -379,7 +391,7 @@ public class UserService {
         // 판매상품
         List<Item> items = user.getItems()
                 .stream()
-                .filter(item -> item.getUser() != null)
+                .filter(item -> item.getDeletedAt() != null)
                 .collect(Collectors.toList());
         List<Item> showItems = new ArrayList<>();
         List<Item> sortedItems = items.stream()

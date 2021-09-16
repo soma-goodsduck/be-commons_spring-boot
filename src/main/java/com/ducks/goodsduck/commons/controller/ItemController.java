@@ -133,6 +133,7 @@ public class ItemController {
     public ApiResult<HomeResponse<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
                                                                       @RequestParam("itemId") Long itemId,
                                                                       @RequestHeader("jwt") String jwt) {
+
         Long userId = userService.checkLoginStatus(jwt);
         return OK(itemService.getSearchedItemList(userId, keyword, itemId));
     }

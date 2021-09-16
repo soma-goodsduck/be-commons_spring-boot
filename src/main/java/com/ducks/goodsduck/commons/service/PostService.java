@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
@@ -26,12 +27,14 @@ import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -57,6 +60,7 @@ public class PostService {
     private final PostCategoryRepository postCategoryRepository;
 
     private final ImageUploadService imageUploadService;
+    private final MessageSource messageSource;
 
     public Long upload(PostUploadRequest postUploadRequest, List<MultipartFile> multipartFiles, Long userId) {
 
@@ -218,6 +222,39 @@ public class PostService {
 
             // post 삭제
             postRepository.delete(deletePost);
+
+            return 1L;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long deleteV2(Long postId) {
+
+        try {
+            Post deletePost = postRepository.findById(postId)
+                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"Post"}, null)));
+
+            // user's post 목록 삭제
+            User user = deletePost.getUser();
+            List<Post> postsOfUser = user.getPosts();
+            postsOfUser.remove(deletePost);
+
+            // image 연관 삭제
+            List<PostImage> deleteImages = deletePost.getImages();
+            for (Image deleteImage : deleteImages) {
+                deleteImage.setDeletedAt(LocalDateTime.now());
+            }
+
+            // userPost 연관 삭제
+            List<UserPost> deleteUserPosts = userPostRepository.findByPostId(postId);
+            for (UserPost deleteUserPost : deleteUserPosts) {
+                deleteUserPost.setDeletedAt(LocalDateTime.now());
+            }
+
+            // post 삭제
+            deletePost.setDeletedAt(LocalDateTime.now());
 
             return 1L;
         } catch (Exception e) {

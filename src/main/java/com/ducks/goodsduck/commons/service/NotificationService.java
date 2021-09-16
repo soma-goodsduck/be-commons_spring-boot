@@ -265,7 +265,6 @@ public class NotificationService {
             throw new IllegalAccessException("Login user is not matched with senderId.");
         }
 
-
         List<UserChat> userChats = userChatRepositoryCustom.findAllByChatId(chatMessageRequest.getChatRoomId())
                 .stream()
                 // HINT: SENDER에 해당하는 ROW 제거

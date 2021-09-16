@@ -603,7 +603,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findByKeywordWithLimit(List<String> keywords, Long itemId) {
+    public List<Item> findByKeywordWithLimit(String keyword, Long itemId) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -611,36 +611,44 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             builder.and(item.id.lt(itemId));
         }
 
-        for (String keyword:keywords) {
-            builder.and(item.name.contains(keyword));
+        String[] arr = keyword.split(" ");
+        String newKeyword = "";
+        for (String s : arr) {
+            newKeyword += s;
         }
+
+        StringTemplate name = Expressions.stringTemplate("REPLACE({0},' ','')", item.name);
 
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder.and(item.deletedAt.isNull()))
+                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
     @Override
-    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, List<String> keywords, Long itemId) {
+    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if(itemId != 0) {
             builder.and(item.id.lt(itemId));
         }
 
-        for (String keyword:keywords) {
-            builder.and(item.name.contains(keyword));
+        String[] arr = keyword.split(" ");
+        String newKeyword = "";
+        for (String s : arr) {
+            newKeyword += s;
         }
+
+        StringTemplate name = Expressions.stringTemplate("REPLACE({0},' ','')", item.name);
 
         return queryFactory
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .where(builder.and(item.deletedAt.isNull()))
+                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
                 .orderBy(item.updatedAt.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
