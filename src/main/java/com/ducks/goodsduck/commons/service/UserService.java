@@ -276,17 +276,14 @@ public class UserService {
             ProfileImage profileImage = new ProfileImage(image);
             profileImage.setUser(user);
 
-            // 닉네임 수정
-            if(!user.getNickName().equals(updateProfileRequest.getNickName())) {
-                user.setUpdatedAt(LocalDateTime.now());
-            }
-            user.setNickName(updateProfileRequest.getNickName());
-
             user.setImageUrl(image.getUrl());
             imageRepository.save(profileImage);
         }
 
         // 닉네임 수정
+        if(!user.getNickName().equals(updateProfileRequest.getNickName())) {
+            user.setUpdatedAt(LocalDateTime.now());
+        }
         user.setNickName(updateProfileRequest.getNickName());
 
         // 좋아하는 아이돌 수정
