@@ -107,7 +107,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder.and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -164,7 +164,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -277,7 +277,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder.and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -331,7 +331,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder.and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -416,7 +416,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -532,7 +532,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember.idolGroup, idolGroup)
                 .where(builder.and(item.deletedAt.isNull()))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -616,12 +616,22 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findByKeywordWithLimit(String keyword, Long itemId, Order order, Boolean complete) {
+    public List<Item> findByKeywordWithLimit(String keyword, Long itemId, Long price, Order order, Boolean complete) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(itemId != 0) {
-            builder.and(item.id.lt(itemId));
+        if(order.equals(Order.LATEST)) {
+            if(itemId != 0) {
+                builder.and(item.id.lt(itemId));
+            }
+        } else {
+            if(itemId != 0) {
+                if(order.equals(Order.HIGH_PRICE)) {
+                    builder.and(item.price.loe(price).and(item.id.lt(itemId))).or(item.price.lt(price));
+                } else if(order.equals(Order.LOW_PRICE)) {
+                    builder.and(item.price.goe(price).and(item.id.lt(itemId))).or(item.price.gt(price));
+                }
+            }
         }
 
         if(complete == false) {
@@ -640,17 +650,27 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
-                .orderBy(orderType(order))
+                .orderBy(orderType(order), item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
     @Override
-    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Order order, Boolean complete) {
+    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Long price, Order order, Boolean complete) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(itemId != 0) {
-            builder.and(item.id.lt(itemId));
+        if(order.equals(Order.LATEST)) {
+            if(itemId != 0) {
+                builder.and(item.id.lt(itemId));
+            }
+        } else {
+            if(itemId != 0) {
+                if(order.equals(Order.HIGH_PRICE)) {
+                    builder.and(item.price.loe(price).and(item.id.lt(itemId))).or(item.price.lt(price));
+                } else if(order.equals(Order.LOW_PRICE)) {
+                    builder.and(item.price.goe(price).and(item.id.lt(itemId))).or(item.price.gt(price));
+                }
+            }
         }
 
         if(complete == false) {
@@ -670,7 +690,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
-                .orderBy(orderType(order))
+                .orderBy(orderType(order), item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -687,6 +707,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         } else if(order.equals(Order.LOW_PRICE)) {
             return item.price.asc();
         }
-        return item.updatedAt.desc();
+        return item.id.desc();
     }
 }
+

@@ -128,18 +128,19 @@ public class ItemController {
     public ApiResult deleteItemV2(@PathVariable("itemId") Long itemId) { return OK(itemService.deleteV2(itemId)); }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 검색 (회원/비회원)", notes = "초기 정렬(order)은 최신순(latest), 초기 거래완료(complete)는 보여줌(true)")
+    @ApiOperation(value = "아이템 검색 (회원/비회원)")
     @GetMapping("/v1/items/search")
     @Transactional
     public ApiResult<HomeResponse<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
                                                                       @RequestParam("itemId") Long itemId,
+                                                                      @RequestParam("price") Long price,
                                                                       @RequestParam("order") String stringOrder,
                                                                       @RequestParam("complete") Boolean complete,
                                                                       @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
         Order order = Order.valueOf(stringOrder.toUpperCase());
-        return OK(itemService.getSearchedItemList(userId, keyword, itemId, order, complete));
+        return OK(itemService.getSearchedItemList(userId, keyword, itemId, price, order, complete));
     }
 
     @NoCheckJwt

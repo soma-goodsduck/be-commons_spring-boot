@@ -877,9 +877,9 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 검색 기능
-    public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId, Order order, Boolean complete) {
+    public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId, Long price, Order order, Boolean complete) {
 
-        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keyword, itemId, order, complete);
+        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keyword, itemId, price, order, complete);
         List<ItemHomeResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemHomeResponse(item))
@@ -889,7 +889,7 @@ public class ItemService {
     }
 
     // FEAT: 회원용 검색 기능
-    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId, Order order, Boolean complete) {
+    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId, Long price, Order order, Boolean complete) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
@@ -897,7 +897,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keyword, itemId, order, complete);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keyword, itemId, price, order, complete);
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -926,33 +926,64 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId, Order order, Boolean complete) {
+    public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId, Long price, Order order, Boolean complete) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
 
-        // HINT : 비회원에게 보여줄 홈
-        if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId, order, complete);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
+        // HINT : 검색 - 최신순
+        if(price == null) {
 
-            return new HomeResponse(hasNext, null, itemList);
+            // HINT : 비회원에게 보여줄 홈
+            if(userId.equals(-1L)) {
+                List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId, price, order, complete);
+                if(itemList.size() == pageableSize + 1) {
+                    hasNext = true;
+                    itemList.remove(pageableSize);
+                }
+
+                return new HomeResponse(hasNext, null, itemList);
+            }
+            // HINT : 회원에게 보여줄 홈
+            else {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                                new Object[]{"User"}, null)));
+                List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId, price, order, complete);
+                if(itemList.size() == pageableSize + 1) {
+                    hasNext = true;
+                    itemList.remove(pageableSize);
+                }
+
+                return new HomeResponse(hasNext, new LoginUser(user), itemList);
+            }
         }
-        // HINT : 회원에게 보여줄 홈
+        // HINT : 가격검색 - 가격순
         else {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                            new Object[]{"User"}, null)));
-            List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId, order, complete);
-            if(itemList.size() == pageableSize + 1) {
-                hasNext = true;
-                itemList.remove(pageableSize);
-            }
 
-            return new HomeResponse(hasNext, new LoginUser(user), itemList);
+            // HINT : 비회원에게 보여줄 홈
+            if(userId.equals(-1L)) {
+                List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId, price, order, complete);
+                if(itemList.size() == pageableSize + 1) {
+                    hasNext = true;
+                    itemList.remove(pageableSize);
+                }
+
+                return new HomeResponse(hasNext, null, itemList);
+            }
+            // HINT : 회원에게 보여줄 홈
+            else {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                                new Object[]{"User"}, null)));
+                List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId, price, order, complete);
+                if(itemList.size() == pageableSize + 1) {
+                    hasNext = true;
+                    itemList.remove(pageableSize);
+                }
+
+                return new HomeResponse(hasNext, new LoginUser(user), itemList);
+            }
         }
     }
 

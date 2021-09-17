@@ -57,8 +57,8 @@ public interface ItemRepositoryCustom {
     Tuple findItemAndUserByItemId(Long itemId);
 
     // 비회원 - 검색 및 itemId 기반 Limit
-    List<Item> findByKeywordWithLimit(String keyword, Long itemId, Order order, Boolean complete);
+    List<Item> findByKeywordWithLimit(String keyword, Long itemId, Long price, Order order, Boolean complete);
 
     // 회원 - 검색 및 itemId 기반 Limit
-    List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Order order, Boolean complete);
+    List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Long price, Order order, Boolean complete);
 }
