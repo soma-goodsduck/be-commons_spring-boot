@@ -6,11 +6,13 @@ import com.ducks.goodsduck.commons.model.entity.Image.QImage;
 import com.ducks.goodsduck.commons.model.entity.Image.QItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.QItemCategory;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
+import com.ducks.goodsduck.commons.model.enums.Order;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -614,12 +616,16 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Item> findByKeywordWithLimit(String keyword, Long itemId) {
+    public List<Item> findByKeywordWithLimit(String keyword, Long itemId, Order order, Boolean complete) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
         if(itemId != 0) {
             builder.and(item.id.lt(itemId));
+        }
+
+        if(complete == false) {
+            builder.and(item.tradeStatus.ne(COMPLETE));
         }
 
         String[] arr = keyword.split(" ");
@@ -634,17 +640,21 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(orderType(order))
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
     @Override
-    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId) {
+    public List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Order order, Boolean complete) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if(itemId != 0) {
             builder.and(item.id.lt(itemId));
+        }
+
+        if(complete == false) {
+            builder.and(item.tradeStatus.ne(COMPLETE));
         }
 
         String[] arr = keyword.split(" ");
@@ -660,7 +670,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
-                .orderBy(item.updatedAt.desc())
+                .orderBy(orderType(order))
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
     }
@@ -669,5 +679,14 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return new CaseBuilder()
                 .when(item.tradeStatus.eq(RESERVING)).then(1)
                 .otherwise(0);
+    }
+
+    private OrderSpecifier<?> orderType(Order order) {
+        if(order.equals(Order.HIGH_PRICE)) {
+            return item.price.desc();
+        } else if(order.equals(Order.LOW_PRICE)) {
+            return item.price.asc();
+        }
+        return item.updatedAt.desc();
     }
 }

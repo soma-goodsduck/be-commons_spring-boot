@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.repository.item;
 import com.ducks.goodsduck.commons.model.dto.ItemFilterDto;
 import com.ducks.goodsduck.commons.model.entity.Item;
 import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
+import com.ducks.goodsduck.commons.model.enums.Order;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Pageable;
@@ -56,8 +57,8 @@ public interface ItemRepositoryCustom {
     Tuple findItemAndUserByItemId(Long itemId);
 
     // 비회원 - 검색 및 itemId 기반 Limit
-    List<Item> findByKeywordWithLimit(String keyword, Long itemId);
+    List<Item> findByKeywordWithLimit(String keyword, Long itemId, Order order, Boolean complete);
 
     // 회원 - 검색 및 itemId 기반 Limit
-    List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId);
+    List<Tuple> findByKeywordWithUserItemAndLimit(Long userId, String keyword, Long itemId, Order order, Boolean complete);
 }
