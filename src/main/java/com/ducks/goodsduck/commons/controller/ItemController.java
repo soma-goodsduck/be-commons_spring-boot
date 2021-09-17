@@ -10,6 +10,7 @@ import com.ducks.goodsduck.commons.model.dto.item.ItemUploadRequest;
 import com.ducks.goodsduck.commons.model.dto.item.*;
 import com.ducks.goodsduck.commons.model.entity.UserItem;
 import com.ducks.goodsduck.commons.model.enums.GradeStatus;
+import com.ducks.goodsduck.commons.model.enums.Order;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.service.*;
@@ -127,15 +128,18 @@ public class ItemController {
     public ApiResult deleteItemV2(@PathVariable("itemId") Long itemId) { return OK(itemService.deleteV2(itemId)); }
 
     @NoCheckJwt
-    @ApiOperation(value = "아이템 검색 (회원/비회원)")
+    @ApiOperation(value = "아이템 검색 (회원/비회원)", notes = "초기 정렬(order)은 최신순(latest), 초기 거래완료(complete)는 보여줌(true)")
     @GetMapping("/v1/items/search")
     @Transactional
     public ApiResult<HomeResponse<ItemHomeResponse>> getSearchedItems(@RequestParam("keyword") String keyword,
                                                                       @RequestParam("itemId") Long itemId,
+                                                                      @RequestParam("order") String stringOrder,
+                                                                      @RequestParam("complete") Boolean complete,
                                                                       @RequestHeader("jwt") String jwt) {
 
         Long userId = userService.checkLoginStatus(jwt);
-        return OK(itemService.getSearchedItemList(userId, keyword, itemId));
+        Order order = Order.valueOf(stringOrder.toUpperCase());
+        return OK(itemService.getSearchedItemList(userId, keyword, itemId, order, complete));
     }
 
     @NoCheckJwt

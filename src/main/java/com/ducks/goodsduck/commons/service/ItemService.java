@@ -18,6 +18,7 @@ import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
+import com.ducks.goodsduck.commons.model.enums.Order;
 import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.ducks.goodsduck.commons.model.enums.TradeType;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
@@ -876,9 +877,9 @@ public class ItemService {
     }
 
     // FEAT: 비회원용 검색 기능
-    public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId) {
+    public List<ItemHomeResponse> getSearchedItemListForAnonymous(String keyword, Long itemId, Order order, Boolean complete) {
 
-        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keyword, itemId);
+        List<Item> items = itemRepositoryCustom.findByKeywordWithLimit(keyword, itemId, order, complete);
         List<ItemHomeResponse> itemToList =  items
                 .stream()
                 .map(item -> new ItemHomeResponse(item))
@@ -888,7 +889,7 @@ public class ItemService {
     }
 
     // FEAT: 회원용 검색 기능
-    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId) {
+    public List<ItemHomeResponse> getSearchedItemListForUser(String keyword, Long userId, Long itemId, Order order, Boolean complete) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
@@ -896,7 +897,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keyword, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findByKeywordWithUserItemAndLimit(userId, keyword, itemId, order, complete);
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -925,14 +926,14 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId) {
+    public HomeResponse getSearchedItemList(Long userId, String keyword, Long itemId, Order order, Boolean complete) {
 
         int pageableSize = PropertyUtil.PAGEABLE_SIZE;
         Boolean hasNext= false;
 
         // HINT : 비회원에게 보여줄 홈
         if(userId.equals(-1L)) {
-            List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId);
+            List<ItemHomeResponse> itemList = getSearchedItemListForAnonymous(keyword, itemId, order, complete);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
@@ -945,7 +946,7 @@ public class ItemService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                             new Object[]{"User"}, null)));
-            List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId);
+            List<ItemHomeResponse> itemList = getSearchedItemListForUser(keyword, userId, itemId, order, complete);
             if(itemList.size() == pageableSize + 1) {
                 hasNext = true;
                 itemList.remove(pageableSize);
