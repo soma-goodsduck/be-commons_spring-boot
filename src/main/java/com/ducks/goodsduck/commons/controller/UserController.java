@@ -22,7 +22,6 @@ import com.ducks.goodsduck.commons.service.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
@@ -92,7 +92,7 @@ public class UserController {
 
     @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
     @PatchMapping("/v1/users")
-    public ApiResult resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {
+    public ApiResult<Boolean> resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.resign(userId, userPhoneNumberRequest));
     }
@@ -129,7 +129,7 @@ public class UserController {
     @PutMapping("/v1/users/profile")
     public ApiResult<Boolean> updateProfile(@RequestParam String stringProfileDto,
                                             @RequestParam(required = false) MultipartFile multipartFile,
-                                            HttpServletRequest request) throws Exception {
+                                            HttpServletRequest request) throws IOException {
 
         UpdateProfileRequest updateProfileRequest = new ObjectMapper().readValue(stringProfileDto, UpdateProfileRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -238,14 +238,14 @@ public class UserController {
 
     @PostMapping("/v1/users/device")
     @ApiOperation("사용자 디바이스의 FCM Registration Token을 등록하는 API (알림 권한 허용 시에도 사용)")
-    public ApiResult registerDevice(HttpServletRequest request, @RequestHeader("registrationToken") String registrationToken) {
+    public ApiResult<Boolean> registerDevice(HttpServletRequest request, @RequestHeader("registrationToken") String registrationToken) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(deviceService.register(userId, registrationToken));
     }
 
     @DeleteMapping("/v1/users/device")
     @ApiOperation("사용자 디바이스의 알림 여부 차단")
-    public ApiResult discardDevice(HttpServletRequest request) {
+    public ApiResult<Boolean> discardDevice(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         deviceService.discard(userId);
         return OK(true);
@@ -265,10 +265,17 @@ public class UserController {
         return OK(notificationService.getNotificationsOfUserIdV2(userId));
     }
 
+    @DeleteMapping("/v1/users/notifications")
+    @ApiOperation("사용자가 받은 알림 목록 비우기 API")
+    public ApiResult<Boolean> cleanOfNotificationsOfUser(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(notificationService.cleanOfNotificationsOfUser(userId));
+    }
+
     @NoCheckJwt
     @PostMapping("/v1/sms")
     @ApiOperation("SMS 인증 문자 전송")
-    public ApiResult sendAuthenticationSms(@RequestBody SmsTransmitRequest smsTransmitRequest) throws Exception {
+    public ApiResult<Boolean> sendAuthenticationSms(@RequestBody SmsTransmitRequest smsTransmitRequest) {
         String phoneNumber = smsTransmitRequest.getPhoneNumber();
         return OK(smsAuthenticationService.sendSmsOfAuthentication(phoneNumber));
     }
@@ -276,7 +283,7 @@ public class UserController {
     @NoCheckJwt
     @PostMapping("/v1/sms/authentication")
     @ApiOperation("SMS 인증 번호에 대한 검증")
-    public ApiResult authenticateBySms(@RequestBody SmsAuthenticationRequest smsAuthenticationRequest) {
+    public ApiResult<Boolean> authenticateBySms(@RequestBody SmsAuthenticationRequest smsAuthenticationRequest) {
         String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
         String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
         return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));

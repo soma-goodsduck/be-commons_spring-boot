@@ -63,4 +63,9 @@ public class NotificationRedisTemplate {
         String key = PREFIX_OF_USER + userId + PREFIX_OF_NOTIFICATION;
         redisDtoListOperations.set(key, index, stringAsNotificationRedis);
     }
+
+    public Boolean deleteKeyByUserId(Long userId) {
+        String key = PREFIX_OF_USER + userId + PREFIX_OF_NOTIFICATION;
+        return redisTemplate.delete(key);
+    }
 }

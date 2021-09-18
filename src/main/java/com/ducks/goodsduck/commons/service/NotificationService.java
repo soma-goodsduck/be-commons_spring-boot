@@ -373,4 +373,8 @@ public class NotificationService {
         }
         return notificationBadgeResponse;
     }
+
+    public Boolean cleanOfNotificationsOfUser(Long userId) {
+        return notificationRedisTemplate.deleteKeyByUserId(userId);
+    }
 }
