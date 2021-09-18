@@ -22,17 +22,20 @@ public class Image {
     private String originName;
     private String uploadName;
     private String url;
+    private Boolean isBright;
     private LocalDateTime deletedAt;
 
     public Image(ImageDto imageDto) {
         this.originName = imageDto.getOriginName();
         this.uploadName = imageDto.getUploadName();
         this.url = imageDto.getUrl();
+        this.isBright = false;
     }
 
     public Image(String originName, String uploadName, String url) {
         this.originName = originName;
         this.uploadName = uploadName;
         this.url = url;
+        this.isBright = false;
     }
 }

@@ -22,5 +22,6 @@ public class ItemImage extends Image {
         this.setOriginName(image.getOriginName());
         this.setUploadName(image.getUploadName());
         this.setUrl(image.getUrl());
+        this.setIsBright(image.getIsBright());
     }
 }

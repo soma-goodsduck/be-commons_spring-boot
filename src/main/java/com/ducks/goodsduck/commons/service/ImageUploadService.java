@@ -56,6 +56,9 @@ public class ImageUploadService {
     private static String secretKey = jsonOfAwsSecrets.optString("cloud.aws.credentials.secretKey", PropertyUtil.getProperty("cloud.aws.credentials.secretKey"));
     private static String region = jsonOfAwsSecrets.optString("cloud.aws.region.static", PropertyUtil.getProperty("cloud.aws.region.static"));
 
+    private final int IMAGE_LOCATION_X = 60;
+    private final int IMAGE_LOCATION_Y = 60;
+
     public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
         List<Image> images = new ArrayList<>();
@@ -82,6 +85,8 @@ public class ImageUploadService {
                 .withRegion(region)
                 .build();
 
+        boolean isBright = false;
+
         if(multipartFile.isEmpty()) {
             return null;
         }
@@ -95,6 +100,7 @@ public class ImageUploadService {
         if(!ext.equals("gif")) {
 
             BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+            isBright = checkIsBright(image);
 
             // FEAT : 파일 회전 체크
             int orientation = 1;
@@ -122,6 +128,7 @@ public class ImageUploadService {
             if(bytes >= 1048576) {
 
                 BufferedImage resizedImage = getResizedImage(image);
+                isBright = checkIsBright(resizedImage);
 
                 if (imageType.equals(ImageType.CHAT)) {
                     BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
@@ -144,17 +151,38 @@ public class ImageUploadService {
             s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, multipartFile.getInputStream(), metadata));
         }
 
+        Image savedImage;
+
         if(imageType.equals(ImageType.ITEM)) {
-            return new Image(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
+            savedImage = new Image(originName, uploadName, s3Client.getUrl(itemS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.PROFILE)) {
-            return new Image(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
+            savedImage = new Image(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.CHAT)) {
-            return new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
+            savedImage = new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
         }else if(imageType.equals(ImageType.POST)) {
-            return new Image(originName, uploadName, s3Client.getUrl(postS3Bucket, uploadName).toString());
+            savedImage = new Image(originName, uploadName, s3Client.getUrl(postS3Bucket, uploadName).toString());
         } else {
-            return null;
+            savedImage = null;
         }
+
+        savedImage.setIsBright(isBright);
+
+        log.debug(savedImage.toString());
+
+        return savedImage;
+    }
+
+    private Boolean checkIsBright(BufferedImage image) {
+        Color color = new Color(image.getRGB(IMAGE_LOCATION_X, IMAGE_LOCATION_X));
+        log.debug(String.valueOf(color));
+        int red = color.getRed();
+        int green = color.getGreen();
+        int blue = color.getBlue();
+        log.debug("red: {}, green: {}, blue: {}", red, green, blue);
+        if (red+green+blue >= 600) {
+            return true;
+        }
+        return false;
     }
 
     private BufferedImage getResizedImage(BufferedImage image) {
