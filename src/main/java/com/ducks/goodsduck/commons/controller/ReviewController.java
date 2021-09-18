@@ -5,7 +5,6 @@ import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
 import com.ducks.goodsduck.commons.model.entity.Review;
-import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.service.NotificationService;
 import com.ducks.goodsduck.commons.service.ReviewService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -31,12 +30,9 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final NotificationService notificationService;
 
-    private final UserRepository userRepository;
-
-    public ReviewController(ReviewService reviewService, NotificationService notificationService, UserRepository userRepository) {
+    public ReviewController(ReviewService reviewService, NotificationService notificationService) {
         this.reviewService = reviewService;
         this.notificationService = notificationService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping("/v1/users/reviews")
@@ -50,7 +46,7 @@ public class ReviewController {
     @ApiOperation("채팅방 ID를 통해 특정 유저에 대한 리뷰 남기기")
     @Transactional
     public ApiResult<Boolean> sendReview(HttpServletRequest request,
-                                         @RequestBody ReviewRequest reviewRequest) throws IllegalAccessException, JsonProcessingException {
+                                         @RequestBody ReviewRequest reviewRequest) throws JsonProcessingException {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         Review savedReview = reviewService.saveReview(userId, reviewRequest);
 
@@ -67,7 +63,7 @@ public class ReviewController {
 
     @GetMapping("/v1/items/{itemId}/review-back")
     @ApiOperation("특정 아이템 게시물 작성자가 보낸 리뷰 정보 조회")
-    public ApiResult<ReviewBackResponse> getReviewFromCounter(HttpServletRequest request, @PathVariable("itemId") Long itemId) throws IllegalAccessException {
+    public ApiResult<ReviewBackResponse> getReviewFromCounter(HttpServletRequest request, @PathVariable("itemId") Long itemId) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(reviewService.getReviewFromCounterWithItem(userId, itemId));
     }
