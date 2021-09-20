@@ -126,7 +126,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "회원 탈퇴 API V2")
-    @DeleteMapping("/v2/users")
+    @PutMapping("/v2/users")
     public ApiResult<Boolean> resign(@RequestBody UserResignRequest userResignRequest, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.resignV2(userId, userResignRequest.getPassword()));
