@@ -293,7 +293,11 @@ public class UserService {
             // 현재 프로필 사진이 있으면 삭제
             if (user.getImageUrl() != null) {
                 Image nowImage = imageRepository.findByUrl(user.getImageUrl());
-                imageRepository.delete(nowImage);
+
+                // 기본 이미지인 경우 삭제 X
+                if(!nowImage.getUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
+                    imageRepository.delete(nowImage);
+                }
             }
 
             Image image = null;
