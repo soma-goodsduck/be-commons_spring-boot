@@ -24,6 +24,7 @@ public class User {
     private String bcryptId;
     private String nickName;
     private String email;
+    private String password;
     private String phoneNumber;
     private String imageUrl;
     private Integer level;
@@ -32,6 +33,7 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
+    private LocalDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;

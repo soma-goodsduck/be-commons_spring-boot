@@ -12,6 +12,7 @@ import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationRequest;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationResponse;
 import com.ducks.goodsduck.commons.model.dto.sms.SmsTransmitRequest;
 import com.ducks.goodsduck.commons.model.dto.user.*;
 import com.ducks.goodsduck.commons.model.entity.Item;
@@ -84,10 +85,31 @@ public class UserController {
     }
 
     @NoCheckJwt
-    @ApiOperation("회원가입 API")
+    @ApiOperation("소셜 회원가입 API")
     @PostMapping("/v1/users/sign-up")
     public ApiResult<UserDto> signUpUser(@RequestBody UserSignUpRequest userSignUpRequest) {
         return OK(userService.signUp(userSignUpRequest));
+    }
+
+    @NoCheckJwt
+    @ApiOperation("자체 회원가입 API V2 (비회원)")
+    @PostMapping("/v2/users/sign-up")
+    public ApiResult<UserDtoV2> signUpUserV2(@RequestBody UserSignUpRequestV2 userSignUpRequest) {
+        return OK(userService.signUpV2(userSignUpRequest));
+    }
+
+    @NoCheckJwt
+    @ApiOperation("자체 로그인 API (비회원)")
+    @PostMapping("/v1/users/login")
+    public ApiResult<UserDtoV2> login(@RequestBody UserLoginRequest userLoginRequest) {
+        return OK(userService.login(userLoginRequest));
+    }
+
+    @NoCheckJwt
+    @ApiOperation("비밀번호 재설정 API (비회원)")
+    @PostMapping("/v1/users/reset-password")
+    public ApiResult<Boolean> resetPassword(@RequestBody UserResetRequest userResetRequest) {
+        return OK(userService.resetPassword(userResetRequest));
     }
 
     @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
@@ -145,7 +167,7 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
-    //TODO: jwt를 클라이언트에서 사용하고 있는지 확인 필요
+    // TODO: jwt를 클라이언트에서 사용하고 있는지 확인 필요
     @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")
@@ -287,6 +309,15 @@ public class UserController {
         String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
         String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
         return OK(smsAuthenticationService.authenticate(phoneNumber, authenticationNumber));
+    }
+
+    @NoCheckJwt
+    @PostMapping("/v1/sms/authentication-find")
+    @ApiOperation("SMS 인증 번호에 대한 검증 for 이메일/비밀번호 찾기 (비회원)")
+    public ApiResult<SmsAuthenticationResponse> authenticateBySmsForFind(@RequestBody SmsAuthenticationRequest smsAuthenticationRequest) {
+        String phoneNumber = smsAuthenticationRequest.getPhoneNumber();
+        String authenticationNumber = smsAuthenticationRequest.getAuthenticationNumber();
+        return OK(smsAuthenticationService.authenticateForFind(phoneNumber, authenticationNumber));
     }
 
     @GetMapping("/v1/users/address")

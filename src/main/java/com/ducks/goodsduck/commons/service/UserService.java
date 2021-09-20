@@ -5,7 +5,6 @@ import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.CheckNicknameDto;
 import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
-import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
 import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
 import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
@@ -37,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.context.MessageSource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,6 +63,7 @@ public class UserService {
 
     private final CustomJwtService jwtService;
     private final ImageUploadService imageUploadService;
+    private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
@@ -222,6 +223,38 @@ public class UserService {
         UserDto userDto = new UserDto(user);
         userDto.setSocialType(userSignUpRequest.getSocialAccountType());
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
+        userDto.setJwt(jwt);
+        return userDto;
+    }
+
+    // 회원가입 V2
+    public UserDtoV2 signUpV2(UserSignUpRequestV2 userSignUpRequest) {
+
+        if(userSignUpRequest.getPhoneNumber() == null || userSignUpRequest.getEmail() == null ||
+                userSignUpRequest.getNickName() == null || userSignUpRequest.getLikeIdolGroupsId() == null) {
+            throw new InvalidRequestDataException();
+        }
+
+        User user = userRepository.save(
+                new User(userSignUpRequest.getNickName(),
+                         userSignUpRequest.getEmail(),
+                         userSignUpRequest.getPhoneNumber())
+        );
+        user.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
+        String encodedPassword = passwordEncoder.encode(userSignUpRequest.getPassword());
+        user.setPassword(encodedPassword);
+
+        List<Long> likeIdolGroupsId = userSignUpRequest.getLikeIdolGroupsId();
+        for (Long likeIdolGroupId : likeIdolGroupsId) {
+
+            IdolGroup likeIdolGroup = idolGroupRepository.findById(likeIdolGroupId).get();
+            UserIdolGroup userIdolGroup = UserIdolGroup.createUserIdolGroup(likeIdolGroup);
+            user.addUserIdolGroup(userIdolGroup);
+            userIdolGroupRepository.save(userIdolGroup);
+        }
+
+        String jwt = jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId());
+        UserDtoV2 userDto = new UserDtoV2(user);
         userDto.setJwt(jwt);
         return userDto;
     }
@@ -438,6 +471,45 @@ public class UserService {
         Long reviewCount = reviewRepositoryCustom.countByReveiverId(userId);
 
         return new OtherUserPageDto(user, itemCount, reviewCount, showItems, reviews);
+    }
+
+    public UserDtoV2 login(UserLoginRequest userLoginRequest) {
+
+        User user = userRepository.findByEmail(userLoginRequest.getEmail());
+        if(user == null) {
+            UserDtoV2 userDto = new UserDtoV2();
+            userDto.setEmailSuccess(false);
+            return userDto;
+        }
+
+        if(!(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword()))) {
+            UserDtoV2 userDto = new UserDtoV2();
+            userDto.setEmailSuccess(true);
+            userDto.setPasswordSuccess(false);
+            return userDto;
+        }
+
+        UserDtoV2 userDto = new UserDtoV2(user);
+        userDto.setEmailSuccess(true);
+        userDto.setPasswordSuccess(true);
+        Device device = deviceRepository.findByUser(user)
+                .orElseGet(() -> new Device(user));
+        deviceRepository.save(device);
+        userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
+        userDto.setAgreeToNotification(device.getIsAllowed());
+        return userDto;
+    }
+
+    public Boolean resetPassword(UserResetRequest userResetRequest)  {
+
+        User user = userRepository.findByEmail(userResetRequest.getEmail());
+        if(user == null) {
+            return false;
+        }
+
+        String encodedPassword = passwordEncoder.encode(userResetRequest.getPassword());
+        user.setPassword(encodedPassword);
+        return true;
     }
 
     public Boolean resign(Long userId, UserPhoneNumberRequest userPhoneNumberRequest) {
