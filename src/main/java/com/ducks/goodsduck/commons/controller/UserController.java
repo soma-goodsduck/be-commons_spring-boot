@@ -143,7 +143,7 @@ public class UserController {
     @NoCheckJwt
     @ApiOperation("이메일 중복 확인 API")
     @PostMapping("/v1/users/email-check")
-    public ApiResult<Boolean> checkSameEmail(@RequestBody EmailCheckRequest emailCheckRequest, @RequestHeader("jwt") String jwt) {
+    public ApiResult<Boolean> checkSameEmail(@RequestBody EmailCheckRequest emailCheckRequest) {
         return OK(userService.checkEmail(emailCheckRequest.getEmail()));
     }
 
