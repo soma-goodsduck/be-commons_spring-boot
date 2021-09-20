@@ -1,7 +1,10 @@
 package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.exception.user.SmsAuthorizationException;
+import com.ducks.goodsduck.commons.model.dto.sms.SmsAuthenticationResponse;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.repository.SmsAuthenticationRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.util.AwsSecretsManagerUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class SmsAuthenticationService {
     private String senderNumber = jsonOfAwsSecrets.optString("coolsms.sendernumber", "");
 
     private final SmsAuthenticationRepository smsAuthenticationRepository;
+    private final UserRepository userRepository;
 
     public Boolean sendSmsOfAuthentication(String phoneNumber) {
         if (jsonOfAwsSecrets.isEmpty()) {
@@ -68,6 +72,18 @@ public class SmsAuthenticationService {
         }
 
         return false;
+    }
+
+    public SmsAuthenticationResponse authenticateForFind(String phoneNumber, String authenticationNumber) {
+        if (smsAuthenticationRepository.hasKey(phoneNumber)) {
+            if (smsAuthenticationRepository.getValueByPhoneNumber(phoneNumber).equals(authenticationNumber)) {
+                smsAuthenticationRepository.removeKeyAndValueOfSMS(phoneNumber);
+                User user = userRepository.findByPhoneNumber(phoneNumber);
+                return new SmsAuthenticationResponse(true, user.getEmail());
+            }
+        }
+
+        return new SmsAuthenticationResponse(false, null);
     }
 
     public String generateAuthenticationNumber() {

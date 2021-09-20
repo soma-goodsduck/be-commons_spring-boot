@@ -80,6 +80,9 @@ dependencies {
 	// CoolSMS (authentication of SMS)
 	compile group: 'net.nurigo', name: 'javaSDK', version: '2.2'
 
+	// Security
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.5'
+
 	compile('org.springframework.boot:spring-boot-starter-data-redis')
 	compile 'io.sentry:sentry-logback:1.7.30'
 	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'

@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
-public class UserDto {
+public class UserDtoV2 {
 
-    private SocialType socialType;
-    private String socialAccountId;
+    private Boolean emailSuccess;
+    private Boolean passwordSuccess;
     private String bcryptId;
     private String nickName;
     private String phoneNumber;
@@ -32,17 +32,11 @@ public class UserDto {
     private LocalDateTime lastLoginAt;
     private LocalDateTime deletedAt;
 
-    public static UserDto createUserDto(UserRole role) {
-        UserDto userDto = new UserDto();
-        userDto.setRole(role);
-        return userDto;
-    }
-
     public void setAgreeToNotification(Boolean isAgree) {
         this.isAgreeToNotification = isAgree;
     }
 
-    public UserDto(User user) {
+    public UserDtoV2(User user) {
         this.nickName = user.getNickName();
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
