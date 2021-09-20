@@ -111,9 +111,8 @@ public class UserController {
     public ApiResult<Boolean> resetPassword(@RequestBody UserResetRequest userResetRequest) {
         return OK(userService.resetPassword(userResetRequest));
     }
-
-    @NoCheckJwt
-    @ApiOperation("비밀번호 재설정 API in 로그인상태 (No JWT)")
+    
+    @ApiOperation("비밀번호 재설정 API in 로그인상태 (회원)")
     @PostMapping("/v1/users/reset-password-member")
     public ApiResult<Boolean> resetPasswordForMember(@RequestBody UserResetRequestForMember userResetRequestForMember) {
         return OK(userService.resetPasswordForMember(userResetRequestForMember));
