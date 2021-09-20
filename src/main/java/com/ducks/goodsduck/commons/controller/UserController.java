@@ -112,6 +112,13 @@ public class UserController {
         return OK(userService.resetPassword(userResetRequest));
     }
 
+    @NoCheckJwt
+    @ApiOperation("비밀번호 재설정 API in 로그인상태 (No JWT)")
+    @PostMapping("/v1/users/reset-password-member")
+    public ApiResult<Boolean> resetPasswordForMember(@RequestBody UserResetRequestForMember userResetRequestForMember) {
+        return OK(userService.resetPasswordForMember(userResetRequestForMember));
+    }
+
     @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
     @PatchMapping("/v1/users")
     public ApiResult<Boolean> resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {

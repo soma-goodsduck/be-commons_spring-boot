@@ -290,14 +290,11 @@ public class UserService {
         // 프로필 사진 수정
         if (multipartFile != null) {
 
-            // 현재 프로필 사진이 있으면 삭제
-            if (user.getImageUrl() != null) {
+            // TODO : S3에서 삭제
+            // 기본 이미지인 경우 삭제 X
+            if(!user.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
                 Image nowImage = imageRepository.findByUrl(user.getImageUrl());
-
-                // 기본 이미지인 경우 삭제 X
-                if(!nowImage.getUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
-                    imageRepository.delete(nowImage);
-                }
+                imageRepository.delete(nowImage);
             }
 
             Image image = null;
@@ -518,10 +515,28 @@ public class UserService {
 
         User user = userRepository.findByEmail(userResetRequest.getEmail());
         if(user == null) {
-            return false;
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"User"}, null));
         }
 
         String encodedPassword = passwordEncoder.encode(userResetRequest.getPassword());
+        user.setPassword(encodedPassword);
+        return true;
+    }
+
+    public Boolean resetPasswordForMember(UserResetRequestForMember userResetRequestForMember) {
+
+        User user = userRepository.findByEmail(userResetRequestForMember.getEmail());
+        if(user == null) {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"Item"}, null));
+        }
+
+        if(!(passwordEncoder.matches(userResetRequestForMember.getNowPassword(), user.getPassword()))) {
+            return false;
+        }
+
+        String encodedPassword = passwordEncoder.encode(userResetRequestForMember.getNewPassword());
         user.setPassword(encodedPassword);
         return true;
     }
