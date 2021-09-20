@@ -127,6 +127,13 @@ public class UserController {
     }
 
     @NoCheckJwt
+    @ApiOperation("전화번호 중복 확인 API V2")
+    @PostMapping("/v2/users/phone-number-check")
+    public ApiResult<String> checkSamePhoneNumberV2(@RequestBody PhoneNumberCheckRequest phoneNumberCheckRequest) {
+        return OK(userService.checkPhoneNumberV2(phoneNumberCheckRequest.getPhoneNumber()));
+    }
+
+    @NoCheckJwt
     @ApiOperation("닉네임 중복 확인 API (비회원, 회원가입)")
     @PostMapping("/v1/users/nickname-check-register")
     public ApiResult<Boolean> checkSameNickname(@RequestBody NicknameCheckRequest nicknameCheckRequest) {

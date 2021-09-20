@@ -399,6 +399,16 @@ public class UserService {
         }
     }
 
+    public String checkPhoneNumberV2(String phoneNumber) {
+
+        User user = userRepository.findByPhoneNumber(phoneNumber);
+        if(user != null) {
+            return "GOODSDUCK";
+        } else {
+            return null;
+        }
+    }
+
     public Boolean checkNicknameRegister(String nickname) {
 
         User user = userRepository.findByNickName(nickname);
