@@ -168,7 +168,6 @@ public class ItemController {
         return OK(homeResponse);
     }
 
-    // TODO : 이후에 거래완료 필터링에서 제거
     @NoCheckJwt
     @ApiOperation(value = "아이템 리스트 조회 + 전체 필터링 API in 홈 (V3 NoOffSet)")
     @GetMapping("/v3/items/filters")

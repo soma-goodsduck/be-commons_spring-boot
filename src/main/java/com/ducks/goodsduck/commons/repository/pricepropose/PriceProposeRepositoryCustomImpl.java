@@ -119,7 +119,8 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
         return queryFactory
                 .select(pricePropose)
                 .from(pricePropose)
-                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(SUGGESTED)))
+                .where(pricePropose.item.in(itemsByUserId).and(pricePropose.status.eq(SUGGESTED))
+                        .and(pricePropose.item.deletedAt.isNull()))
                 .fetchCount();
     }
 

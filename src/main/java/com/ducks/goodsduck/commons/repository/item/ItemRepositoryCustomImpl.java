@@ -5,12 +5,9 @@ import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.QImage;
 import com.ducks.goodsduck.commons.model.entity.Image.QItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.QItemCategory;
-import com.ducks.goodsduck.commons.model.enums.GradeStatus;
-import com.ducks.goodsduck.commons.model.enums.Order;
-import com.ducks.goodsduck.commons.model.enums.TradeType;
+import com.ducks.goodsduck.commons.model.enums.*;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.BooleanBuilder;
-import com.ducks.goodsduck.commons.model.enums.TradeStatus;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.*;
@@ -106,7 +103,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder.and(item.deletedAt.isNull()))
+                .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -163,7 +160,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
+                        .and(item.user.role.ne(UserRole.RESIGNED)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -276,7 +274,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder.and(item.deletedAt.isNull()))
+                .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
+                        .and(item.tradeStatus.ne(COMPLETE)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -415,7 +414,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull()))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
+                        .and(item.user.role.ne(UserRole.RESIGNED)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -531,7 +531,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .join(item.idolMember.idolGroup, idolGroup)
-                .where(builder.and(item.deletedAt.isNull()))
+                .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
+                        .and(item.tradeStatus.ne(COMPLETE)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -649,7 +650,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return queryFactory
                 .select(item)
                 .from(item)
-                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
+                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword))
+                        .and(item.user.role.ne(UserRole.RESIGNED)))
                 .orderBy(orderType(order), item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -689,7 +691,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword)))
+                .where(builder.and(item.deletedAt.isNull()).and(name.contains(newKeyword))
+                        .and(item.user.role.ne(UserRole.RESIGNED)))
                 .orderBy(orderType(order), item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();

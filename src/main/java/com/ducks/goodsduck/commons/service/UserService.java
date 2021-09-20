@@ -16,6 +16,7 @@ import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ProfileImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
+import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
@@ -551,6 +552,20 @@ public class UserService {
         }
 
         return userRepositoryCustom.updateRoleByUserId(userId, RESIGNED) > 0 ? true : false;
+    }
+
+    public Boolean resignV2(Long userId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        if(!(passwordEncoder.matches(password, user.getPassword()))) {
+            return false;
+        }
+
+        user.setDeletedAt(LocalDateTime.now());
+        user.setRole(RESIGNED);
+        return true;
     }
 
     public UserSimpleDto findByUserId(Long userId) {

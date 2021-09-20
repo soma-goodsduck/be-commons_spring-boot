@@ -120,9 +120,16 @@ public class UserController {
 
     @ApiOperation(value = "회원 탈퇴 API", notes = "사용자 권한을 RESIGNED로 수정함")
     @PatchMapping("/v1/users")
-    public ApiResult<Boolean> resign(HttpServletRequest request, @RequestBody UserPhoneNumberRequest userPhoneNumberRequest) {
+    public ApiResult<Boolean> resign(@RequestBody UserPhoneNumberRequest userPhoneNumberRequest, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userService.resign(userId, userPhoneNumberRequest));
+    }
+
+    @ApiOperation(value = "회원 탈퇴 API V2")
+    @DeleteMapping("/v2/users")
+    public ApiResult<Boolean> resign(@RequestBody UserResignRequest userResignRequest, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.resignV2(userId, userResignRequest.getPassword()));
     }
 
     @NoCheckJwt
