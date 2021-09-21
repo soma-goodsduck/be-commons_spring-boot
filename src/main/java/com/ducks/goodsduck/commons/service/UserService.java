@@ -16,7 +16,6 @@ import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ProfileImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.model.enums.SocialType;
-import com.ducks.goodsduck.commons.model.enums.UserRole;
 import com.ducks.goodsduck.commons.repository.*;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
@@ -504,11 +503,7 @@ public class UserService {
         UserDtoV2 userDto = new UserDtoV2(user);
         userDto.setEmailSuccess(true);
         userDto.setPasswordSuccess(true);
-        Device device = deviceRepository.findByUser(user)
-                .orElseGet(() -> new Device(user));
-        deviceRepository.save(device);
         userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
-        userDto.setAgreeToNotification(device.getIsAllowed());
         return userDto;
     }
 
