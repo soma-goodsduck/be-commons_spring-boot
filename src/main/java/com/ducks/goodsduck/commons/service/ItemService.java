@@ -11,17 +11,16 @@ import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.item.*;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationMessage;
 import com.ducks.goodsduck.commons.model.dto.user.MypageResponse;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
-import com.ducks.goodsduck.commons.model.enums.ImageType;
-import com.ducks.goodsduck.commons.model.enums.Order;
-import com.ducks.goodsduck.commons.model.enums.TradeStatus;
-import com.ducks.goodsduck.commons.model.enums.TradeType;
+import com.ducks.goodsduck.commons.model.enums.*;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
+import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.report.ItemReportRepository;
@@ -38,6 +37,7 @@ import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepositoryCustom;
+import com.ducks.goodsduck.commons.util.FcmUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +80,7 @@ public class ItemService {
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final ItemImageRepository itemImageRepository;
     private final ItemReportRepository itemReportRepository;
+    private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final MessageSource messageSource;
 
     private final ImageUploadService imageUploadService;
@@ -123,7 +124,12 @@ public class ItemService {
 
         itemRepository.save(item);
 
-        user.gainExp(10);
+        if (user.gainExpByType(ActivityType.ITEM) >= 100){
+            if (user.getLevel() == null) user.setLevel(1);
+            user.levelUp();
+            List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+            FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+        }
 
         return item.getId();
     }

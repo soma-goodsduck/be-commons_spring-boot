@@ -4,14 +4,18 @@ import com.ducks.goodsduck.commons.model.dto.comment.CommentDto;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationMessage;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Comment;
 import com.ducks.goodsduck.commons.model.entity.Post;
 import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.enums.ActivityType;
+import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.repository.comment.CommentRepository;
 import com.ducks.goodsduck.commons.repository.comment.CommentRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
+import com.ducks.goodsduck.commons.util.FcmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,7 @@ public class CommentService {
     private final CommentRepositoryCustom commentRepositoryCustom;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final DeviceRepositoryCustom deviceRepositoryCustom;
 
     public Long uploadComment(CommentUploadRequest commentUploadRequest, Long userId) {
 
@@ -55,7 +60,12 @@ public class CommentService {
 
             commentRepository.save(comment);
 
-            user.gainExp(5);
+            if (user.gainExpByType(ActivityType.COMMENT) >= 100){
+                if (user.getLevel() == null) user.setLevel(1);
+                user.levelUp();
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
 
             return comment.getId();
         } catch (Exception e) {

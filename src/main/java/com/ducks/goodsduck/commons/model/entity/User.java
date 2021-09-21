@@ -86,12 +86,12 @@ public class User {
         this.lastVotedAt = LocalDateTime.now();
     }
 
-    public void gainExp(int exp) {
-        this.exp += exp;
-        if(this.exp >= 100) {
-            levelUp();
-        }
-    }
+//    public void gainExp(int exp) {
+//        this.exp += exp;
+//        if(this.exp >= 100) {
+//            levelUp();
+//        }
+//    }
 
     public Integer gainExpByType(ActivityType activityType) {
         this.exp += activityType.getExp();

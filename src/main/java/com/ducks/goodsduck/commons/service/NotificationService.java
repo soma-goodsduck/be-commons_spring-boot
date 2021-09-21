@@ -118,7 +118,6 @@ public class NotificationService {
                     new Object[]{"User"}, null));
         });
 
-//        sender.gainExp(20);
         if (sender.gainExpByType(ActivityType.REVIEW) >= 100){
             if (sender.getLevel() == null) sender.setLevel(1);
             sender.levelUp();

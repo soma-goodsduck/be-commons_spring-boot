@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
+import com.ducks.goodsduck.commons.model.dto.notification.NotificationMessage;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
@@ -11,8 +12,10 @@ import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
+import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
+import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
@@ -21,6 +24,7 @@ import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.ducks.goodsduck.commons.util.FcmUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +58,7 @@ public class PostService {
     private final ImageRepositoryCustom imageRepositoryCustom;
     private final UserPostRepository userPostRepository;
     private final PostCategoryRepository postCategoryRepository;
+    private final DeviceRepositoryCustom deviceRepositoryCustom;
 
     private final ImageUploadService imageUploadService;
     private final MessageSource messageSource;
@@ -85,7 +90,12 @@ public class PostService {
                 }
             }
 
-            user.gainExp(10);
+            if (user.gainExpByType(ActivityType.POST) >= 100){
+                if (user.getLevel() == null) user.setLevel(1);
+                user.levelUp();
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
 
             return post.getId();
         } catch (Exception e) {
