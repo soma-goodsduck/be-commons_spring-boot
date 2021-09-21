@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -90,6 +91,11 @@ public class User {
         if(this.exp >= 100) {
             levelUp();
         }
+    }
+
+    public Integer gainExpByType(ActivityType activityType) {
+        this.exp += activityType.getExp();
+        return exp;
     }
 
     public void levelUp() {

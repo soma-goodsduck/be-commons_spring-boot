@@ -3,18 +3,16 @@ package com.ducks.goodsduck.commons.service;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatMessageRequest;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationBadgeResponse;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationRequest;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationResponse;
+import com.ducks.goodsduck.commons.model.dto.notification.*;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
 import com.ducks.goodsduck.commons.model.entity.Notification;
 import com.ducks.goodsduck.commons.model.entity.Review;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.entity.UserChat;
+import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import com.ducks.goodsduck.commons.model.redis.ChatRedis;
 import com.ducks.goodsduck.commons.model.redis.NotificationRedis;
-import com.ducks.goodsduck.commons.model.dto.notification.NotificationRedisResponse;
 import com.ducks.goodsduck.commons.repository.chat.ChatRedisTemplate;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustomImpl;
@@ -24,6 +22,7 @@ import com.ducks.goodsduck.commons.repository.notification.NotificationRepositor
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustomImpl;
+import com.ducks.goodsduck.commons.util.FcmUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.*;
@@ -38,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.enums.ActivityType.*;
 import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
 import static com.google.firebase.messaging.Notification.*;
 
@@ -118,7 +118,14 @@ public class NotificationService {
                     new Object[]{"User"}, null));
         });
 
-        sender.gainExp(20);
+//        sender.gainExp(20);
+        if (sender.gainExpByType(ActivityType.REVIEW) >= 100){
+            if (sender.getLevel() == null) sender.setLevel(1);
+            sender.levelUp();
+            List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(sender.getId());
+            FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+        }
+
 
         Notification notification = new Notification(savedReview, receiver, reviewType);
 
