@@ -169,13 +169,9 @@ public class UserService {
         return socialAccountRepository.findById(userInfoFromOauth2)
                 .map(socialAccount -> {
                     User user = socialAccount.getUser();
-                    Device device = deviceRepository.findByUser(user)
-                            .orElseGet(() -> new Device(user));
-                    deviceRepository.save(device);
                     UserDto userDto = new UserDto(user);
                     userDto.setSocialAccountId(userInfoFromOauth2);
                     userDto.setJwt(jwtService.createJwt(PropertyUtil.SUBJECT_OF_JWT, user.getId()));
-                    userDto.setAgreeToNotification(device.getIsAllowed());
 
                     return userDto;
                 })
