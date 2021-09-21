@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationRedisTemplate {
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ListOperations<String, String> redisDtoListOperations;
     private final ObjectMapper objectMapper;
 
     private final String PREFIX_OF_USER = "user:";
     private final String PREFIX_OF_NOTIFICATION = ":notification";
 
-    public NotificationRedisTemplate(RedisTemplate redisTemplate, ObjectMapper objectMapper) {
+    public NotificationRedisTemplate(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());

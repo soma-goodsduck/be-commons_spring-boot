@@ -3,16 +3,14 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
-import com.ducks.goodsduck.commons.model.dto.idol.IdolMemberDto;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,5 +43,19 @@ public class IdolGroupController {
         return OK(idolGroupService.getIdolGroup(idolGroupId)
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
                 .orElseGet(() -> new IdolGroupDto()));
+    }
+
+    @PostMapping("/v1/idol-groups/{idolGroupId}/vote")
+    @ApiOperation("특정 아이돌 그룹에 투표하기 API")
+    public ApiResult<Boolean> voteIdolGroup(HttpServletRequest request, @PathVariable("idolGroupId") Long idolGroupId) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(idolGroupService.voteIdolGroup(userId, idolGroupId));
+    }
+
+    @DeleteMapping("/v1/idol-groups/vote")
+    @ApiOperation("(관리자용) 아이돌 그룹 투표 정보 비우기 API")
+    public ApiResult<Boolean> cleanVote(HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(idolGroupService.cleanVote(userId));
     }
 }

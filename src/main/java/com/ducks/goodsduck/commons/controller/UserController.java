@@ -187,7 +187,6 @@ public class UserController {
         return OK(userService.updateLikeIdolGroups(userId, userIdolGroupUpdateRequest.getLikeIdolGroupsId()));
     }
 
-    // TODO: jwt를 클라이언트에서 사용하고 있는지 확인 필요
     @NoCheckJwt
     @ApiOperation("jwt를 통한 유저 정보 조회 API")
     @GetMapping("/v1/users/look-up")

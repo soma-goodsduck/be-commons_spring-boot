@@ -33,6 +33,7 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
+    private LocalDateTime lastVotedAt;
     private LocalDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
@@ -79,6 +80,9 @@ public class User {
 
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
+    }
+    public void updateLastVotedAt() {
+        this.lastVotedAt = LocalDateTime.now();
     }
 
     public void gainExp(int exp) {
