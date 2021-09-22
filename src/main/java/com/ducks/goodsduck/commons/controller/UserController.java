@@ -256,7 +256,7 @@ public class UserController {
         return OK(new TradeCompleteReponse(tradeCompletedItem, userChats));
     }
 
-    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API V2 (게시물 주인 jwt 필요)")
+    @ApiOperation("특정 아이템에 해당하는 채팅방 목록 조회 API V2 (게시물 주인 jwt 필요) - 선 거래 리뷰")
     @GetMapping("/v2/users/items/{itemId}/chat")
     public ApiResult<TradeCompleteReponse> getUserChatListByItemV2(HttpServletRequest request, @PathVariable("itemId") Long itemId) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);

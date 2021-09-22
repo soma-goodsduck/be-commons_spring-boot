@@ -870,7 +870,6 @@ public class ItemService {
             case BUYING:
                 if (tradeType.equals(TradeType.SELL)) throw new InvalidStateException("This item's tradeType is SELLING");
                 break;
-
             case SELLING:
                 if (tradeType.equals(TradeType.BUY)) throw new InvalidStateException("This item's tradeType is BUYING");
                 break;

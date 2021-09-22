@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -186,7 +188,7 @@ public class UserChatService {
     }
 
     public TradeCompleteReponse findByItemIdV2(Long itemOwnerId, Long itemId) {
-        // HINT: 해당 유저가 굿즈에 대한 리뷰를 남긴 적이 있으면 TradeCompleteResponse.exist = false 넣어서 반환
+        // HINT: 해당 유저가 굿즈에 대한 리뷰를 남긴 적이 있으면 TradeCompleteResponse.exist = true 넣어서 반환
         if (reviewRepository.existsByItemIdAndUserId(itemId, itemOwnerId)) {
             TradeCompleteReponse emptyTradeCompleteReponse = new TradeCompleteReponse();
             emptyTradeCompleteReponse.exist();
@@ -210,7 +212,16 @@ public class UserChatService {
                 ))
                 .collect(Collectors.toList());
 
-        return new TradeCompleteReponse(item, userChatResponses);
+        Map<UserChatResponse, Boolean> map = new HashMap<>();
+        List<UserChatResponse> newUserChatResponses = new ArrayList<>();
+        for (UserChatResponse userChatResponse : userChatResponses) {
+            if(!map.containsKey(userChatResponse)) {
+                map.put(userChatResponse, true);
+                newUserChatResponses.add(userChatResponse);
+            }
+        }
+
+        return new TradeCompleteReponse(item, newUserChatResponses);
     }
 
     public List<ChatRoomDto> getChatRoomsWithNotOwner(Long userId) {

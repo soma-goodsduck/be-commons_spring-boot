@@ -70,7 +70,7 @@ public class NotificationRedisResponse implements Serializable {
                 break;
 
             case REVIEW_FIRST:
-                body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 %s를 남겨보세요!", senderNickName, type.getKorName(), type.getKorName());
+                body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 거래 리뷰를 남겨보세요!", senderNickName, type.getKorName());
                 messageUri = messageUri.concat(String.format("review-back/%d", itemId));
                 break;
 

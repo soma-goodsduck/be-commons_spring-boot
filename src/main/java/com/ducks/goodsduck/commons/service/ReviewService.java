@@ -6,10 +6,7 @@ import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewBackResponse;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewRequest;
 import com.ducks.goodsduck.commons.model.dto.review.ReviewResponse;
-import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.entity.Review;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserChat;
+import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepository;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
@@ -106,17 +103,20 @@ public class ReviewService {
             return emptyReviewBackResponse;
         }
 
-        String chatRoomId = userChatRepositoryCustom.findByUserIdAndItemId(receiverId, itemId).getId();
+        String chatRoomId;
+        Chat chat = userChatRepositoryCustom.findByUserIdAndItemId(receiverId, itemId);
+        if(chat == null) {
+            List<Chat> chats = userChatRepositoryCustom.findByUserIdAndItemIdWithDeleted(receiverId, itemId);
+            chatRoomId = chats.get(0).getId();
+        } else {
+            chatRoomId = chat.getId();
+        }
+
         Item tradeItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> {
                     throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                             new Object[]{"Item"}, null));
                 });
-        
-        // TODO : 삭제된 아이템 처리
-        if(tradeItem == null || tradeItem.getDeletedAt() != null) {
-            
-        }
 
         Review reviewOfCounter = reviewRepositoryCustom.findByReveiverIdAndItemId(receiverId, itemId);
         return new ReviewBackResponse(tradeItem, reviewOfCounter, chatRoomId);
