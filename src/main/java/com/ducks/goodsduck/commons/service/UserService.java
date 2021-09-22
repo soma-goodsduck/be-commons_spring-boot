@@ -400,10 +400,10 @@ public class UserService {
     public String checkPhoneNumberV2(String phoneNumber) {
 
         User user = userRepository.findByPhoneNumber(phoneNumber);
-        if(user != null) {
-            return "GOODSDUCK";
-        } else if(user.getDeletedAt() != null) {
+        if(user != null && user.getDeletedAt() != null) {
             return "RESIGNED";
+        } else if(user != null) {
+            return "GOODSDUCK";
         } else {
             return null;
         }
