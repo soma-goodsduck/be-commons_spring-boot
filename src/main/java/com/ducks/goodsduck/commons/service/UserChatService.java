@@ -6,6 +6,7 @@ import com.ducks.goodsduck.commons.model.dto.review.TradeCompleteReponse;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatRoomDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatDto;
 import com.ducks.goodsduck.commons.model.dto.chat.UserChatResponse;
+import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
@@ -212,11 +213,13 @@ public class UserChatService {
                 ))
                 .collect(Collectors.toList());
 
-        Map<UserChatResponse, Boolean> map = new HashMap<>();
+        Map<UserSimpleDto, Boolean> map = new HashMap<>();
         List<UserChatResponse> newUserChatResponses = new ArrayList<>();
         for (UserChatResponse userChatResponse : userChatResponses) {
-            if(!map.containsKey(userChatResponse)) {
-                map.put(userChatResponse, true);
+
+            UserSimpleDto otherUser = userChatResponse.getOtherUser();
+            if(!map.containsKey(otherUser)) {
+                map.put(otherUser, true);
                 newUserChatResponses.add(userChatResponse);
             }
         }
