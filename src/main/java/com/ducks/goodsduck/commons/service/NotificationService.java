@@ -31,13 +31,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ducks.goodsduck.commons.model.enums.ActivityType.*;
 import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
 import static com.google.firebase.messaging.Notification.*;
 
@@ -314,7 +312,7 @@ public class NotificationService {
                                 .build())
                         .build())
                 .addAllTokens(registrationTokens)
-                .putData("type", notification.getType().toString())
+                .putData("type", notificationMessage.getType().toString())
                 .putData("clickAction", notificationMessage.getMessageUri());
     }
 

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
+
 @Data
 @NoArgsConstructor
 public class NotificationResponse {
@@ -73,7 +75,8 @@ public class NotificationResponse {
             title,
             body,
             messageUri,
-            iconUri
+            iconUri,
+            LEVEL_UP
         );
     }
 

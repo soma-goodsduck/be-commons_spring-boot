@@ -37,6 +37,7 @@ public class FcmUtil {
                                     .build())
                             .build())
                     .addAllTokens(registrationTokens)
+                    .putData("type", notificationMessage.getType().toString())
                     .putData("clickAction", notificationMessage.getMessageUri())
                     .build();
 

@@ -5,7 +5,8 @@ public enum NotificationType {
     USER_ITEM("찜"),
     CHAT("채팅"),
     REVIEW("거래 리뷰"),
-    REVIEW_FIRST("선 거래 리뷰");
+    REVIEW_FIRST("선 거래 리뷰"),
+    LEVEL_UP("레벨업");
 
     private String korName;
 

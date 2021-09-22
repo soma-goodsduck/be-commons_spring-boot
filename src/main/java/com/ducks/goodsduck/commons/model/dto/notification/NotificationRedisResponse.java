@@ -81,7 +81,8 @@ public class NotificationRedisResponse implements Serializable {
             title,
             body,
             messageUri,
-            iconUri
+            iconUri,
+            type
         );
     }
 }
