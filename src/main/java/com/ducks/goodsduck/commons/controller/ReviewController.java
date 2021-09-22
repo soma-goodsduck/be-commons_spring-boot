@@ -57,7 +57,6 @@ public class ReviewController {
     @GetMapping("/v1/items/{itemId}/users/reviews")
     @ApiOperation("특정 아이템 게시물 작성자에 대한 리뷰 목록 조회")
     public ApiResult<List<ReviewResponse>> getReviews(@PathVariable("itemId") Long itemId) {
-
         return OK(reviewService.getReviewsOfItemOwner(itemId));
     }
 

@@ -159,9 +159,7 @@ public class UserChatService {
                 .map(userChat -> {
                     Chat chat = userChat.getChat();
                     Item item = userChat.getItem();
-
                     User user = userChat.getUser();
-
                     return new ChatRoomDto(chat, item, user.getNickName());
                 })
                 .collect(Collectors.toList());
@@ -221,14 +219,12 @@ public class UserChatService {
         return userChats.stream()
                 .filter(userChat -> {
                     Item item = userChat.getItem();
-                    return item.getUser().getId() != userId && userChat.getDeletedAt() == null;
+                    return item.getUser().getId() != userId;
                 })
                 .map(userChat -> {
                     Chat chat = userChat.getChat();
                     Item item = userChat.getItem();
-
                     User user = userChat.getUser();
-
                     return new ChatRoomDto(chat, item, user.getNickName());
                 })
                 .collect(Collectors.toList());

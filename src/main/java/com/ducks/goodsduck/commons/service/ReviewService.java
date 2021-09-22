@@ -112,6 +112,12 @@ public class ReviewService {
                     throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                             new Object[]{"Item"}, null));
                 });
+        
+        // TODO : 삭제된 아이템 처리
+        if(tradeItem == null || tradeItem.getDeletedAt() != null) {
+            
+        }
+
         Review reviewOfCounter = reviewRepositoryCustom.findByReveiverIdAndItemId(receiverId, itemId);
         return new ReviewBackResponse(tradeItem, reviewOfCounter, chatRoomId);
     }

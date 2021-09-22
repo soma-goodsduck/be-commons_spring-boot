@@ -239,6 +239,7 @@ public class UserService {
         user.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
         String encodedPassword = passwordEncoder.encode(userSignUpRequest.getPassword());
         user.setPassword(encodedPassword);
+        user.setMarketingAgree(userSignUpRequest.getMarketingAgree());
 
         List<Long> likeIdolGroupsId = userSignUpRequest.getLikeIdolGroupsId();
         for (Long likeIdolGroupId : likeIdolGroupsId) {
@@ -401,6 +402,8 @@ public class UserService {
         User user = userRepository.findByPhoneNumber(phoneNumber);
         if(user != null) {
             return "GOODSDUCK";
+        } else if(user.getDeletedAt() != null) {
+            return "RESIGNED";
         } else {
             return null;
         }

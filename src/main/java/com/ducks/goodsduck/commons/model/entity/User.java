@@ -36,6 +36,7 @@ public class User {
     private LocalDateTime lastLoginAt;
     private LocalDateTime lastVotedAt;
     private LocalDateTime deletedAt;
+    private Boolean marketingAgree;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;

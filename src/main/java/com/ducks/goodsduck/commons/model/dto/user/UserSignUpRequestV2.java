@@ -19,4 +19,5 @@ public class UserSignUpRequestV2 {
     private String phoneNumber;
     private String nickName;
     private List<Long> likeIdolGroupsId = new ArrayList<>();
+    private Boolean marketingAgree;
 }

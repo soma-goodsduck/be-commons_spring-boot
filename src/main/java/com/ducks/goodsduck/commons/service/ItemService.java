@@ -137,7 +137,7 @@ public class ItemService {
     public ItemDetailResponse showDetail(Long itemId) {
 
         Item item = itemRepository.findById(itemId).get();
-        if(item.getDeletedAt() != null) {
+        if(item == null || item.getDeletedAt() != null) {
             throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                     new Object[]{"Item"}, null));
         }
@@ -154,17 +154,14 @@ public class ItemService {
 
     public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
 
-        User loginUser = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                        new Object[]{"User"}, null)));
-
+        User loginUser = userRepository.findById(userId).orElse(null);
         if(loginUser == null) {
             return showDetail(itemId);
         }
 
         Tuple itemTupleWithUserItem = itemRepositoryCustom.findByIdWithUserItem(userId, itemId);
         Item item = itemTupleWithUserItem.get(0, Item.class);
-        if(item.getDeletedAt() != null) {
+        if(item == null || item.getDeletedAt() != null) {
             throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                     new Object[]{"Item"}, null));
         }

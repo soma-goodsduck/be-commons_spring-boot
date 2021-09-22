@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +21,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Override
     @EntityGraph(attributePaths = {"user", "idolMember", "itemCategory"})
     Optional<Item> findById(Long itemId);
+
+    @Query("select i from Item i where i.deletedAt is not null")
+    List<Item> findAllWithDeleted();
 }
