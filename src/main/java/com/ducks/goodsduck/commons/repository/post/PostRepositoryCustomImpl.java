@@ -47,14 +47,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
             builder.or(post.idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
         }
 
-        if(!postId.equals(0L)) {
+        if(postId != 0) {
             builder.and(post.id.lt(postId));
         }
 
         return queryFactory
                 .select(post, userPost)
                 .from(post)
-                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(postId))
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder)
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
@@ -66,14 +66,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(!postId.equals(0L)) {
+        if(postId != 0) {
             builder.and(post.id.lt(postId));
         }
 
         return queryFactory
                 .select(post, userPost)
                 .from(post)
-                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(postId))
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(post.idolGroup.id.eq(idolGroupId).and(builder))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
