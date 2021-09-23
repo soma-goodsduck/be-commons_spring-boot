@@ -8,6 +8,6 @@ import java.util.List;
 public class PostUpdateRequest {
 
     private String content;
+    private Long postCategoryId;
     private List<String> imageUrls;
-    private String postCategory;
 }

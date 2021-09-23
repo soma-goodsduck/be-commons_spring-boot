@@ -16,15 +16,15 @@ public class Scheduler {
 
     private final ItemRepository itemRepository;
 
-//    @Scheduled(cron = "*/5 * * * * *")
-//    public void delete() {
-//
-//        System.out.println("@@@@@@@@@@");
-//
-//        List<Item> deleteItems = itemRepository.findAllWithDeleted();
-//
-//        for (Item deleteItem : deleteItems) {
-//            System.out.println(deleteItem.getId());
-//        }
-//    }
+    @Scheduled(cron = "*/5 * * * * *")
+    public void delete() {
+
+        System.out.println("@@@@@@@@@@");
+
+        List<Item> deleteItems = itemRepository.findAllWithDeleted();
+
+        for (Item deleteItem : deleteItems) {
+            System.out.println(deleteItem.getId());
+        }
+    }
 }
