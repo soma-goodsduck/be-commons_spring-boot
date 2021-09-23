@@ -338,7 +338,7 @@ public class PostService {
 
     public HomeResponse getPostListFilterByIdolGroup(Long userId, Long idolGroupId, Long postId) {
 
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        int pageableSize = PropertyUtil.POST_PAGEABLE_SIZE;
         Boolean hasNext = false;
 
         User user = userRepository.findById(userId)

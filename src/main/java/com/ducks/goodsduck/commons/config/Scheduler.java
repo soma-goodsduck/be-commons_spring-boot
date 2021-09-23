@@ -1,6 +1,7 @@
 package com.ducks.goodsduck.commons.config;
 
 import com.ducks.goodsduck.commons.model.entity.*;
+import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
@@ -10,6 +11,7 @@ import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
+import com.ducks.goodsduck.commons.repository.image.ProfileImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
@@ -21,6 +23,7 @@ import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepositoryCustom;
 import com.ducks.goodsduck.commons.service.ImageUploadService;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -38,8 +41,7 @@ import java.util.List;
 @Slf4j
 public class Scheduler {
 
-//    private final ImageUploadService imageUploadService;
-//
+//    private final UserRepository userRepository;
 //    private final ItemRepository itemRepository;
 //    private final ChatRepository chatRepository;
 //    private final UserChatRepository userChatRepository;
@@ -48,8 +50,12 @@ public class Scheduler {
 //    private final UserItemRepositoryCustom userItemRepositoryCustom;
 //    private final PriceProposeRepository priceProposeRepository;
 //    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
-//    private final ItemImageRepository itemImageRepository;
 //    private final ReviewRepositoryCustom reviewRepositoryCustom;
+//    private final ImageRepository imageRepository;
+//    private final ItemImageRepository itemImageRepository;
+//    private final ProfileImageRepository profileImageRepository;
+//
+//    private final ImageUploadService imageUploadService;
 //
 //    @Scheduled(cron = "0 0 0 * * *")
 //    public void itemDelete() {
@@ -106,36 +112,36 @@ public class Scheduler {
 //        }
 //    }
 //
-//    @Scheduled(cron = "0 0 0 * * *")
+//    @Scheduled(cron = "*/5 * * * * *")
 //    public void userDelete() {
 //
-//        List<Item> deleteItems = itemRepository.findAllWithDeleted();
+//        List<User> deleteUsers = userRepository.findAllWithDeleted();
+////
+////        User user = userRepository.findById(2L).get();
+////
+////        Image image = imageRepository.findByUrl(user.getImageUrl());
+////        imageRepository.delete(image);
 //
-//        for (Item deleteItem : deleteItems) {
+//        for (User deleteUser : deleteUsers) {
 //
 //            // HINT : 30일 지난 후 삭제
-//            if(deleteItem.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
+//            if(deleteUser.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
 //
-//                log.info("cron delete item : " + deleteItem.getId());
+//                log.info("cron delete user : " + deleteUser.getId());
 //
-//                // user's item 목록 삭제
-//                User user = deleteItem.getUser();
-//                List<Item> itemsOfUser = user.getItems();
-//                itemsOfUser.remove(deleteItem);
-//
-//                // image 연관 삭제
-//                List<ItemImage> deleteImages = deleteItem.getImages();
-//                for (ItemImage deleteImage : deleteImages) {
-//                    imageUploadService.deleteImage(deleteImage, ImageType.ITEM);
+//                // image 연관 삭제 (profile)
+//                if(!deleteUser.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
+//                    Image deleteImage = imageRepository.findByUrl(deleteUser.getImageUrl());
+//                    imageUploadService.deleteImage(deleteImage, ImageType.PROFILE);
+//                    imageRepository.delete(deleteImage);
 //                }
-//                itemImageRepository.deleteInBatch(deleteImages);
 //
 //                // pricePropose 연관 삭제
-//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(deleteItem.getId());
+//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(deleteUser.getId());
 //                priceProposeRepository.deleteInBatch(deletePriceProposes);
 //
 //                // userChat 연관 삭제
-//                List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(deleteItem.getId());
+//                List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(deleteUser.getId());
 //                userChatRepository.deleteInBatch(deleteUserChats);
 //
 //                // chat 삭제
@@ -146,17 +152,17 @@ public class Scheduler {
 //                chatRepository.deleteInBatch(deleteChats);
 //
 //                // review 연관 삭제
-//                List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(deleteItem.getId());
+//                List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(deleteUser.getId());
 //                for (Review deleteItemOfReview : deleteItemOfReviews) {
 //                    deleteItemOfReview.setItem(null);
 //                }
 //
 //                // userItem 연관 삭제
-//                List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(deleteItem.getId());
+//                List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(deleteUser.getId());
 //                userItemRepository.deleteInBatch(deleteUserItems);
 //
 //                // item 삭제
-//                itemRepository.delete(deleteItem);
+//                itemRepository.delete(deleteUser);
 //            }
 //        }
 //    }

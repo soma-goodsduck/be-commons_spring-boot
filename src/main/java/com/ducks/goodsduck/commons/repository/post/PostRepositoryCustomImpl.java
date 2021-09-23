@@ -43,12 +43,12 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(!postId.equals(0L)) {
-            builder.and(post.id.lt(postId));
-        }
-
         for (UserIdolGroup userIdolGroup : userIdolGroups) {
             builder.or(post.idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
+        }
+
+        if(!postId.equals(0L)) {
+            builder.and(post.id.lt(postId));
         }
 
         return queryFactory
