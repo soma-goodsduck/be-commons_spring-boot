@@ -45,4 +45,14 @@ public class Comment {
         this.isSecret = commentUploadRequest.getIsSecret();
         this.content = commentUploadRequest.getContent();
     }
+
+    public Comment(User user, Post post, Comment parentComment, CommentUploadRequest commentUploadRequest, Boolean V2) {
+        this.user = user;
+        this.post = post;
+        this.parentComment = parentComment;
+        this.level = parentComment != null ? 2 : 1;
+        this.isDeleted = false;
+        this.isSecret = commentUploadRequest.getIsSecret();
+        this.content = commentUploadRequest.getContent();
+    }
 }

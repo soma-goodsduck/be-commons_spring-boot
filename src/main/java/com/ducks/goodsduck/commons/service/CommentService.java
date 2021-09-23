@@ -42,6 +42,7 @@ public class CommentService {
     public Long uploadComment(CommentUploadRequest commentUploadRequest, Long userId) {
 
         try {
+
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
 
@@ -53,6 +54,41 @@ public class CommentService {
                             .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
 
             Comment comment = new Comment(user, post, parentComment, commentUploadRequest);
+
+            if(parentComment != null) {
+                parentComment.getChildComments().add(comment);
+            }
+
+            commentRepository.save(comment);
+
+            if (user.gainExpByType(ActivityType.COMMENT) >= 100){
+                if (user.getLevel() == null) user.setLevel(1);
+                user.levelUp();
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
+
+            return comment.getId();
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long uploadCommentV2(CommentUploadRequest commentUploadRequest, Long userId) {
+
+        try {
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
+
+            Post post = postRepository.findById(commentUploadRequest.getPostId())
+                    .orElseThrow(() -> new NoResultException("Not Find Post in CommentService.uploadComment"));
+
+            Comment parentComment = commentUploadRequest.getParentCommentId() != 0L ?
+                    commentRepository.findById(commentUploadRequest.getParentCommentId())
+                            .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
+
+            Comment comment = new Comment(user, post, parentComment, commentUploadRequest, true);
 
             if(parentComment != null) {
                 parentComment.getChildComments().add(comment);
@@ -127,22 +163,29 @@ public class CommentService {
         Map<Long, CommentDto> map = new HashMap<>();
 
         comments.stream().forEach(comment -> {
-                    CommentDto commentDto = new CommentDto(comment.getUser(), comment);
-                    map.put(comment.getId(), commentDto);
+            CommentDto commentDto = new CommentDto(comment.getUser(), comment);
+            map.put(comment.getId(), commentDto);
 
-                    if(comment.getParentComment() != null) {
-                        commentDto.setReceiver(new UserSimpleDto(comment.getParentComment().getUser()));
-                        map.get(comment.getParentComment().getId()).getChildComments().add(commentDto);
-                    } else {
-                        topCommentDtos.add(commentDto);
-                    }
+            if(comment.getParentComment() != null) {
+                commentDto.setReceiver(new UserSimpleDto(comment.getParentComment().getUser()));
+                map.get(comment.getParentComment().getId()).getChildComments().add(commentDto);
+            } else {
+                topCommentDtos.add(commentDto);
+            }
 
-                    if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
-                        commentDto.setIsSecret(false);
-                    } else if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
-                        commentDto.setIsSecret(false);
-                    }
-                });
+            if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
+                commentDto.setIsSecret(false);
+                commentDto.setIsLoginUserComment(true);
+            }
+
+            if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
+                commentDto.setIsSecret(false);
+            }
+
+            if(comment.getPost().getUser().equals(userId)) {
+                commentDto.setIsPostOwnerComment(true);
+            }
+        });
 
         return topCommentDtos;
     }
@@ -166,8 +209,15 @@ public class CommentService {
 
             if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
                 commentDto.setIsSecret(false);
-            } else if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
+                commentDto.setIsLoginUserComment(true);
+            }
+
+            if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
                 commentDto.setIsSecret(false);
+            }
+
+            if(comment.getPost().getUser().equals(userId)) {
+                commentDto.setIsPostOwnerComment(true);
             }
         });
 

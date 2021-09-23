@@ -37,6 +37,14 @@ public class CommentController {
         return OK(commentService.uploadComment(commentUploadRequest, userId));
     }
 
+    @ApiOperation(value = "댓글 업로드 API V2")
+    @PostMapping("/v2/comments")
+    public ApiResult<Long> uploadCommentV2(@RequestBody CommentUploadRequest commentUploadRequest,
+                                         HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.uploadCommentV2(commentUploadRequest, userId));
+    }
+
     @ApiOperation(value = "댓글 수정 API")
     @PutMapping("/v1/comments/{commentId}")
     public ApiResult<Long> updateComment(@PathVariable("commentId") Long commentId,
@@ -58,7 +66,7 @@ public class CommentController {
         return OK(commentService.getCommentsOfPost(userId, postId));
     }
 
-    @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API (V2)")
+    @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API V2")
     @GetMapping("/v2/comments/{postId}")
     public ApiResult<List<CommentSimpleDto>> showCommentsOfPostV2(@PathVariable("postId") Long postId,
                                                                   HttpServletRequest request) {
