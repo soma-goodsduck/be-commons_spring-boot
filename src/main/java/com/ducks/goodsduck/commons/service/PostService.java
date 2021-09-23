@@ -140,7 +140,7 @@ public class PostService {
              */
             Post post = postRepository.findById(postId).get();
             post.setContent(postUpdateRequest.getContent());
-            PostCategory postCategory = postCategoryRepository.findByName(postUpdateRequest.getPostCategory());
+            PostCategory postCategory = postCategoryRepository.findById(postUpdateRequest.getPostCategoryId()).get();
             post.setPostCategory(postCategory);
 
             /**
