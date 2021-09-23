@@ -7,7 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class PostUploadRequest {
 
-    private String title;
     private String content;
     private Long idolGroupId;
     private String postCategory;

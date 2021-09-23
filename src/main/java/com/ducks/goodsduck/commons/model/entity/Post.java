@@ -21,7 +21,6 @@ public class Post {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
     private Long id;
-    private String title;
     private String content;
     private Integer viewCount;
     private Integer likeCount;
@@ -49,7 +48,6 @@ public class Post {
     private List<Comment> comments = new ArrayList<>();
 
     public Post(PostUploadRequest postUploadRequest) {
-        this.title = postUploadRequest.getTitle();
         this.content = postUploadRequest.getContent();
         this.viewCount = 0;
         this.likeCount = 0;
