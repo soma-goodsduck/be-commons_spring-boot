@@ -17,7 +17,7 @@ public class PostDetailResponse {
     private String content;
     private List<PostDetailResponseImage> images = new ArrayList<>();
     private LocalDateTime postCreatedAt;
-    private PostCategory postCategory;
+    private PostCategoryDto postCategory;
     private Integer viewCount;
     private Integer likeCount;
     private Integer commentCount;
@@ -32,7 +32,7 @@ public class PostDetailResponse {
                 .map(image -> new PostDetailResponseImage(image))
                 .collect(Collectors.toList());
         this.postCreatedAt = post.getCreatedAt();
-        this.postCategory = post.getPostCategory();
+        this.postCategory = new PostCategoryDto(post.getPostCategory());
         this.viewCount = post.getViewCount();
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();

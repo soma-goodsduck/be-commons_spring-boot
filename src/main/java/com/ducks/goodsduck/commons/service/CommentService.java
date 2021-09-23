@@ -48,7 +48,7 @@ public class CommentService {
             Post post = postRepository.findById(commentUploadRequest.getPostId())
                     .orElseThrow(() -> new NoResultException("Not Find Post in CommentService.uploadComment"));
 
-            Comment parentComment = commentUploadRequest.getParentCommentId() != null ?
+            Comment parentComment = commentUploadRequest.getParentCommentId() != 0L ?
                     commentRepository.findById(commentUploadRequest.getParentCommentId())
                             .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
 
