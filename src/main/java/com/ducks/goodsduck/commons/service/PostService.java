@@ -136,7 +136,6 @@ public class PostService {
              * 이미지
              */
             Post post = postRepository.findById(postId).get();
-            post.setTitle(postUpdateRequest.getTitle());
             post.setContent(postUpdateRequest.getContent());
             PostCategory postCategory = postCategoryRepository.findByName(postUpdateRequest.getPostCategory());
             post.setPostCategory(postCategory);

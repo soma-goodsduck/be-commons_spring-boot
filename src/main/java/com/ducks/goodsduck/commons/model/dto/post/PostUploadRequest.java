@@ -9,5 +9,5 @@ public class PostUploadRequest {
 
     private String content;
     private Long idolGroupId;
-    private String postCategory;
+    private Long postCategoryId;
 }
