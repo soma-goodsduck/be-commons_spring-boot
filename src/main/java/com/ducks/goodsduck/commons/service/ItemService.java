@@ -79,7 +79,6 @@ public class ItemService {
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final ItemImageRepository itemImageRepository;
-    private final ItemReportRepository itemReportRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final MessageSource messageSource;
 
@@ -360,8 +359,7 @@ public class ItemService {
         }
         chatRepository.deleteInBatch(deleteChats);
 
-        // TODO : 0번 아이템 만든 후에 체크
-        // review 연관 삭제 (삭제용 데이터 0번 아이템으로 교체)
+        // review 연관 삭제
         List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(itemId);
         for (Review deleteItemOfReview : deleteItemOfReviews) {
             deleteItemOfReview.setItem(null);

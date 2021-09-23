@@ -321,7 +321,7 @@ public class PostService {
 
     public HomeResponse getPostList(Long userId, Long postId) {
 
-        int pageableSize = PropertyUtil.PAGEABLE_SIZE;
+        int pageableSize = PropertyUtil.POST_PAGEABLE_SIZE;
         Boolean hasNext = false;
 
         User user = userRepository.findById(userId)

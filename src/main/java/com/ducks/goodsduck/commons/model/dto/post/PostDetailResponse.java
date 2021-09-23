@@ -15,6 +15,7 @@ public class PostDetailResponse {
     private PostDetailResponsePostOwner postOwner;
     private Long postId;
     private String content;
+    private Long idolGroupId;
     private List<PostDetailResponseImage> images = new ArrayList<>();
     private LocalDateTime postCreatedAt;
     private PostCategoryDto postCategory;
@@ -28,6 +29,7 @@ public class PostDetailResponse {
         this.postOwner = new PostDetailResponsePostOwner(post.getUser());
         this.postId = post.getId();
         this.content = post.getContent();
+        this.idolGroupId = post.getIdolGroup().getId();
         this.images = post.getImages().stream()
                 .map(image -> new PostDetailResponseImage(image))
                 .collect(Collectors.toList());

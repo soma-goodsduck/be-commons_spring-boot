@@ -26,10 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.json.JSONObject;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -45,6 +48,7 @@ import java.util.UUID;
 @Slf4j
 public class ImageUploadService {
 
+    private AmazonS3 s3Client;
     private static final JSONObject jsonOfAwsSecrets = AwsSecretsManagerUtil.getSecret();
 
     private static String localFilePath = jsonOfAwsSecrets.optString("spring.file.path.local", PropertyUtil.getProperty("spring.file.path.local"));
@@ -58,6 +62,39 @@ public class ImageUploadService {
 
     private final int IMAGE_LOCATION_X = 60;
     private final int IMAGE_LOCATION_Y = 60;
+
+    public Boolean deleteImage(Image image, ImageType imageType) {
+
+        String uploadName = image.getUploadName();
+
+        try {
+            if(imageType.equals(ImageType.ITEM)) {
+                boolean isExistObject = s3Client.doesObjectExist(itemS3Bucket, uploadName);
+                if (isExistObject) {
+                    s3Client.deleteObject(itemS3Bucket, uploadName);
+                }
+            } else if(imageType.equals(ImageType.PROFILE)) {
+                boolean isExistObject = s3Client.doesObjectExist(profileS3Bucket, uploadName);
+                if (isExistObject) {
+                    s3Client.deleteObject(profileS3Bucket, uploadName);
+                }
+            } else if(imageType.equals(ImageType.CHAT)) {
+                boolean isExistObject = s3Client.doesObjectExist(chatS3Bucket, uploadName);
+                if (isExistObject) {
+                    s3Client.deleteObject(chatS3Bucket, uploadName);
+                }
+            }else if(imageType.equals(ImageType.POST)) {
+                boolean isExistObject = s3Client.doesObjectExist(postS3Bucket, uploadName);
+                if (isExistObject) {
+                    s3Client.deleteObject(postS3Bucket, uploadName);
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public List<Image> uploadImages(List<MultipartFile> multipartFiles, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
@@ -78,12 +115,12 @@ public class ImageUploadService {
     /** S3에 이미지 업로드 + 리사이징 + 워터마크 **/
     public Image uploadImage(MultipartFile multipartFile, ImageType imageType, String nickname) throws IOException, ImageProcessingException, MetadataException {
 
-        // S3 셋팅
-        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .withRegion(region)
-                .build();
+//        // S3 셋팅
+//        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+//                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+//                .withRegion(region)
+//                .build();
 
         boolean isBright = false;
 
@@ -451,6 +488,7 @@ public class ImageUploadService {
         return rescale.filter(image, null);
     }
 
+    @Order(1)
     @EventListener
     public void setIfLocal(ApplicationPreparedEvent event) {
         if (jsonOfAwsSecrets.isEmpty()) {
@@ -463,5 +501,15 @@ public class ImageUploadService {
             secretKey = PropertyUtil.getProperty("cloud.aws.credentials.secretKey");
             region = PropertyUtil.getProperty("cloud.aws.region.static");
         }
+    }
+
+    @Order(2)
+    @EventListener
+    public void setS3Client(ApplicationReadyEvent event) {
+        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+        s3Client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withRegion(region)
+                .build();
     }
 }
