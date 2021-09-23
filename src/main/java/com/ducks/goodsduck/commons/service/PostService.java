@@ -77,7 +77,7 @@ public class PostService {
             post.setIdolGroup(idolGroup);
 
             /** Post-Category 연관관계 삽입 **/
-            PostCategory postCategory = postCategoryRepository.findByName(postUploadRequest.getPostCategory());
+            PostCategory postCategory = postCategoryRepository.findById(postUploadRequest.getPostCategoryId()).get();
             post.setPostCategory(postCategory);
 
             /** 이미지 업로드 처리 & Image-Post 연관관계 삽입 **/
