@@ -10,6 +10,7 @@ import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
+import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import com.ducks.goodsduck.commons.model.enums.ActivityType;
@@ -89,6 +90,8 @@ public class PostService {
                     imageRepository.save(postImage);
                 }
             }
+
+            postRepository.save(post);
 
             if (user.gainExpByType(ActivityType.POST) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
