@@ -1,10 +1,10 @@
 package com.ducks.goodsduck.commons.config;
 
-import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,11 @@ import java.io.IOException;
 @Slf4j
 public class FCMInitializer {
 
-    private final String FIREBASE_CONFIG_PATH;
-    private final String FIREBASE_DATABASE_URL;
+    @Value("${firebase.config-path}")
+    private String FIREBASE_CONFIG_PATH;
 
-    public FCMInitializer() {
-        this.FIREBASE_CONFIG_PATH = PropertyUtil.getProperty("firebase.config-path");
-        this.FIREBASE_DATABASE_URL = PropertyUtil.getProperty("firebase.database-url");
-    }
+    @Value("${firebase.database-url}")
+    private String FIREBASE_DATABASE_URL;
 
     @PostConstruct
     public void initialize() {
