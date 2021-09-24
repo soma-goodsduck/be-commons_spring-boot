@@ -20,6 +20,7 @@ public class Comment {
     private Boolean isDeleted;
     private Boolean isSecret;
     private String content;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -33,7 +34,7 @@ public class Comment {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
     private List<Comment> childComments = new ArrayList<>();
 
     public Comment(User user, Post post, Comment parentComment, CommentUploadRequest commentUploadRequest) {
@@ -44,6 +45,7 @@ public class Comment {
         this.isDeleted = false;
         this.isSecret = commentUploadRequest.getIsSecret();
         this.content = commentUploadRequest.getContent();
+        this.createdAt = LocalDateTime.now();
     }
 
     public Comment(User user, Post post, Comment parentComment, CommentUploadRequest commentUploadRequest, Boolean V2) {
@@ -54,5 +56,6 @@ public class Comment {
         this.isDeleted = false;
         this.isSecret = commentUploadRequest.getIsSecret();
         this.content = commentUploadRequest.getContent();
+        this.createdAt = LocalDateTime.now();
     }
 }

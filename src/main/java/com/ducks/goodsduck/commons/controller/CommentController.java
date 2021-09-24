@@ -54,8 +54,16 @@ public class CommentController {
 
     @ApiOperation(value = "댓글 삭제 API")
     @DeleteMapping("/v1/comments/{commentId}")
-    public ApiResult<Long> deleteComment(@PathVariable("commentId") Long commentId) {
-        return OK(commentService.deleteComment(commentId));
+    public ApiResult<Long> deleteComment(@PathVariable("commentId") Long commentId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.deleteComment(userId, commentId));
+    }
+
+    @ApiOperation(value = "(임시) 댓글 삭제 API V2")
+    @DeleteMapping("/v2/comments/{commentId}")
+    public ApiResult<Long> deleteCommentV2(@PathVariable("commentId") Long commentId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.deleteCommentV2(userId, commentId));
     }
 
     @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API")

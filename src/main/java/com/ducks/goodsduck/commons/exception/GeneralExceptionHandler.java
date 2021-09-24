@@ -71,7 +71,7 @@ public class GeneralExceptionHandler {
     @ExceptionHandler({InvalidRequestDataException.class, DuplicateRequestException.class,
                        IllegalArgumentException.class, IllegalStateException.class,
                        MultipartException.class, MissingServletRequestParameterException.class,
-                        InvalidArgumentException.class})
+                       InvalidArgumentException.class})
     public ResponseEntity<ApiResult<?>> handleInvalidInputDataException(Exception e) {
         log.debug("Bad request exception occured: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.BAD_REQUEST);

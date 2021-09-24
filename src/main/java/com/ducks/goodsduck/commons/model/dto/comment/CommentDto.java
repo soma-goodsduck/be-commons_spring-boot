@@ -6,20 +6,22 @@ import com.ducks.goodsduck.commons.model.entity.Comment;
 import com.ducks.goodsduck.commons.model.entity.User;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class CommentDto {
 
-    private Long commentId;
     private UserSimpleDto writer;
     private UserSimpleDto receiver;
+    private Long commentId;
     private String content;
     private Integer level;
     private Boolean isSecret;
     private Boolean isPostOwnerComment;
     private Boolean isLoginUserComment;
+    private LocalDateTime createdAt;
     private List<CommentDto> childComments = new ArrayList<>();
 
     public CommentDto(User user, Comment comment) {
@@ -30,5 +32,6 @@ public class CommentDto {
         this.isSecret = comment.getIsSecret();
         this.isPostOwnerComment = false;
         this.isLoginUserComment = false;
+        this.createdAt = comment.getCreatedAt();
     }
 }

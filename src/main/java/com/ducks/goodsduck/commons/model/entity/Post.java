@@ -74,4 +74,8 @@ public class Post {
         this.likeCount--;
         return this;
     }
+
+    public void increaseCommentCount() { this.commentCount++; }
+
+    public void decreaseCommentCount() { this.commentCount--; }
 }
