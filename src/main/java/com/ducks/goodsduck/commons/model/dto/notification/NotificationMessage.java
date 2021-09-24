@@ -28,7 +28,7 @@ public class NotificationMessage {
 
     public static NotificationMessage ofLevelUp() {
         return new NotificationMessage(
-                "GOODSDUCK 레벨업",
+                "GOODSDUCK",
                 "\uD83C\uDF89 LEVEL - UP \uD83C\uDF89",
                 "my-profile",
                 "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/image/logo.png",

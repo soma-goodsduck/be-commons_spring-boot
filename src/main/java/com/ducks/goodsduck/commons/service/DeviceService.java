@@ -12,17 +12,21 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+
 @Service
 @Transactional
 @Slf4j
 public class DeviceService {
 
+    private final EntityManager em;
     private final DeviceRepository deviceRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final UserRepository userRepository;
     private final MessageSource messageSource;
 
-    public DeviceService(DeviceRepository deviceRepository, DeviceRepositoryCustomImpl deviceRepositoryCustom, UserRepository userRepository, MessageSource messageSource) {
+    public DeviceService(EntityManager em, DeviceRepository deviceRepository, DeviceRepositoryCustomImpl deviceRepositoryCustom, UserRepository userRepository, MessageSource messageSource) {
+        this.em = em;
         this.deviceRepository = deviceRepository;
         this.deviceRepositoryCustom = deviceRepositoryCustom;
         this.userRepository = userRepository;
@@ -41,6 +45,8 @@ public class DeviceService {
                         new Object[]{"User"}, null)));
 
         deviceRepository.save(new Device(user, registrationToken));
+        em.flush();
+        em.clear();
         return true;
     }
 
