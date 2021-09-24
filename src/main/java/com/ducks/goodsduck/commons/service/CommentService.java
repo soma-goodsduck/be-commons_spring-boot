@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentDto;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentSimpleDto;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentUpdateRequest;
@@ -77,7 +78,6 @@ public class CommentService {
     public Long uploadCommentV2(CommentUploadRequest commentUploadRequest, Long userId) {
 
         try {
-
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
 
@@ -94,6 +94,7 @@ public class CommentService {
                 parentComment.getChildComments().add(comment);
             }
 
+            post.increaseCommentCount();
             commentRepository.save(comment);
 
             if (user.gainExpByType(ActivityType.COMMENT) >= 100){
@@ -123,11 +124,16 @@ public class CommentService {
         }
     }
 
-    public Long deleteComment(Long commentId) {
+    public Long deleteComment(Long userId, Long commentId) {
 
         try {
             Comment deleteComment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new NoResultException("Not Find comment in CommentService.deleteComment"));
+            Post post = deleteComment.getPost();
+
+            if(!deleteComment.getUser().getId().equals(userId)) {
+                throw new UnauthorizedException("You don't have authority to delete comment");
+            }
 
             // 삭제하려는 댓글에, 자식 댓글이 있을 경우
             if(deleteComment.getChildComments().size() != 0) {
@@ -137,6 +143,30 @@ public class CommentService {
                 Comment deleteAncestorComment = getDeleteAncestorComment(deleteComment);
                 commentRepository.delete(deleteAncestorComment);
             }
+
+            // 댓글 개수 반영
+            Integer commentCount = commentRepository.countByPostId(post.getId());
+            post.setCommentCount(commentCount);
+
+            return 1L;
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long deleteCommentV2(Long userId, Long commentId) {
+
+        try {
+            Comment deleteComment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new NoResultException("Not Find comment in CommentService.deleteComment"));
+            Post post = deleteComment.getPost();
+
+            if(!deleteComment.getUser().getId().equals(userId)) {
+                throw new UnauthorizedException("You don't have authority to delete comment");
+            }
+
+            post.decreaseCommentCount();
+            commentRepository.delete(deleteComment);
 
             return 1L;
         } catch (Exception e) {
@@ -216,7 +246,7 @@ public class CommentService {
                 commentDto.setIsSecret(false);
             }
 
-            if(comment.getPost().getUser().equals(userId)) {
+            if(commentDto.getWriter().getUserId().equals(comment.getPost().getUser().getId())) {
                 commentDto.setIsPostOwnerComment(true);
             }
         });

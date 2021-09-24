@@ -8,6 +8,7 @@ import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.PostRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepositoryCustom;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class UserPostService {
         
         // 이미 좋아요된 상태
         if (userPost != null) {
-            throw new NoResultException("Already Like Post in UserPostService.likePost");
+            throw new DuplicateRequestException("Already Like Post in UserPostService.likePost");
         }
 
         User user = userRepository.findById(userId)
@@ -54,7 +55,7 @@ public class UserPostService {
 
         // 이미 좋아요가 풀린 상태
         if (userPost == null) {
-            throw new NoResultException("Not Find UserPost in UserPostService.likePost");
+            throw new DuplicateRequestException("Not Find UserPost in UserPostService.likePost");
         }
 
         postRepository.findById(postId)
