@@ -15,13 +15,19 @@ import java.io.IOException;
 @Slf4j
 public class FCMInitializer {
 
-    private final String FIREBASE_CONFIG_PATH = PropertyUtil.getProperty("firebase.config-path");
-    private final String FIREBASE_DATABASE_URL = PropertyUtil.getProperty("firebase.database-url");
+    private final String FIREBASE_CONFIG_PATH;
+    private final String FIREBASE_DATABASE_URL;
+
+    public FCMInitializer() {
+        this.FIREBASE_CONFIG_PATH = PropertyUtil.getProperty("firebase.config-path");
+        this.FIREBASE_DATABASE_URL = PropertyUtil.getProperty("firebase.database-url");
+    }
 
     @PostConstruct
     public void initialize() {
         try {
             log.debug("FCMInitializer processed!");
+            log.info("FCM path: " + FIREBASE_CONFIG_PATH);
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(
                             new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream()
