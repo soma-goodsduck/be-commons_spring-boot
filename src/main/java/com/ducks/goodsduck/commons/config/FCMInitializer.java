@@ -21,6 +21,7 @@ public class FCMInitializer {
     @PostConstruct
     public void initialize() {
         try {
+            log.debug("FCMInitializer processed!");
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(
                             new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream()
@@ -29,6 +30,7 @@ public class FCMInitializer {
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
+                log.info("Firebase application is empty..");
                 FirebaseApp.initializeApp(options);
                 log.info("Firebase application has been initialized");
             }
