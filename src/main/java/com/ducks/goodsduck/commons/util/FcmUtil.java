@@ -13,6 +13,7 @@ import static com.google.firebase.messaging.Notification.builder;
 public class FcmUtil {
     public static void sendMessage(NotificationMessage notificationMessage, List<String> registrationTokens) {
         final String DOMAIN_ADDRESS = "https://goods-duck.com/";
+        final String ANDROID_CLICK_ACTION = "android.intent.action.MAIN";
 
         try {
             // HINT: 알림 Message 구성
@@ -27,7 +28,7 @@ public class FcmUtil {
                                     .setColor("#ffce00")
                                     .setBody(notificationMessage.getMessageBody())
                                     .setIcon("ic_notification")
-                                    .setClickAction(DOMAIN_ADDRESS.concat(notificationMessage.getMessageUri()))
+                                    .setClickAction(ANDROID_CLICK_ACTION)
                                     .build())
                             .build())
                     .setWebpushConfig(WebpushConfig.builder()

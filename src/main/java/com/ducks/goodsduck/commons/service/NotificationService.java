@@ -287,6 +287,7 @@ public class NotificationService {
         var notificationResponse = new NotificationResponse(notification);
         var notificationMessage = notificationResponse.getMessage();
         final String DOMAIN_ADDRESS = "https://goods-duck.com/";
+        final String ANDROID_CLICK_ACTION = "android.intent.action.MAIN";
 
         return MulticastMessage.builder()
                 .setNotification(builder()
@@ -300,7 +301,7 @@ public class NotificationService {
                                 .setColor("#ffce00")
                                 .setBody(notificationMessage.getMessageBody())
                                 .setIcon("ic_notification")
-                                .setClickAction(DOMAIN_ADDRESS.concat(notificationMessage.getMessageUri()))
+                                .setClickAction(ANDROID_CLICK_ACTION)
                                 .setImage(notification.getSenderImageUrl())
                                 .build())
                         .build())
