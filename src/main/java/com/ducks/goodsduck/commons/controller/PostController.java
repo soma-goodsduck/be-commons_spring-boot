@@ -93,7 +93,6 @@ public class PostController {
 
     @ApiOperation("포스트 목록 조회 + 좋아하는 아이돌 그룹 전체 필터링 API in 홈")
     @GetMapping("/v1/posts")
-    @Transactional
     public ApiResult<HomeResponse<PostDetailResponse>> getPostList(@RequestParam("postId") Long postId,
                                                                    HttpServletRequest request) {
 
@@ -103,7 +102,6 @@ public class PostController {
 
     @ApiOperation("포스트 목록 조회 + 특정 아이돌 그룹 필터링 API in 홈")
     @GetMapping("/v1/posts/filter")
-    @Transactional
     public ApiResult<HomeResponse<PostDetailResponse>> getPostListFilterByIdolGroup(@RequestParam("idolGroup") Long idolGroupId,
                                                                                     @RequestParam("postId") Long postId,
                                                                                     HttpServletRequest request) {

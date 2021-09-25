@@ -4,6 +4,7 @@ import com.ducks.goodsduck.commons.model.entity.QIdolGroup;
 import com.ducks.goodsduck.commons.model.entity.QPost;
 import com.ducks.goodsduck.commons.model.entity.QUserPost;
 import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
+import com.ducks.goodsduck.commons.model.entity.category.QCategory;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
@@ -18,6 +19,7 @@ import static com.ducks.goodsduck.commons.model.entity.QIdolGroup.idolGroup;
 import static com.ducks.goodsduck.commons.model.entity.QPost.post;
 import static com.ducks.goodsduck.commons.model.entity.QUser.user;
 import static com.ducks.goodsduck.commons.model.entity.QUserPost.userPost;
+import static com.ducks.goodsduck.commons.model.entity.category.QCategory.*;
 
 @Repository
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
@@ -62,6 +64,29 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
+    public List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        for (UserIdolGroup userIdolGroup : userIdolGroups) {
+            builder.or(post.idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
+        }
+
+        if(postId != 0) {
+            builder.and(post.id.lt(postId));
+        }
+
+        return queryFactory
+                .select(post, userPost)
+                .from(post)
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
+                .where(builder.and(post.postCategory.name.eq("나눔글")))
+                .orderBy(post.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
     public List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId) {
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -75,6 +100,25 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(post.idolGroup.id.eq(idolGroupId).and(builder))
+                .orderBy(post.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(postId != 0) {
+            builder.and(post.id.lt(postId));
+        }
+
+        return queryFactory
+                .select(post, userPost)
+                .from(post)
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
+                .where(post.idolGroup.id.eq(idolGroupId).and(builder).and(post.postCategory.name.eq("나눔글")))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();

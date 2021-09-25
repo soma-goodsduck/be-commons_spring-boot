@@ -287,10 +287,10 @@ public class UserService {
         // 프로필 사진 수정
         if (multipartFile != null) {
 
-            // TODO : S3에서 삭제
             // 기본 이미지인 경우 삭제 X
             if(!user.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
                 Image nowImage = imageRepository.findByUrl(user.getImageUrl());
+                imageUploadService.deleteImage(nowImage, ImageType.PROFILE);
                 imageRepository.delete(nowImage);
             }
 
@@ -320,7 +320,7 @@ public class UserService {
         // 좋아하는 아이돌 수정
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
         userIdolGroupRepository.deleteInBatch(userIdolGroups);
-        userIdolGroups.clear();
+        userIdolGroups.clear(); // 삭제
 
         List<Long> likeIdolGroupsId = updateProfileRequest.getLikeIdolGroupsId();
         for (Long likeIdolGroupId : likeIdolGroupsId) {

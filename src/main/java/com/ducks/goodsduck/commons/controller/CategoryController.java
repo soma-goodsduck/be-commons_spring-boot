@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.controller;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryResponse;
+import com.ducks.goodsduck.commons.service.CommunityService;
 import com.ducks.goodsduck.commons.service.ItemService;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.ReportService;
@@ -29,6 +30,7 @@ public class CategoryController {
     private final ItemService itemService;
     private final PostService postService;
     private final ReportService reportService;
+    private final CommunityService communityService;
 
     @ApiOperation(value = "아이템 카테고리 불러오기 (회원)")
     @GetMapping("/v1/items/category")
@@ -38,9 +40,11 @@ public class CategoryController {
 
     @ApiOperation(value = "포스트 카테고리 불러오기 (회원)")
     @GetMapping("/v1/posts/category")
-    public ApiResult<List<CategoryResponse>> getPostCategory() {
-        return OK(postService.getPostCategory());
-    }
+    public ApiResult<List<CategoryResponse>> getPostCategory() { return OK(postService.getPostCategory()); }
+
+    @GetMapping("/v1/community/category")
+    @ApiOperation("커뮤니티 카테고리 불러오기 (회원)")
+    public ApiResult<List<CategoryResponse>> getCommunityCategory() { return OK(communityService.getCommunityCategory()); }
 
     @GetMapping("/v1/users/report-category/{bcryptId}")
     @ApiOperation("유저 신고 카테고리 불러오기 및 신고 대상 닉네임 확인 (회원)")

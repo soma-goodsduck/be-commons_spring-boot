@@ -25,8 +25,8 @@ public class CommentDto {
     private List<CommentDto> childComments = new ArrayList<>();
 
     public CommentDto(User user, Comment comment) {
-        this.commentId = comment.getId();
         this.writer = new UserSimpleDto(user);
+        this.commentId = comment.getId();
         this.content = comment.getContent();
         this.level = comment.getLevel();
         this.isSecret = comment.getIsSecret();
