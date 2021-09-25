@@ -243,4 +243,9 @@ public class UserChatService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public String getBcryptIdByChatId(String chatId, Long userId) {
+        return userChatRepositoryCustom.findReceiverByChatIdAndUserId(chatId, userId)
+                .getBcryptId();
+    }
 }

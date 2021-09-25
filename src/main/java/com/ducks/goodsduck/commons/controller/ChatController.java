@@ -139,4 +139,11 @@ public class ChatController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userChatService.getChatRoomsV2(userId));
     }
+
+    @ApiOperation("특정 채팅방의 상대방 bcryptId 조회 API")
+    @GetMapping("/v2/chat/{chatId}")
+    public ApiResult<String> getBcryptIdByChatId(@PathVariable("chatId") String chatId, HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userChatService.getBcryptIdByChatId(chatId, userId));
+    }
 }

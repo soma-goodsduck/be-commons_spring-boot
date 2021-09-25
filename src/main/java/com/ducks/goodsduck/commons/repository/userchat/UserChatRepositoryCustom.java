@@ -13,6 +13,7 @@ public interface UserChatRepositoryCustom {
     List<UserChat> findAllByChatId(String chatId);
     List<Tuple> findChatAndItemByUserId(Long userId);
     User findSenderByChatIdAndUserId(String chatId, Long senderId);
+    User findReceiverByChatIdAndUserId(String chatId, Long senderId);
     Chat findByUserIdAndItemId(Long userId, Long itemId);
     List<Chat> findByUserIdAndItemIdWithDeleted(Long userId, Long itemId);
     List<Tuple> findByItemIdExceptItemOwner(Long itemOwnerId, Long itemId);
