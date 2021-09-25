@@ -15,6 +15,12 @@ public interface PostRepositoryCustom {
     // 포스트 목록 조회 (좋아하는 아이돌 전체)
     List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId);
 
+    // 나눔글 포스트 목록 조회 (좋아하는 아이돌 전체)
+    List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId);
+
     // 포스트 목록 조회 (아이돌 1개)
     List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId);
+
+    // 나눔글 포스트 목록 조회 (아이돌 1개)
+    List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId);
 }

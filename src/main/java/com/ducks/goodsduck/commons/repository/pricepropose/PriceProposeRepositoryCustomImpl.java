@@ -57,6 +57,16 @@ public class PriceProposeRepositoryCustomImpl implements PriceProposeRepositoryC
     }
 
     @Override
+    public List<PricePropose> findAllByUserIdWithAllStatus(Long userId) {
+        return queryFactory
+                .select(pricePropose)
+                .from(pricePropose)
+                .where(pricePropose.user.id.eq(userId))
+                .orderBy(pricePropose.id.desc())
+                .fetch();
+    }
+
+    @Override
     public Long updatePrice(Long userId, Long priceProposeId, int price) {
         return queryFactory.update(pricePropose)
                 .set(pricePropose.price, price)

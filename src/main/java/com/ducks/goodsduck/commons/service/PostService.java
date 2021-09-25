@@ -215,11 +215,6 @@ public class PostService {
         try {
             Post deletePost = postRepository.findById(postId).get();
 
-            // user's post 목록 삭제
-            User user = deletePost.getUser();
-            List<Post> postsOfUser = user.getPosts();
-            postsOfUser.remove(deletePost);
-
             // image 연관 삭제
             List<PostImage> deleteImages = deletePost.getImages();
             postImageRepository.deleteInBatch(deleteImages);
@@ -243,11 +238,6 @@ public class PostService {
             Post deletePost = postRepository.findById(postId)
                     .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                             new Object[]{"Post"}, null)));
-
-            // user's post 목록 삭제
-            User user = deletePost.getUser();
-            List<Post> postsOfUser = user.getPosts();
-            postsOfUser.remove(deletePost);
 
             // image 연관 삭제
             List<PostImage> deleteImages = deletePost.getImages();

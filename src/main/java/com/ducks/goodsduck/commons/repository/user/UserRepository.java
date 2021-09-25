@@ -16,6 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByNickName(String nickName);
     User findByEmail(String email);
 
-    @Query("select u from User u where u.deletedAt is not null")
+    @Query("select u from User u where u.deletedAt is not null and u.phoneNumber is not Null")
     List<User> findAllWithDeleted();
 }

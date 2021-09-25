@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentDto;
 import com.ducks.goodsduck.commons.model.dto.comment.CommentSimpleDto;
@@ -19,6 +20,7 @@ import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.util.FcmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,8 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
+
+    private final MessageSource messageSource;
 
     public Long uploadComment(CommentUploadRequest commentUploadRequest, Long userId) {
 
@@ -188,9 +192,10 @@ public class CommentService {
 
     public List<CommentDto> getCommentsOfPost(Long userId, Long postId) {
 
-        List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
         List<CommentDto> topCommentDtos = new ArrayList<>();
         Map<Long, CommentDto> map = new HashMap<>();
+
+        List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
 
         comments.stream().forEach(comment -> {
             CommentDto commentDto = new CommentDto(comment.getUser(), comment);
@@ -222,9 +227,10 @@ public class CommentService {
 
     public List<CommentSimpleDto> getCommentsOfPostV2(Long userId, Long postId) {
 
-        List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
         List<CommentDto> topCommentDtos = new ArrayList<>();
         Map<Long, CommentDto> map = new HashMap<>();
+
+        List<Comment> comments = commentRepositoryCustom.findAllByPostId(postId);
 
         comments.stream().forEach(comment -> {
             CommentDto commentDto = new CommentDto(comment.getUser(), comment);
@@ -237,17 +243,30 @@ public class CommentService {
                 topCommentDtos.add(commentDto);
             }
 
+            // 댓글작성자 = 로그인유저
             if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
                 commentDto.setIsSecret(false);
                 commentDto.setIsLoginUserComment(true);
             }
 
+            // 댓글수신자 = 로그인유저
             if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
                 commentDto.setIsSecret(false);
             }
 
-            if(commentDto.getWriter().getUserId().equals(comment.getPost().getUser().getId())) {
+            // 댓글수신자 = 포스트주인
+            if(commentDto.getReceiver() == null && comment.getPost().getUser().getId().equals(userId)) {
+                commentDto.setIsSecret(false);
+            }
+
+            // 댓글작성자 = 포스트주인
+            if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(comment.getPost().getUser().getId())) {
                 commentDto.setIsPostOwnerComment(true);
+            }
+
+            // 비밀댓글 체크
+            if(commentDto.getIsSecret()) {
+                commentDto.setContent("비밀 댓글입니다.");
             }
         });
 
@@ -265,6 +284,30 @@ public class CommentService {
             if(commentDto.getChildComments() != null) {
                 convertCommentSimpleDtos(commentDto.getChildComments(), commentSimpleDtos);
             }
+        }
+    }
+
+    public Boolean changeCommentState(Long userId, Long commentId) {
+
+        try {
+            Comment comment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"Comment"}, null)));
+
+            // 댓글 주인이 아닌 경우
+            if(!comment.getUser().getId().equals(userId)) {
+                throw new UnauthorizedException("You don't have authority to delete comment");
+            }
+
+            if(comment.getIsSecret()) {
+                comment.setIsSecret(false);
+            } else {
+                comment.setIsSecret(true);
+            }
+
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

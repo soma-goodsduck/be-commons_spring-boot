@@ -20,6 +20,7 @@ import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.useridolgroup.UserIdolGroupRepository;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepositoryCustom;
 import com.ducks.goodsduck.commons.service.ImageUploadService;
@@ -41,129 +42,122 @@ import java.util.List;
 @Slf4j
 public class Scheduler {
 
-//    private final UserRepository userRepository;
-//    private final ItemRepository itemRepository;
-//    private final ChatRepository chatRepository;
-//    private final UserChatRepository userChatRepository;
-//    private final UserChatRepositoryCustom userChatRepositoryCustom;
-//    private final UserItemRepository userItemRepository;
-//    private final UserItemRepositoryCustom userItemRepositoryCustom;
-//    private final PriceProposeRepository priceProposeRepository;
-//    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
-//    private final ReviewRepositoryCustom reviewRepositoryCustom;
-//    private final ImageRepository imageRepository;
-//    private final ItemImageRepository itemImageRepository;
-//    private final ProfileImageRepository profileImageRepository;
-//
-//    private final ImageUploadService imageUploadService;
-//
-//    @Scheduled(cron = "0 0 0 * * *")
-//    public void itemDelete() {
-//
-//        List<Item> deleteItems = itemRepository.findAllWithDeleted();
-//
-//        for (Item deleteItem : deleteItems) {
-//
-//            // HINT : 30일 지난 후 삭제
-//            if(deleteItem.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
-//
-//                log.info("cron delete item : " + deleteItem.getId());
-//
-//                // user's item 목록 삭제
-//                User user = deleteItem.getUser();
-//                List<Item> itemsOfUser = user.getItems();
-//                itemsOfUser.remove(deleteItem);
-//
-//                // image 연관 삭제
-//                List<ItemImage> deleteImages = deleteItem.getImages();
-//                for (ItemImage deleteImage : deleteImages) {
-//                    imageUploadService.deleteImage(deleteImage, ImageType.ITEM);
-//                }
-//                itemImageRepository.deleteInBatch(deleteImages);
-//
-//                // pricePropose 연관 삭제
-//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(deleteItem.getId());
-//                priceProposeRepository.deleteInBatch(deletePriceProposes);
-//
-//                // userChat 연관 삭제
-//                List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(deleteItem.getId());
-//                userChatRepository.deleteInBatch(deleteUserChats);
-//
-//                // chat 삭제
-//                List<Chat> deleteChats = new ArrayList<>();
-//                for (UserChat deleteUserChat : deleteUserChats) {
-//                    deleteChats.add(deleteUserChat.getChat());
-//                }
-//                chatRepository.deleteInBatch(deleteChats);
-//
-//                // review 연관 삭제
-//                List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(deleteItem.getId());
-//                for (Review deleteItemOfReview : deleteItemOfReviews) {
-//                    deleteItemOfReview.setItem(null);
-//                }
-//
-//                // userItem 연관 삭제
-//                List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(deleteItem.getId());
-//                userItemRepository.deleteInBatch(deleteUserItems);
-//
-//                // item 삭제
-//                itemRepository.delete(deleteItem);
-//            }
-//        }
-//    }
-//
-//    @Scheduled(cron = "*/5 * * * * *")
-//    public void userDelete() {
-//
-//        List<User> deleteUsers = userRepository.findAllWithDeleted();
-////
-////        User user = userRepository.findById(2L).get();
-////
-////        Image image = imageRepository.findByUrl(user.getImageUrl());
-////        imageRepository.delete(image);
-//
-//        for (User deleteUser : deleteUsers) {
-//
-//            // HINT : 30일 지난 후 삭제
-//            if(deleteUser.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
-//
-//                log.info("cron delete user : " + deleteUser.getId());
-//
-//                // image 연관 삭제 (profile)
-//                if(!deleteUser.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
-//                    Image deleteImage = imageRepository.findByUrl(deleteUser.getImageUrl());
-//                    imageUploadService.deleteImage(deleteImage, ImageType.PROFILE);
-//                    imageRepository.delete(deleteImage);
-//                }
-//
-//                // pricePropose 연관 삭제
-//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(deleteUser.getId());
-//                priceProposeRepository.deleteInBatch(deletePriceProposes);
-//
-//                // userChat 연관 삭제
-//                List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(deleteUser.getId());
-//                userChatRepository.deleteInBatch(deleteUserChats);
-//
-//                // chat 삭제
-//                List<Chat> deleteChats = new ArrayList<>();
-//                for (UserChat deleteUserChat : deleteUserChats) {
-//                    deleteChats.add(deleteUserChat.getChat());
-//                }
-//                chatRepository.deleteInBatch(deleteChats);
-//
-//                // review 연관 삭제
-//                List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(deleteUser.getId());
-//                for (Review deleteItemOfReview : deleteItemOfReviews) {
-//                    deleteItemOfReview.setItem(null);
-//                }
-//
-//                // userItem 연관 삭제
-//                List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(deleteUser.getId());
-//                userItemRepository.deleteInBatch(deleteUserItems);
-//
-//                // item 삭제
-//                itemRepository.delete(deleteUser);
-//            }
-//        }
-//    }
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ChatRepository chatRepository;
+    private final UserChatRepository userChatRepository;
+    private final UserChatRepositoryCustom userChatRepositoryCustom;
+    private final UserItemRepository userItemRepository;
+    private final UserItemRepositoryCustom userItemRepositoryCustom;
+    private final PriceProposeRepository priceProposeRepository;
+    private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final ReviewRepositoryCustom reviewRepositoryCustom;
+    private final ImageRepository imageRepository;
+    private final ItemImageRepository itemImageRepository;
+    private final UserIdolGroupRepository userIdolGroupRepository;
+
+    private final ImageUploadService imageUploadService;
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void itemDelete() {
+
+        List<Item> deleteItems = itemRepository.findAllWithDeleted();
+
+        for (Item deleteItem : deleteItems) {
+
+            // HINT : 30일 지난 후 삭제
+            if(deleteItem.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
+
+                log.info("cron delete item : " + deleteItem.getId());
+
+                // image 연관 삭제
+                List<ItemImage> deleteImages = deleteItem.getImages();
+                for (ItemImage deleteImage : deleteImages) {
+                    imageUploadService.deleteImage(deleteImage, ImageType.ITEM);
+                }
+                itemImageRepository.deleteInBatch(deleteImages);
+
+                // pricePropose 연관 삭제
+                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByItemIdWithAllStatus(deleteItem.getId());
+                priceProposeRepository.deleteInBatch(deletePriceProposes);
+
+                // userChat 연관 삭제
+                List<UserChat> deleteUserChats = userChatRepositoryCustom.findByItemId(deleteItem.getId());
+                userChatRepository.deleteInBatch(deleteUserChats);
+
+                // chat 삭제
+                List<Chat> deleteChats = new ArrayList<>();
+                for (UserChat deleteUserChat : deleteUserChats) {
+                    deleteChats.add(deleteUserChat.getChat());
+                }
+                chatRepository.deleteInBatch(deleteChats);
+
+                // review 연관 삭제
+                List<Review> deleteItemOfReviews = reviewRepositoryCustom.findByItemId(deleteItem.getId());
+                for (Review deleteItemOfReview : deleteItemOfReviews) {
+                    deleteItemOfReview.setItem(null);
+                }
+
+                // userItem 연관 삭제
+                List<UserItem> deleteUserItems = userItemRepositoryCustom.findByItemId(deleteItem.getId());
+                userItemRepository.deleteInBatch(deleteUserItems);
+
+                // item 삭제
+                itemRepository.delete(deleteItem);
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void userDelete() {
+
+        List<User> deleteUsers = userRepository.findAllWithDeleted();
+
+        for (User deleteUser : deleteUsers) {
+
+            // HINT : 30일 지난 후 삭제
+            if(deleteUser.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
+
+                log.info("cron delete user : " + deleteUser.getId());
+
+                // image 연관 삭제 (profile)
+                if(!deleteUser.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
+                    Image deleteImage = imageRepository.findByUrl(deleteUser.getImageUrl());
+                    imageUploadService.deleteImage(deleteImage, ImageType.PROFILE);
+                    imageRepository.delete(deleteImage);
+                }
+
+                // pricePropose 연관 삭제
+                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByUserIdWithAllStatus(deleteUser.getId());
+                priceProposeRepository.deleteInBatch(deletePriceProposes);
+
+                // userChat 연관 삭제
+                List<UserChat> deleteUserChats = userChatRepository.findByUserId(deleteUser.getId());
+                userChatRepository.deleteInBatch(deleteUserChats);
+
+                // chat 삭제
+                List<Chat> deleteChats = new ArrayList<>();
+                for (UserChat deleteUserChat : deleteUserChats) {
+                    deleteChats.add(deleteUserChat.getChat());
+                }
+                chatRepository.deleteInBatch(deleteChats);
+
+                // userItem 연관 삭제
+                List<UserItem> deleteUserItems = userItemRepository.findAllByUserId(deleteUser.getId());
+                userItemRepository.deleteInBatch(deleteUserItems);
+
+                // userIdolGroup 연관 삭제
+                List<UserIdolGroup> deleteUserIdolGroups = deleteUser.getUserIdolGroups();
+                userIdolGroupRepository.deleteInBatch(deleteUserIdolGroups);
+
+                // email, password, phone, nickname, image, level 탈퇴한 사용자 정보로 변경
+                deleteUser.setEmail(null);
+                deleteUser.setPhoneNumber(null);
+                deleteUser.setPassword(null);
+                deleteUser.setNickName("탈퇴한 사용자");
+                deleteUser.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
+                deleteUser.setLevel(1);
+            }
+        }
+    }
 }

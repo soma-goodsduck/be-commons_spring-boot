@@ -335,11 +335,6 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"Item"}, null)));
 
-        // user's item 목록 삭제
-        User user = deleteItem.getUser();
-        List<Item> itemsOfUser = user.getItems();
-        itemsOfUser.remove(deleteItem);
-
         // image 연관 삭제
         List<ItemImage> deleteImages = deleteItem.getImages();
         itemImageRepository.deleteInBatch(deleteImages);
@@ -379,11 +374,6 @@ public class ItemService {
         Item deleteItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"Item"}, null)));
-
-        // user's Item 목록 삭제
-        User user = deleteItem.getUser();
-        List<Item> deleteItemsOfUser = user.getItems();
-        deleteItemsOfUser.remove(deleteItem);
 
         // image 연관 삭제
         List<ItemImage> deleteItemImages = deleteItem.getImages();
