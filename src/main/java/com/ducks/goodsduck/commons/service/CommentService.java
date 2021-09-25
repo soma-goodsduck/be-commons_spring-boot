@@ -81,6 +81,9 @@ public class CommentService {
 
     public Long uploadCommentV2(CommentUploadRequest commentUploadRequest, Long userId) {
 
+        System.out.println("################");
+        System.out.println(commentUploadRequest.getIsSecret());
+
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
@@ -268,6 +271,7 @@ public class CommentService {
             if(commentDto.getIsSecret()) {
                 commentDto.setContent("비밀 댓글입니다.");
             }
+            commentDto.setIsSecret(comment.getIsSecret());
         });
 
         List<CommentSimpleDto> commentSimpleDtos = new ArrayList<>();

@@ -3,6 +3,8 @@ package com.ducks.goodsduck.commons.repository.comment;
 import com.ducks.goodsduck.commons.model.entity.Comment;
 import com.ducks.goodsduck.commons.model.entity.QComment;
 import com.ducks.goodsduck.commons.model.entity.QPost;
+import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +30,24 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .from(comment)
                 .where(comment.post.id.eq(postId))
                 .orderBy(comment.parentComment.id.asc().nullsFirst(), comment.id.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<Comment> findByUserId(Long userId, Long commentId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(commentId != 0) {
+            builder.and(comment.id.lt(commentId));
+        }
+
+        return queryFactory
+                .select(comment)
+                .from(comment)
+                .where(builder.and(comment.user.id.eq(userId)))
+                .orderBy(comment.id.desc())
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }
 }
