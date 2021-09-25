@@ -76,7 +76,7 @@ public class NotificationResponse {
             body,
             messageUri,
             iconUri,
-            LEVEL_UP
+            type
         );
     }
 

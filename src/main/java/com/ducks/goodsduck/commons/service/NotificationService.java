@@ -249,7 +249,7 @@ public class NotificationService {
                     .putData("chatRoomId", chatMessageRequest.getChatRoomId())
                     .build();
 
-            log.debug("firebase message is : " + message);
+            log.debug("FCM message is : " + message.toString());
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
@@ -286,6 +286,7 @@ public class NotificationService {
     private MulticastMessage.Builder getMulticastMessage(Notification notification, List<String> registrationTokens) {
         var notificationResponse = new NotificationResponse(notification);
         var notificationMessage = notificationResponse.getMessage();
+        final String DOMAIN_ADDRESS = "https://goods-duck.com/";
 
         return MulticastMessage.builder()
                 .setNotification(builder()
@@ -299,7 +300,7 @@ public class NotificationService {
                                 .setColor("#ffce00")
                                 .setBody(notificationMessage.getMessageBody())
                                 .setIcon("ic_notification")
-                                .setClickAction(notificationMessage.getMessageUri())
+                                .setClickAction(DOMAIN_ADDRESS.concat(notificationMessage.getMessageUri()))
                                 .setImage(notification.getSenderImageUrl())
                                 .build())
                         .build())

@@ -12,6 +12,8 @@ import static com.google.firebase.messaging.Notification.builder;
 @Slf4j
 public class FcmUtil {
     public static void sendMessage(NotificationMessage notificationMessage, List<String> registrationTokens) {
+        final String DOMAIN_ADDRESS = "https://goods-duck.com/";
+
         try {
             // HINT: 알림 Message 구성
             MulticastMessage message = MulticastMessage.builder()
@@ -25,7 +27,7 @@ public class FcmUtil {
                                     .setColor("#ffce00")
                                     .setBody(notificationMessage.getMessageBody())
                                     .setIcon("ic_notification")
-                                    .setClickAction(notificationMessage.getMessageUri())
+                                    .setClickAction(DOMAIN_ADDRESS.concat(notificationMessage.getMessageUri()))
                                     .build())
                             .build())
                     .setWebpushConfig(WebpushConfig.builder()
@@ -41,7 +43,7 @@ public class FcmUtil {
                     .putData("clickAction", notificationMessage.getMessageUri())
                     .build();
 
-            log.debug("firebase message is : " + message);
+            log.debug("FCM message is : " + message.toString());
 
             // HINT: 파이어베이스에 Cloud Messaging 요청
             requestCloudMessagingToFirebase(registrationTokens, message);
