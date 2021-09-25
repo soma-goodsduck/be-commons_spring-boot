@@ -1,9 +1,6 @@
 package com.ducks.goodsduck.commons.repository.post;
 
-import com.ducks.goodsduck.commons.model.entity.QIdolGroup;
-import com.ducks.goodsduck.commons.model.entity.QPost;
-import com.ducks.goodsduck.commons.model.entity.QUserPost;
-import com.ducks.goodsduck.commons.model.entity.UserIdolGroup;
+import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.category.QCategory;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.BooleanBuilder;
@@ -59,7 +56,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder)
                 .orderBy(post.id.desc())
-                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
@@ -82,7 +79,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(post.postCategory.name.eq("나눔글")))
                 .orderBy(post.id.desc())
-                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
@@ -101,7 +98,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(post.idolGroup.id.eq(idolGroupId).and(builder))
                 .orderBy(post.id.desc())
-                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }
 
@@ -120,7 +117,44 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(post.idolGroup.id.eq(idolGroupId).and(builder).and(post.postCategory.name.eq("나눔글")))
                 .orderBy(post.id.desc())
-                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findByUserId(Long userId, Long postId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(postId != 0) {
+            builder.and(post.id.lt(postId));
+        }
+
+        return queryFactory
+                .select(post)
+                .from(post)
+                .where(builder.and(post.user.id.eq(userId)))
+                .orderBy(post.id.desc())
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findAllWithUserPost(Long userId, Long postId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(postId != 0) {
+            builder.and(post.id.lt(postId));
+        }
+
+        return queryFactory
+                .select(post)
+                .from(post)
+                .innerJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
+                .where(builder)
+                .orderBy(post.id.desc())
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }
 }

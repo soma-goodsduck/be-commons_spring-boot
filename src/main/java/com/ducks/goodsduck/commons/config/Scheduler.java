@@ -14,6 +14,7 @@ import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ProfileImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
@@ -55,6 +56,7 @@ public class Scheduler {
     private final ImageRepository imageRepository;
     private final ItemImageRepository itemImageRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
+    private final UserPostRepository userPostRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -149,6 +151,10 @@ public class Scheduler {
                 // userIdolGroup 연관 삭제
                 List<UserIdolGroup> deleteUserIdolGroups = deleteUser.getUserIdolGroups();
                 userIdolGroupRepository.deleteInBatch(deleteUserIdolGroups);
+                
+                // userPost 연관 삭제
+                List<UserPost> deleteUserPosts = userPostRepository.findAllByUserId(deleteUser.getId());
+                userPostRepository.deleteInBatch(deleteUserPosts);
 
                 // email, password, phone, nickname, image, level 탈퇴한 사용자 정보로 변경
                 deleteUser.setEmail(null);

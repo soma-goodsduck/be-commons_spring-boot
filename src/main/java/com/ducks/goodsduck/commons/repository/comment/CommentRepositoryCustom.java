@@ -9,4 +9,7 @@ import java.util.List;
 public interface CommentRepositoryCustom {
 
     List<Comment> findAllByPostId(Long postId);
+    
+    // 내가 작성한 댓글 목록 조회
+    List<Comment> findByUserId(Long userId, Long commentId);
 }
