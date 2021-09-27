@@ -133,7 +133,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return queryFactory
                 .select(post)
                 .from(post)
-                .where(builder.and(post.user.id.eq(userId)))
+                .where(builder.and(post.user.id.eq(userId)).and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
@@ -152,7 +152,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .select(post)
                 .from(post)
                 .innerJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
-                .where(builder)
+                .where(builder.and(userPost.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();

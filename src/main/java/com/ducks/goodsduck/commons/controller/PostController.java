@@ -74,7 +74,7 @@ public class PostController {
     @ApiOperation("포스트 삭제 V2 API")
     @DeleteMapping("/v2/posts/{postId}")
     public ApiResult<Long> deletePostV2(@PathVariable("postId") Long postId) {
-        return OK(postService.delete(postId));
+        return OK(postService.deleteV2(postId));
     }
 
     @ApiOperation("특정 포스트 좋아요 요청 API")

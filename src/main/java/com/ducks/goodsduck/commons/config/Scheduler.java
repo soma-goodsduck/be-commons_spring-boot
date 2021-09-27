@@ -3,6 +3,7 @@ package com.ducks.goodsduck.commons.config;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
+import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
@@ -14,6 +15,7 @@ import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ProfileImageRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
@@ -57,6 +59,7 @@ public class Scheduler {
     private final ItemImageRepository itemImageRepository;
     private final UserIdolGroupRepository userIdolGroupRepository;
     private final UserPostRepository userPostRepository;
+    private final PostRepository postRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -163,6 +166,52 @@ public class Scheduler {
                 deleteUser.setNickName("탈퇴한 사용자");
                 deleteUser.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
                 deleteUser.setLevel(1);
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void postDelete() {
+
+        List<Post> deletePosts = postRepository.findAllWithDeleted();
+
+        for (Post deletePost : deletePosts) {
+
+            // HINT : 30일 지난 후 삭제
+            if(deletePost.getDeletedAt().plusDays(30).isBefore(LocalDateTime.now())) {
+
+                log.info("cron delete post : " + deletePost.getId());
+
+                // image 연관 삭제
+//                List<Image> deleteImages = (List<Image>)deletePost.getImages();
+//                for (PostImage deleteImage : deleteImages) {
+//                    imageUploadService.deleteImage(deleteImage, ImageType.POST);
+//                }
+//                postImageRepository.deleteInBatch(deleteImages);
+
+
+
+//                if(!deletePost.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
+//                    Image deleteImage = imageRepository.findByUrl(deleteUser.getImageUrl());
+//                    imageUploadService.deleteImage(deleteImage, ImageType.PROFILE);
+//                    imageRepository.delete(deleteImage);
+//                }
+
+                // pricePropose 연관 삭제
+//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByUserIdWithAllStatus(deleteUser.getId());
+//                priceProposeRepository.deleteInBatch(deletePriceProposes);
+//
+//                // userChat 연관 삭제
+//                List<UserChat> deleteUserChats = userChatRepository.findByUserId(deleteUser.getId());
+//                userChatRepository.deleteInBatch(deleteUserChats);
+//
+//                // chat 삭제
+//                List<Chat> deleteChats = new ArrayList<>();
+//                for (UserChat deleteUserChat : deleteUserChats) {
+//                    deleteChats.add(deleteUserChat.getChat());
+//                }
+//                chatRepository.deleteInBatch(deleteChats);
+
             }
         }
     }

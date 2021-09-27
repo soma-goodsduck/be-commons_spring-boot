@@ -62,7 +62,7 @@ public class CommunityController {
     @GetMapping("/v1/community/free-market/filter")
     @ApiOperation("무료나눔장터 포스트 목록 조회 + 특정 아이돌 그룹 필터링 API (회원)")
     public ApiResult<HomeResponse<PostDetailResponse>> getFreeMarket(@RequestParam("postId") Long postId,
-                                                                     @RequestParam("idolGroupId") Long idolGroupId,
+                                                                     @RequestParam("idolGroup") Long idolGroupId,
                                                                      HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(communityService.getFreePostListFilterByIdolGroup(userId, idolGroupId, postId));

@@ -34,6 +34,16 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     }
 
     @Override
+    public List<Comment> findTopCommentsByPostId(Long postId) {
+        return queryFactory
+                .select(comment)
+                .from(comment)
+                .where(comment.post.id.eq(postId).and(comment.receiveCommentId.isNull()))
+                .orderBy(comment.createdAt.asc())
+                .fetch();
+    }
+
+    @Override
     public List<Comment> findByUserId(Long userId, Long commentId) {
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -45,7 +55,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         return queryFactory
                 .select(comment)
                 .from(comment)
-                .where(builder.and(comment.user.id.eq(userId)))
+                .where(builder.and(comment.user.id.eq(userId)).and(comment.deletedAt.isNull()))
                 .orderBy(comment.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
