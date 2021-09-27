@@ -2,10 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
-import com.ducks.goodsduck.commons.model.dto.comment.CommentDto;
-import com.ducks.goodsduck.commons.model.dto.comment.CommentSimpleDto;
-import com.ducks.goodsduck.commons.model.dto.comment.CommentUpdateRequest;
-import com.ducks.goodsduck.commons.model.dto.comment.CommentUploadRequest;
+import com.ducks.goodsduck.commons.model.dto.comment.*;
 import com.ducks.goodsduck.commons.model.dto.notification.NotificationMessage;
 import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import com.ducks.goodsduck.commons.model.entity.Comment;
@@ -25,10 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -81,9 +80,6 @@ public class CommentService {
 
     public Long uploadCommentV2(CommentUploadRequest commentUploadRequest, Long userId) {
 
-        System.out.println("################");
-        System.out.println(commentUploadRequest.getIsSecret());
-
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
@@ -99,6 +95,45 @@ public class CommentService {
 
             if(parentComment != null) {
                 parentComment.getChildComments().add(comment);
+            }
+
+            post.increaseCommentCount();
+            commentRepository.save(comment);
+
+            if (user.gainExpByType(ActivityType.COMMENT) >= 100){
+                if (user.getLevel() == null) user.setLevel(1);
+                user.levelUp();
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
+
+            return comment.getId();
+        } catch (Exception e) {
+            return -1L;
+        }
+    }
+
+    public Long uploadCommentV3(CommentUploadRequestV2 commentUploadRequest, Long userId) {
+
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NoResultException("Not Find User in CommentService.uploadComment"));
+
+            Post post = postRepository.findById(commentUploadRequest.getPostId())
+                    .orElseThrow(() -> new NoResultException("Not Find Post in CommentService.uploadComment"));
+
+            Comment receiveComment = commentUploadRequest.getReceiveCommentId() != 0 ?
+                    commentRepository.findById(commentUploadRequest.getReceiveCommentId())
+                            .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
+
+            Comment comment = new Comment(user, post, receiveComment, commentUploadRequest);
+
+            if(receiveComment != null && receiveComment.getParentComment() == null) {
+                receiveComment.getChildComments().add(comment);
+                comment.setParentComment(receiveComment);
+            } else if(receiveComment != null && receiveComment.getParentComment() != null) {
+                receiveComment.getParentComment().getChildComments().add(comment);
+                comment.setParentComment(receiveComment.getParentComment());
             }
 
             post.increaseCommentCount();
@@ -173,7 +208,7 @@ public class CommentService {
             }
 
             post.decreaseCommentCount();
-            commentRepository.delete(deleteComment);
+            deleteComment.setDeletedAt(LocalDateTime.now());
 
             return 1L;
         } catch (Exception e) {
@@ -277,6 +312,75 @@ public class CommentService {
         List<CommentSimpleDto> commentSimpleDtos = new ArrayList<>();
         convertCommentSimpleDtos(topCommentDtos, commentSimpleDtos);
         return commentSimpleDtos;
+    }
+
+    public List<CommentDto> getCommentsOfPostV3(Long userId, Long postId) {
+
+        return commentRepositoryCustom.findTopCommentsByPostId(postId)
+                .stream()
+//                .filter(comment -> comment.getDeletedAt() == null)
+                .map(comment -> {
+
+                    CommentDto topCommentDto = new CommentDto(comment.getUser(), comment);
+                    List<Comment> childComments = comment.getChildComments();
+
+                    // 삭제댓글 체크
+                    if(comment.getDeletedAt() != null) {
+                        topCommentDto.setContent("삭제된 댓글입니다.");
+                    }
+
+                    // 대댓글 체크
+                    for (Comment childComment : childComments) {
+
+                        if(childComment.getDeletedAt() == null) {
+                            CommentDto childCommentDto = new CommentDto(childComment.getUser(), childComment);
+                            Comment receiveComment = commentRepository.findById(childComment.getReceiveCommentId()).get();
+                            childCommentDto.setReceiver(new UserSimpleDto(receiveComment.getUser()));
+
+                            // 비밀댓글 체크
+                            checkSecretComment(userId, childComment, childCommentDto);
+
+                            // 댓글의 자식으로 대댓글 삽입
+                            topCommentDto.getChildComments().add(childCommentDto);
+                        }
+                    }
+
+                    // 비밀댓글 체크
+                    checkSecretComment(userId, comment, topCommentDto);
+
+                    return topCommentDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private void checkSecretComment(Long userId, Comment comment, CommentDto commentDto) {
+
+        // 댓글작성자 = 로그인유저
+        if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(userId)) {
+            commentDto.setIsSecret(false);
+            commentDto.setIsLoginUserComment(true);
+        }
+
+        // 댓글수신자 = 로그인유저
+        if(commentDto.getReceiver() != null && commentDto.getReceiver().getUserId().equals(userId)) {
+            commentDto.setIsSecret(false);
+        }
+
+        // 댓글수신자 = 포스트주인
+        if(commentDto.getReceiver() == null && comment.getPost().getUser().getId().equals(userId)) {
+            commentDto.setIsSecret(false);
+        }
+
+        // 댓글작성자 = 포스트주인
+        if(commentDto.getWriter() != null && commentDto.getWriter().getUserId().equals(comment.getPost().getUser().getId())) {
+            commentDto.setIsPostOwnerComment(true);
+        }
+
+        // 비밀댓글 체크
+        if(commentDto.getIsSecret()) {
+            commentDto.setContent("비밀 댓글입니다.");
+        }
+        commentDto.setIsSecret(comment.getIsSecret());
     }
 
     private void convertCommentSimpleDtos(List<CommentDto> commentDtos, List<CommentSimpleDto> commentSimpleDtos) {

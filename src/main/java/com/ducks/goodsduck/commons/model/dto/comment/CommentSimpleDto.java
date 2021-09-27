@@ -4,6 +4,8 @@ import com.ducks.goodsduck.commons.model.dto.user.UserSimpleDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class CommentSimpleDto {

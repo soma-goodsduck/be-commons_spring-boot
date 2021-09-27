@@ -9,7 +9,7 @@ public class PropertyUtil {
     public static final String SUBJECT_OF_JWT = "For Member-Checking";
     public static final String KEY_OF_USERID_IN_JWT_PAYLOADS = "userId";
     public static final Integer PAGEABLE_SIZE = 20;
-    public static final Integer POST_PAGEABLE_SIZE = 3;
+    public static final Integer POST_PAGEABLE_SIZE = 10;
     public static final String BASIC_IMAGE_URL = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
 
     public static String getProperty(String propertyName) {
