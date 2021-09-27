@@ -9,10 +9,7 @@ import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
-import com.ducks.goodsduck.commons.repository.image.ImageRepository;
-import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
-import com.ducks.goodsduck.commons.repository.image.ItemImageRepository;
-import com.ducks.goodsduck.commons.repository.image.ProfileImageRepository;
+import com.ducks.goodsduck.commons.repository.image.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
@@ -60,6 +57,7 @@ public class Scheduler {
     private final UserIdolGroupRepository userIdolGroupRepository;
     private final UserPostRepository userPostRepository;
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
 
     private final ImageUploadService imageUploadService;
 
@@ -183,35 +181,18 @@ public class Scheduler {
                 log.info("cron delete post : " + deletePost.getId());
 
                 // image 연관 삭제
-//                List<Image> deleteImages = (List<Image>)deletePost.getImages();
-//                for (PostImage deleteImage : deleteImages) {
-//                    imageUploadService.deleteImage(deleteImage, ImageType.POST);
-//                }
-//                postImageRepository.deleteInBatch(deleteImages);
+                List<PostImage> deleteImages = deletePost.getImages();
+                for (PostImage deleteImage : deleteImages) {
+                    imageUploadService.deleteImage(deleteImage, ImageType.POST);
+                }
+                postImageRepository.deleteInBatch(deleteImages);
 
+                // userPost 연관 삭제
+                List<UserPost> deleteUserPosts = userPostRepository.findAllByPostId(deletePost.getId());
+                userPostRepository.deleteInBatch(deleteUserPosts);
 
-
-//                if(!deletePost.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
-//                    Image deleteImage = imageRepository.findByUrl(deleteUser.getImageUrl());
-//                    imageUploadService.deleteImage(deleteImage, ImageType.PROFILE);
-//                    imageRepository.delete(deleteImage);
-//                }
-
-                // pricePropose 연관 삭제
-//                List<PricePropose> deletePriceProposes = priceProposeRepositoryCustom.findAllByUserIdWithAllStatus(deleteUser.getId());
-//                priceProposeRepository.deleteInBatch(deletePriceProposes);
-//
-//                // userChat 연관 삭제
-//                List<UserChat> deleteUserChats = userChatRepository.findByUserId(deleteUser.getId());
-//                userChatRepository.deleteInBatch(deleteUserChats);
-//
-//                // chat 삭제
-//                List<Chat> deleteChats = new ArrayList<>();
-//                for (UserChat deleteUserChat : deleteUserChats) {
-//                    deleteChats.add(deleteUserChat.getChat());
-//                }
-//                chatRepository.deleteInBatch(deleteChats);
-
+                // post 삭제
+                postRepository.delete(deletePost);
             }
         }
     }

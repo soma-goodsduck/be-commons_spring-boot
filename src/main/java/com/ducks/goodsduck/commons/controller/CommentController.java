@@ -92,6 +92,13 @@ public class CommentController {
         return OK(commentService.getCommentsOfPostV3(userId, postId));
     }
 
+    @ApiOperation(value = "관련 포스트의 댓글 목록 조회 API V4")
+    @GetMapping("/v4/comments/{postId}")
+    public ApiResult<List<CommentSimpleDto>> showCommentsOfPostV4(@PathVariable("postId") Long postId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(commentService.getCommentsOfPostV4(userId, postId));
+    }
+
     @ApiOperation(value = "일반댓글 <-> 비밀댓글 변경 API")
     @GetMapping("/v1/comments/{commentId}/change-state")
     public ApiResult<Boolean> changeCommentState(@PathVariable("commentId") Long commentId, HttpServletRequest request) {

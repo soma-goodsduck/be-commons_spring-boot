@@ -353,6 +353,49 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    public List<CommentSimpleDto> getCommentsOfPostV4(Long userId, Long postId) {
+
+        List<CommentDto> topCommentDtos = commentRepositoryCustom.findTopCommentsByPostId(postId)
+                .stream()
+//                .filter(comment -> comment.getDeletedAt() == null)
+                .map(comment -> {
+
+                    CommentDto topCommentDto = new CommentDto(comment.getUser(), comment);
+                    List<Comment> childComments = comment.getChildComments();
+
+                    // 삭제댓글 체크
+                    if (comment.getDeletedAt() != null) {
+                        topCommentDto.setContent("삭제된 댓글입니다.");
+                    }
+
+                    // 대댓글 체크
+                    for (Comment childComment : childComments) {
+
+                        if(childComment.getDeletedAt() == null) {
+                            CommentDto childCommentDto = new CommentDto(childComment.getUser(), childComment);
+                            Comment receiveComment = commentRepository.findById(childComment.getReceiveCommentId()).get();
+                            childCommentDto.setReceiver(new UserSimpleDto(receiveComment.getUser()));
+
+                            // 비밀댓글 체크
+                            checkSecretComment(userId, childComment, childCommentDto);
+
+                            // 댓글의 자식으로 대댓글 삽입
+                            topCommentDto.getChildComments().add(childCommentDto);
+                        }
+                    }
+
+                    // 비밀댓글 체크
+                    checkSecretComment(userId, comment, topCommentDto);
+
+                    return topCommentDto;
+                })
+                .collect(Collectors.toList());
+
+        List<CommentSimpleDto> commentSimpleDtos = new ArrayList<>();
+        convertCommentSimpleDtos(topCommentDtos, commentSimpleDtos);
+        return commentSimpleDtos;
+    }
+
     private void checkSecretComment(Long userId, Comment comment, CommentDto commentDto) {
 
         // 댓글작성자 = 로그인유저
