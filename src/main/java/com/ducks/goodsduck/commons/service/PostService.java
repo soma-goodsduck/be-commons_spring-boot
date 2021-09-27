@@ -10,7 +10,6 @@ import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Image.Image;
-import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.entity.category.PostCategory;
 import com.ducks.goodsduck.commons.model.enums.ActivityType;
@@ -220,7 +219,7 @@ public class PostService {
             postImageRepository.deleteInBatch(deleteImages);
 
             // userPost 연관 삭제
-            List<UserPost> deleteUserPosts = userPostRepository.findByPostId(postId);
+            List<UserPost> deleteUserPosts = userPostRepository.findAllByPostId(postId);
             userPostRepository.deleteInBatch(deleteUserPosts);
 
             // post 삭제
@@ -246,7 +245,7 @@ public class PostService {
             }
 
             // userPost 연관 삭제
-            List<UserPost> deleteUserPosts = userPostRepository.findByPostId(postId);
+            List<UserPost> deleteUserPosts = userPostRepository.findAllByPostId(postId);
             for (UserPost deleteUserPost : deleteUserPosts) {
                 deleteUserPost.setDeletedAt(LocalDateTime.now());
             }
