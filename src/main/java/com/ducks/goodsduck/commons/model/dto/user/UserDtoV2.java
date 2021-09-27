@@ -17,6 +17,7 @@ public class UserDtoV2 {
 
     private Boolean emailSuccess;
     private Boolean passwordSuccess;
+    private Long userId;
     private String bcryptId;
     private String nickName;
     private String phoneNumber;
@@ -39,6 +40,7 @@ public class UserDtoV2 {
     public UserDtoV2(User user) {
         this.nickName = user.getNickName();
         this.phoneNumber = user.getPhoneNumber();
+        this.userId = user.getId();
         this.email = user.getEmail();
         this.imageUrl = user.getImageUrl();
         this.role = user.getRole();
