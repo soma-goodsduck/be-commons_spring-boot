@@ -34,7 +34,7 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
-    private LocalDateTime lastVotedAt;
+    private Long votedIdolGroupId;
     private LocalDateTime deletedAt;
     private Boolean marketingAgree;
 
@@ -61,6 +61,7 @@ public class User {
         this.exp = 0;
         this.reportCount = 0;
         this.bcryptId = createBcryptId();
+        this.votedIdolGroupId = 0L;
     }
 
     public String createBcryptId() {
@@ -83,8 +84,9 @@ public class User {
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
     }
-    public void updateLastVotedAt() {
-        this.lastVotedAt = LocalDateTime.now();
+
+    public void vote(Long idolGroupId) {
+        this.votedIdolGroupId = idolGroupId;
     }
 
 //    public void gainExp(int exp) {

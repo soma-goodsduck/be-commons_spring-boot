@@ -381,6 +381,13 @@ public class UserController {
         return OK(accountService.editAccount(userId, accountDto));
     }
 
+    @GetMapping("/v1/users/vote")
+    @ApiOperation(value = "유저의 최근 투표 정보 조회 API", notes = "유저가 최근에 투표한 아이돌 그룹, 다음 투표가 가능한 날짜/시간 반환")
+    public ApiResult<UserVoteResponse> getVoteInfoByUser(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.findVoteInfoByUser(userId));
+    }
+
     @NoCheckJwt
     @GetMapping("/v1/users")
     @ApiOperation("(개발용) 모든 유저 정보 조회 API")

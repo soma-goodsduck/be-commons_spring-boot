@@ -5,19 +5,16 @@ import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.Image.PostImage;
 import com.ducks.goodsduck.commons.model.enums.ImageType;
-import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
-import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
-import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.image.*;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
-import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.post.PostRepository;
 import com.ducks.goodsduck.commons.repository.post.UserPostRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.review.ReviewRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.ducks.goodsduck.commons.repository.user.UserRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepository;
 import com.ducks.goodsduck.commons.repository.userchat.UserChatRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.useridolgroup.UserIdolGroupRepository;
@@ -27,7 +24,6 @@ import com.ducks.goodsduck.commons.service.ImageUploadService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +39,7 @@ import java.util.List;
 public class Scheduler {
 
     private final UserRepository userRepository;
+    private final UserRepositoryCustom userRepositoryCustom;
     private final ItemRepository itemRepository;
     private final ChatRepository chatRepository;
     private final UserChatRepository userChatRepository;
@@ -58,7 +55,6 @@ public class Scheduler {
     private final UserPostRepository userPostRepository;
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-
     private final ImageUploadService imageUploadService;
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -195,5 +191,11 @@ public class Scheduler {
                 postRepository.delete(deletePost);
             }
         }
+    }
+
+    // HINT: 자정 마다 투표했던 아이돌 그룹 ID를 0으로 초기화 (클라이언트에서 ID 유무로 투표 참여 여부 체크)
+    @Scheduled(cron = "0 0 0 * * *")
+    public void initializeVoteInfo() {
+        userRepositoryCustom.initializeVotedIdolGroupIdAll();
     }
 }

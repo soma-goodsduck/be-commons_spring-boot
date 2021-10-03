@@ -580,4 +580,14 @@ public class UserService {
 
         return userDto;
     }
+
+    public UserVoteResponse findVoteInfoByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        Long votedIdolGroupId = user.getVotedIdolGroupId();
+        if (votedIdolGroupId == null) return new UserVoteResponse(0L);
+        return new UserVoteResponse(votedIdolGroupId);
+    }
 }
