@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.category.ReportCategoryResponse;
@@ -32,6 +33,7 @@ public class CategoryController {
     private final ReportService reportService;
     private final CommunityService communityService;
 
+    @NoCheckJwt
     @ApiOperation(value = "아이템 카테고리 불러오기 (회원)")
     @GetMapping("/v1/items/category")
     public ApiResult<List<CategoryResponse>> getItemCategory() {

@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -490,7 +491,7 @@ public class ImageUploadService {
 
     @Order(1)
     @EventListener
-    public void setIfLocal(ApplicationPreparedEvent event) {
+    public void setIfLocal(ApplicationReadyEvent event) {
         if (jsonOfAwsSecrets.isEmpty()) {
             localFilePath = PropertyUtil.getProperty("spring.file.path.local");
             itemS3Bucket = PropertyUtil.getProperty("cloud.aws.s3.itemBucket");

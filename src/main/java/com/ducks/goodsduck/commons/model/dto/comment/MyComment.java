@@ -12,11 +12,13 @@ public class MyComment {
     private String content;
     private LocalDateTime createdAt;
     private Long postId;
+    private String idolGroupName;
 
     public MyComment(Comment comment) {
         this.commentId = comment.getId();
         this.content = comment.getContent();
         this.createdAt = comment.getCreatedAt();
         this.postId = comment.getPost().getId();
+        this.idolGroupName = comment.getPost().getIdolGroup().getName();
     }
 }
