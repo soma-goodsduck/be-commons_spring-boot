@@ -58,7 +58,7 @@ public class IdolGroupService {
         if (user.getLastVotedAt() != null && user.getLastVotedAt().plusDays(1L).isAfter(LocalDateTime.now())) return false;
 
         idolGroupVoteRedisTemplate.addCountByIdolGroupId(idolGroupId);
-        user.updateLastVotedAt();
+        user.vote(idolGroupId);
         return true;
     }
 

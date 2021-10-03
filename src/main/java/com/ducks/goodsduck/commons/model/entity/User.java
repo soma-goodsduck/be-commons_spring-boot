@@ -35,6 +35,7 @@ public class User {
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
     private LocalDateTime lastVotedAt;
+    private Long votedIdolGroupId;
     private LocalDateTime deletedAt;
     private Boolean marketingAgree;
 
@@ -84,6 +85,11 @@ public class User {
         this.lastLoginAt = LocalDateTime.now();
     }
     public void updateLastVotedAt() {
+        this.lastVotedAt = LocalDateTime.now();
+    }
+
+    public void vote(Long idolGroupId) {
+        this.votedIdolGroupId = idolGroupId;
         this.lastVotedAt = LocalDateTime.now();
     }
 
