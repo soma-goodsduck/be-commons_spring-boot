@@ -23,6 +23,15 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         return queryFactory
                 .update(user)
                 .set(user.role, role)
+                .where(user.id.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public Long initializeVotedIdolGroupIdAll() {
+        return queryFactory
+                .update(user)
+                .set(user.votedIdolGroupId, 0L)
                 .execute();
     }
 }

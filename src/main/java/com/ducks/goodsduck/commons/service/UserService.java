@@ -587,10 +587,7 @@ public class UserService {
                         new Object[]{"User"}, null)));
 
         Long votedIdolGroupId = user.getVotedIdolGroupId();
-        LocalDateTime lastVotedAt = user.getLastVotedAt();
-        if (lastVotedAt == null) {
-            lastVotedAt = LocalDateTime.now();
-        }
-        return new UserVoteResponse(votedIdolGroupId, lastVotedAt.plusDays(1L));
+        if (votedIdolGroupId == null) return new UserVoteResponse(0L);
+        return new UserVoteResponse(votedIdolGroupId);
     }
 }

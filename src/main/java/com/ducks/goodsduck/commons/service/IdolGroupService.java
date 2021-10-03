@@ -55,8 +55,6 @@ public class IdolGroupService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
 
-        if (user.getLastVotedAt() != null && user.getLastVotedAt().plusDays(1L).isAfter(LocalDateTime.now())) return false;
-
         idolGroupVoteRedisTemplate.addCountByIdolGroupId(idolGroupId);
         user.vote(idolGroupId);
         return true;

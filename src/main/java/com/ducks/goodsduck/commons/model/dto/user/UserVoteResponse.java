@@ -9,5 +9,4 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserVoteResponse {
     private Long votedIdolGroupId;
-    private LocalDateTime nextVoteAt;
 }
