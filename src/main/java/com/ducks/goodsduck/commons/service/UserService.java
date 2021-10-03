@@ -585,6 +585,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
-        return new UserVoteResponse(user.getVotedIdolGroupId(), user.getLastVotedAt().plusDays(1L));
+
+        Long votedIdolGroupId = user.getVotedIdolGroupId();
+        LocalDateTime lastVotedAt = user.getLastVotedAt();
+        if (lastVotedAt == null) {
+            lastVotedAt = LocalDateTime.now();
+        }
+        return new UserVoteResponse(votedIdolGroupId, lastVotedAt.plusDays(1L));
     }
 }
