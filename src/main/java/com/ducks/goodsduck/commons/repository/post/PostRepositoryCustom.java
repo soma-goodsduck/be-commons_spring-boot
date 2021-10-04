@@ -26,8 +26,8 @@ public interface PostRepositoryCustom {
     List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId);
 
     // 내가 작성한 포스트 목록 조회
-    List<Post> findByUserId(Long userId, Long postId);
+    List<Tuple> findByUserId(Long userId, Long postId);
     
     // 좋아요한 포스트 목록 조회
-    List<Post> findAllWithUserPost(Long userId, Long postId);
+    List<Tuple> findAllWithUserPost(Long userId, Long postId);
 }

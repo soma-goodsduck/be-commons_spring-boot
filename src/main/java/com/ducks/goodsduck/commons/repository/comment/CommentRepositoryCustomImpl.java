@@ -1,10 +1,12 @@
 package com.ducks.goodsduck.commons.repository.comment;
 
 import com.ducks.goodsduck.commons.model.entity.Comment;
+import com.ducks.goodsduck.commons.model.entity.Post;
 import com.ducks.goodsduck.commons.model.entity.QComment;
 import com.ducks.goodsduck.commons.model.entity.QPost;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static com.ducks.goodsduck.commons.model.entity.QComment.comment;
 import static com.ducks.goodsduck.commons.model.entity.QPost.post;
+import static com.ducks.goodsduck.commons.model.entity.QUserPost.userPost;
 
 @Repository
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
@@ -57,6 +60,25 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .from(comment)
                 .where(builder.and(comment.user.id.eq(userId)).and(comment.deletedAt.isNull()))
                 .orderBy(comment.id.desc())
+                .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findByUserIdV2(Long userId, Long postId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(postId != 0) {
+            builder.and(comment.post.id.lt(postId));
+        }
+
+        return queryFactory
+                .select(comment.post, userPost).distinct()
+                .from(comment)
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(comment.post.id))
+                .where(builder.and(comment.deletedAt.isNull()).and(comment.user.id.eq(userId)))
+                .orderBy(comment.post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
     }

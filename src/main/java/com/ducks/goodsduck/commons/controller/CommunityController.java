@@ -33,21 +33,28 @@ public class CommunityController {
 
     @GetMapping("/v1/users/posts")
     @ApiOperation("내가 작성한 포스트 보기 (회원)")
-    public ApiResult<HomeResponse> getMyPost(@RequestParam("postId") Long postId, HttpServletRequest request) {
+    public ApiResult<HomeResponse<PostDetailResponse>> getMyPost(@RequestParam("postId") Long postId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(communityService.getMyPost(userId, postId));
     }
 
     @GetMapping("/v1/users/comments")
     @ApiOperation("내가 작성한 댓글 보기 (회원)")
-    public ApiResult<HomeResponse> getMyComment(@RequestParam("commentId") Long commentId, HttpServletRequest request) {
+    public ApiResult<HomeResponse<PostDetailResponse>> getMyComment(@RequestParam("commentId") Long commentId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(communityService.getMyComment(userId, commentId));
     }
 
+    @GetMapping("/v2/users/comments")
+    @ApiOperation("내가 작성한 댓글 보기 V2 (회원)")
+    public ApiResult<HomeResponse<PostDetailResponse>> getMyCommentV2(@RequestParam("postId") Long postId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(communityService.getMyCommentV2(userId, postId));
+    }
+
     @GetMapping("/v1/users/like-posts")
     @ApiOperation("내가 좋아요한 포스트 보기 (회원)")
-    public ApiResult<HomeResponse> getMyLikePost(@RequestParam("postId") Long postId, HttpServletRequest request) {
+    public ApiResult<HomeResponse<PostDetailResponse>> getMyLikePost(@RequestParam("postId") Long postId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(communityService.getMyLikePost(userId, postId));
     }

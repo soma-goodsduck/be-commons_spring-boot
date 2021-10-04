@@ -54,10 +54,26 @@ public class CommunityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
 
-        List<MyPost> postList = postRepositoryCustom.findByUserId(userId, postId)
+        List<PostDetailResponse> postList = postRepositoryCustom.findByUserId(userId, postId)
                 .stream()
-                .map(post -> new MyPost(post))
+                .map(tuple -> {
+                    Post post = tuple.get(0, Post.class);
+                    UserPost userPost = tuple.get(1, UserPost.class);
+
+                    PostDetailResponse postDetailResponse = new PostDetailResponse(post);
+
+                    if(userPost != null) {
+                        postDetailResponse.likesOfMe();
+                    }
+
+                    if(post.getUser().getId().equals(userId)) {
+                        postDetailResponse.myItem();
+                    }
+
+                    return postDetailResponse;
+                })
                 .collect(Collectors.toList());
+
         if(postList.size() == pageableSize + 1) {
             hasNext = true;
             postList.remove(pageableSize);
@@ -86,6 +102,42 @@ public class CommunityService {
         return new HomeResponse(hasNext, new LoginUser(user), commentList);
     }
 
+    public HomeResponse getMyCommentV2(Long userId, Long postId) {
+
+        int pageableSize = PropertyUtil.POST_PAGEABLE_SIZE;
+        Boolean hasNext = false;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
+
+        List<PostDetailResponse> commentList = commentRepositoryCustom.findByUserIdV2(userId, postId)
+                .stream()
+                .map(tuple -> {
+                    Post post = tuple.get(0, Post.class);
+                    UserPost userPost = tuple.get(1, UserPost.class);
+
+                    PostDetailResponse postDetailResponse = new PostDetailResponse(post);
+
+                    if(userPost != null) {
+                        postDetailResponse.likesOfMe();
+                    }
+
+                    if(post.getUser().getId().equals(userId)) {
+                        postDetailResponse.myItem();
+                    }
+
+                    return postDetailResponse;
+                })
+                .collect(Collectors.toList());
+
+        if(commentList.size() == pageableSize + 1) {
+            hasNext = true;
+            commentList.remove(pageableSize);
+        }
+
+        return new HomeResponse(hasNext, new LoginUser(user), commentList);
+    }
+
     public HomeResponse getMyLikePost(Long userId, Long postId) {
 
         int pageableSize = PropertyUtil.POST_PAGEABLE_SIZE;
@@ -94,10 +146,26 @@ public class CommunityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
 
-        List<MyPost> postList = postRepositoryCustom.findAllWithUserPost(userId, postId)
+        List<PostDetailResponse> postList = postRepositoryCustom.findAllWithUserPost(userId, postId)
                 .stream()
-                .map(post -> new MyPost(post))
+                .map(tuple -> {
+                    Post post = tuple.get(0, Post.class);
+                    UserPost userPost = tuple.get(1, UserPost.class);
+
+                    PostDetailResponse postDetailResponse = new PostDetailResponse(post);
+
+                    if(userPost != null) {
+                        postDetailResponse.likesOfMe();
+                    }
+
+                    if(post.getUser().getId().equals(userId)) {
+                        postDetailResponse.myItem();
+                    }
+
+                    return postDetailResponse;
+                })
                 .collect(Collectors.toList());
+
         if(postList.size() == pageableSize + 1) {
             hasNext = true;
             postList.remove(pageableSize);

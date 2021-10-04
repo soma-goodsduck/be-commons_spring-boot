@@ -122,7 +122,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Post> findByUserId(Long userId, Long postId) {
+    public List<Tuple> findByUserId(Long userId, Long postId) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -131,8 +131,9 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         }
 
         return queryFactory
-                .select(post)
+                .select(post, userPost)
                 .from(post)
+                .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(post.user.id.eq(userId)).and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
@@ -140,7 +141,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Post> findAllWithUserPost(Long userId, Long postId) {
+    public List<Tuple> findAllWithUserPost(Long userId, Long postId) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -149,7 +150,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         }
 
         return queryFactory
-                .select(post)
+                .select(post, userPost)
                 .from(post)
                 .innerJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(userPost.deletedAt.isNull()))
