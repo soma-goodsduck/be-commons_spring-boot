@@ -1,5 +1,7 @@
 package com.ducks.goodsduck.commons.model.dto.notification;
 
+import com.ducks.goodsduck.commons.model.entity.Post;
+import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +35,16 @@ public class NotificationMessage {
                 "my-profile",
                 "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/image/logo.png",
                 LEVEL_UP
+        );
+    }
+
+    public static NotificationMessage ofComment(User sender, Post post, NotificationType commentType) {
+        return new NotificationMessage(
+                "GOODSDUCK",
+                String.format("%s님이 %s를 달았습니다.", sender.getNickName(), commentType.getKorName()),
+                String.format("post/%d", post.getId()),
+                "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/image/logo.png",
+                commentType
         );
     }
 }

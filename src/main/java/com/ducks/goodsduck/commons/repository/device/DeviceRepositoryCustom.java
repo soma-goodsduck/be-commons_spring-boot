@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.repository.device;
 
-import com.querydsl.core.Tuple;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

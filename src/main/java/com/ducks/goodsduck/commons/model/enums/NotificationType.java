@@ -6,7 +6,9 @@ public enum NotificationType {
     CHAT("채팅"),
     REVIEW("거래 리뷰"),
     REVIEW_FIRST("선 거래 리뷰"),
-    LEVEL_UP("레벨업");
+    LEVEL_UP("레벨업"),
+    COMMENT("댓글"),
+    REPLY_COMMENT("대댓글");
 
     private String korName;
 

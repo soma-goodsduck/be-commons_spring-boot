@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
@@ -55,8 +56,10 @@ public class IdolGroupService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
 
-        idolGroupVoteRedisTemplate.addCountByIdolGroupId(idolGroupId);
-        user.vote(idolGroupId);
+        if (user.getVotedIdolGroupId() == 0L) {
+            idolGroupVoteRedisTemplate.addCountByIdolGroupId(idolGroupId);
+            user.vote(idolGroupId);
+        } else throw new DuplicatedDataException("Today vote information is already exists.");
         return true;
     }
 

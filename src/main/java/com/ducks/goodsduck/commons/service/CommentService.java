@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.COMMENT;
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.REPLY_COMMENT;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -123,7 +126,7 @@ public class CommentService {
                     .orElseThrow(() -> new NoResultException("Not Find Post in CommentService.uploadComment"));
 
             Comment receiveComment = commentUploadRequest.getReceiveCommentId() != 0 ?
-                    commentRepository.findById(commentUploadRequest.getReceiveCommentId())
+                            commentRepository.findById(commentUploadRequest.getReceiveCommentId())
                             .orElseThrow(() -> new NoResultException("Not Find SuperComment in CommentService.uploadComment")) : null;
 
             Comment comment = new Comment(user, post, receiveComment, commentUploadRequest);
@@ -139,12 +142,27 @@ public class CommentService {
             post.increaseCommentCount();
             commentRepository.save(comment);
 
+            List<String> registrationTokensByUserId = new ArrayList<>();
+
             if (user.gainExpByType(ActivityType.COMMENT) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
                 user.levelUp();
-                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
                 FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
             }
+
+            User postWriter = post.getUser();
+            NotificationMessage notificationMessageOfPostWriter = NotificationMessage.ofComment(user, post, COMMENT);
+            List<String> registrationTokensOfPostWriter = deviceRepositoryCustom.getRegistrationTokensByUserId(postWriter.getId());
+
+            if (!commentUploadRequest.getReceiveCommentId().equals(0L) || commentUploadRequest.getReceiveCommentId() == null) {
+                User receiver = receiveComment.getUser();
+                NotificationMessage notificationMessageOfReplyComment = NotificationMessage.ofComment(user, post, REPLY_COMMENT);
+                List<String> registrationTokensByReceiver = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
+                FcmUtil.sendMessage(notificationMessageOfReplyComment, registrationTokensByReceiver);
+            }
+
+            FcmUtil.sendMessage(notificationMessageOfPostWriter, registrationTokensOfPostWriter);
 
             return comment.getId();
         } catch (Exception e) {
