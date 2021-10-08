@@ -6,7 +6,7 @@ on:
     branches:
       - main
     
-name: (Develop Server) Deploy Spring boot to Amazon EC2
+name: (Release Server) Deploy Spring boot to Amazon EC2
 env:
   PROJECT_NAME: be-commons_spring-boot
 
