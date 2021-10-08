@@ -12,6 +12,7 @@ CURRENT_PID=$(pgrep -fl $REPOSITORY/build/libs/ | grep java | awk '{print $1}')
 echo "현재 구동 중인 애플리케이션 pid: $CURRENT_PID"
 
 if [ -z "$CURRENT_PID" ]
+
 then
   echo "> 종료할것 없음."
 else
@@ -21,6 +22,7 @@ else
 fi
 
 echo "> JAR PATH: $JAR_PATH"
+
 echo "> $JAR_PATH 배포"
 
 JAR_NAME=$(ls -tr $JAR_PATH/*.jar | tail -n 1)
