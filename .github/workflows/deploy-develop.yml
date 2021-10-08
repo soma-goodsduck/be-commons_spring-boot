@@ -27,27 +27,27 @@
            java-version: '11'
            distribution: 'adopt'
         
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        shell: bash
+       - name: Grant execute permission for gradlew
+         run: chmod +x gradlew
+         shell: bash
 
-      - name: Build with Gradle
-        run: ./gradlew clean build
-        shell: bash
+       - name: Build with Gradle
+         run: ./gradlew clean build
+         shell: bash
 
-      - name: Make zip file
-        run: zip -qq -r ./$GITHUB_SHA.zip .
-        shell: bash
+       - name: Make zip file
+         run: zip -qq -r ./$GITHUB_SHA.zip .
+         shell: bash
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
+       - name: Configure AWS credentials
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
           aws-access-key-id: ${{ secrets.AWS_DEPLOY_IAM_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DEPLOY_IAM_SECRET }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduck/$PROJECT_NAME/$GITHUB_SHA.zip
+       - name: Upload to S3
+         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduck/$PROJECT_NAME/$GITHUB_SHA.zip
 
-      - name: Code Deploy
-        run: aws deploy create-deployment --application-name be-commons_spring-boot --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons --s3-location bucket=backendgoodsduck,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+       - name: Code Deploy
+         run: aws deploy create-deployment --application-name be-commons_spring-boot --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons --s3-location bucket=backendgoodsduck,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
