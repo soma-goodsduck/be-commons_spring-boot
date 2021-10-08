@@ -26,7 +26,11 @@
          with:
            java-version: '11'
            distribution: 'adopt'
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 9f8ba90caece196720d5d9d14153b80106eab0f2
        - name: Grant execute permission for gradlew
          run: chmod +x gradlew
          shell: bash
@@ -45,7 +49,7 @@
            aws-access-key-id: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_KEY }}
            aws-secret-access-key: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_SECRET }}
            aws-region: ${{ secrets.AWS_REGION }}
-3
+
        - name: Upload to S3
          run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduck/$PROJECT_NAME/$GITHUB_SHA.zip
 
