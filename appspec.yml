@@ -4,6 +4,7 @@ os: linux
 files:
   - source: /
     destination: /opt/be-commons_spring-boot
+    overwrite: yes
 permissions:
   - object: /opt/be-commons_spring-boot/
     owner: ubuntu

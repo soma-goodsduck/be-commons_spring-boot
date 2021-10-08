@@ -2,6 +2,9 @@ plugins {
 	id 'org.springframework.boot' version '2.4.8'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+
+	// QueryDSL
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.ducks.goodsduck'
@@ -20,14 +23,93 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.json', name: 'json', version: '20210307'
+
+	// AWS Secret Manager
+	implementation 'org.springframework.cloud:spring-cloud-context:3.0.3'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.6.RELEASE'
+
+	// New Relic
+	implementation 'com.newrelic.telemetry:micrometer-registry-new-relic:0.7.0'
+	implementation 'io.micrometer:micrometer-core:1.6.4'
+
+	// Spring Boot AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// QueryDSL
+	implementation 'com.querydsl:querydsl-jpa'
+
+	// Image-Resizing
+	implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
+	implementation group: 'com.madgag', name: 'animated-gif-lib', version: '1.4'
+
+	// Image Rotation
+	implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
+	implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+
+	// S3
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
+
+	// p6spy
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+
+	// Websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// Stomp
+	implementation group: 'org.webjars', name: 'sockjs-client', version: '1.1.2'
+	implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.3-1'
+
+	// Bcrypt
+	implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
+
+	// Swagger 3
+	implementation("io.springfox:springfox-boot-starter:3.0.0")
+	implementation("io.springfox:springfox-swagger-ui:3.0.0")
+
+	// FCM(Firebase)
+	implementation 'com.google.firebase:firebase-admin:8.0.0'
+
+	// JWT
+	implementation 'javax.xml.bind:jaxb-api'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	runtime 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+	// CoolSMS (authentication of SMS)
+	compile group: 'net.nurigo', name: 'javaSDK', version: '2.2'
+
+	// Security
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.5'
+
+	compile('org.springframework.boot:spring-boot-starter-data-redis')
+	compile 'io.sentry:sentry-logback:1.7.30'
+	compile 'io.sentry:sentry-spring-boot-starter:1.7.30'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
+	compile 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
 	useJUnitPlatform()
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+	options.annotationProcessorPath = configurations.querydsl
 }

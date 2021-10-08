@@ -87,8 +87,6 @@
 
 현재 구현된 기능(API)에 대한 명세서는 <a href="https://api.goods-duck.com/swagger-ui/index.html">여기</a>서 확인하실 수 있습니다.
 
-> 현재 `develop` 브랜치 코드를 기준으로 배포되어 있습니다. 코드는 `develop` 브랜치에서 확인해주세요!
-
 ### Built With
 
 * MacOS (Big Sur 11.4)
