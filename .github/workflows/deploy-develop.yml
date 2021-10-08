@@ -26,11 +26,7 @@
          with:
            java-version: '11'
            distribution: 'adopt'
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 9f8ba90caece196720d5d9d14153b80106eab0f2
        - name: Grant execute permission for gradlew
          run: chmod +x gradlew
          shell: bash
