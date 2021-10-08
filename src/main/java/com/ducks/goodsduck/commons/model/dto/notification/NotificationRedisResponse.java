@@ -23,6 +23,8 @@ public class NotificationRedisResponse implements Serializable {
     private String senderImageUrl;
     private Long itemId;
     private String itemName;
+    private Long commentId;
+    private Long postId;
     private LocalDateTime createdAt;
     private LocalDateTime expiredAt;
     private Boolean isRead;
@@ -44,6 +46,8 @@ public class NotificationRedisResponse implements Serializable {
         this.senderImageUrl = notificationRedis.getSenderImageUrl();
         this.itemId = notificationRedis.getItemId();
         this.itemName = notificationRedis.getItemName();
+        this.commentId = notificationRedis.getCommentId();
+        this.postId = notificationRedis.getPostId();
         this.createdAt =  notificationRedis.getCreatedAt();
         this.expiredAt = notificationRedis.getExpiredAt();
         this.isRead = notificationRedis.getIsRead();
@@ -72,6 +76,16 @@ public class NotificationRedisResponse implements Serializable {
             case REVIEW_FIRST:
                 body = String.format("%s님이 %s를 남겼어요.\n감사 인사 겸 거래 리뷰를 남겨보세요!", senderNickName, type.getKorName());
                 messageUri = messageUri.concat(String.format("review-back/%d", itemId));
+                break;
+
+            case COMMENT:
+                body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
+                messageUri = messageUri.concat(String.format("post/%d", postId));
+                break;
+
+            case REPLY_COMMENT:
+                body = String.format("%s님이 %s를 남겼어요.", senderNickName, type.getKorName());
+                messageUri = messageUri.concat(String.format("post/%d", postId));
                 break;
 
             default:

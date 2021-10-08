@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.ducks.goodsduck.commons.model.enums.NotificationType.PRICE_PROPOSE;
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
 
 @Data
 @NoArgsConstructor
@@ -31,6 +31,8 @@ public class NotificationRedis implements Serializable {
     private String senderImageUrl;
     private Long itemId;
     private String itemName;
+    private Long commentId;
+    private Long postId;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -69,6 +71,19 @@ public class NotificationRedis implements Serializable {
         this.priceProposePrice = priceProposePrice;
         this.itemId = itemId;
         this.itemName = itemName;
+        this.createdAt = LocalDateTime.now();
+        this.expiredAt = createdAt.plusWeeks(2L);
+        this.isRead = false;
+    }
+
+    // HINT: Comment, REPLY_COMMENT
+    public NotificationRedis(Long commentId, Long postId, Long receiveCommentId, String senderNickName, String senderImageUrl) {
+        this.id = UUID.randomUUID().toString();
+        this.commentId = commentId;
+        this.postId = postId;
+        this.type = receiveCommentId == 0L ? COMMENT : REPLY_COMMENT;
+        this.senderNickName = senderNickName;
+        this.senderImageUrl = senderImageUrl;
         this.createdAt = LocalDateTime.now();
         this.expiredAt = createdAt.plusWeeks(2L);
         this.isRead = false;
