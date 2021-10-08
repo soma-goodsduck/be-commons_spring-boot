@@ -1,21 +1,23 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.ducks.goodsduck.commons.component.MessageProcessor;
 import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
 import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.InvalidJwtException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
-import com.ducks.goodsduck.commons.model.entity.Item;
-import com.ducks.goodsduck.commons.model.entity.PricePropose;
-import com.ducks.goodsduck.commons.model.entity.User;
+import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.enums.PriceProposeStatus;
+import com.ducks.goodsduck.commons.model.redis.PriceProposeDataRedis;
 import com.ducks.goodsduck.commons.repository.item.ItemRepository;
 import com.ducks.goodsduck.commons.repository.item.ItemRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustomImpl;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.Tuple;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -35,18 +37,22 @@ public class PriceProposeService {
     private final ItemRepositoryCustom itemRepositoryCustom;
     private final PriceProposeRepository priceProposeRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
+    private final ObjectMapper objectMapper;
+    private final MessageProcessor messageProcessor;
     private final MessageSource messageSource;
 
-    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl, MessageSource messageSource) {
+    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl, ObjectMapper objectMapper, MessageProcessor messageProcessor, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.itemRepositoryCustom = itemRepositoryCustom;
         this.priceProposeRepository = priceProposeRepository;
         this.priceProposeRepositoryCustom = priceProposeRepositoryCustomImpl;
+        this.objectMapper = objectMapper;
+        this.messageProcessor = messageProcessor;
         this.messageSource = messageSource;
     }
 
-    public PriceProposeResponse proposePrice(Long userId, Long itemId, int price) {
+    public PriceProposeResponse proposePrice(Long userId, Long itemId, int price) throws JsonProcessingException {
 
         // HINT: 해당 유저ID로 아이템ID에 PricePropose한 내역이 있는지 확인
         PricePropose pricePropose = priceProposeRepositoryCustom.findByUserIdAndItemId(userId, itemId);
@@ -74,7 +80,15 @@ public class PriceProposeService {
 
         PricePropose savedPricePropose = priceProposeRepository.save(newPricePropose);
 
-        return new PriceProposeResponse(findUser, findItem, savedPricePropose);
+        PriceProposeResponse priceProposeResponse = new PriceProposeResponse(findUser, findItem, savedPricePropose);
+
+        // 가격 제시 데이터 수집
+        IdolMember idolMember = findItem.getIdolMember();
+        IdolGroup idolGroup = idolMember.getIdolGroup();
+        PriceProposeDataRedis priceProposeDataRedis = new PriceProposeDataRedis(userId, savedPricePropose, findItem, idolGroup.getId(), idolMember.getId());
+        messageProcessor.send(objectMapper.writeValueAsString(priceProposeDataRedis));
+
+        return priceProposeResponse;
     }
 
     public PriceProposeResponse cancelPropose(Long userId, Long priceProposeId) {

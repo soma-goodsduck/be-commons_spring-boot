@@ -8,6 +8,7 @@ import com.ducks.goodsduck.commons.exception.user.InvalidUserRoleException;
 import com.ducks.goodsduck.commons.exception.user.Oauth2Exception;
 import com.ducks.goodsduck.commons.exception.user.SmsAuthorizationException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.gax.rpc.InvalidArgumentException;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +81,12 @@ public class GeneralExceptionHandler {
     @ExceptionHandler({NoResultException.class, CoolsmsException.class})
     public ResponseEntity<ApiResult<?>> handleCoolSmsException(CoolsmsException e) {
         log.debug("Error occured during sending CoolSMS (code: {}): {} ", e.getCode(), e.getMessage(), e);
+        return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({JsonProcessingException.class})
+    public ResponseEntity<ApiResult<?>> handleCoolSmsException(JsonProcessingException e) {
+        log.debug("Error occured during parsing JSON data: {} ", e.getMessage(), e);
         return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

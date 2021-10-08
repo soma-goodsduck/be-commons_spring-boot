@@ -78,7 +78,7 @@ public class ItemController {
     @NoCheckJwt
     @ApiOperation(value = "아이템 상세보기")
     @GetMapping("/v1/items/{itemId}")
-    public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) {
+    public ApiResult<ItemDetailResponse> showItemDetail(@PathVariable("itemId") Long itemId, @RequestHeader("jwt") String jwt) throws JsonProcessingException {
 
         Long userId = userService.checkLoginStatus(jwt);
 

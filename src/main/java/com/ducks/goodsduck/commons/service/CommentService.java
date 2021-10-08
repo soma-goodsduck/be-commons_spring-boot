@@ -153,16 +153,22 @@ public class CommentService {
 
             User postWriter = post.getUser();
             NotificationMessage notificationMessageOfPostWriter = NotificationMessage.ofComment(user, post, COMMENT);
-            List<String> registrationTokensOfPostWriter = deviceRepositoryCustom.getRegistrationTokensByUserId(postWriter.getId());
+            List<String> registrationTokensOfPostWriter = new ArrayList<>();
+            // HINT: 게시글 주인이 댓글 다는 경우는 보내지 않음.
+            if (!postWriter.getId().equals(user.getId())) registrationTokensOfPostWriter = deviceRepositoryCustom.getRegistrationTokensByUserId(postWriter.getId());
+
 
             if (!commentUploadRequest.getReceiveCommentId().equals(0L) || commentUploadRequest.getReceiveCommentId() == null) {
                 User receiver = receiveComment.getUser();
                 NotificationMessage notificationMessageOfReplyComment = NotificationMessage.ofComment(user, post, REPLY_COMMENT);
-                List<String> registrationTokensByReceiver = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
-                FcmUtil.sendMessage(notificationMessageOfReplyComment, registrationTokensByReceiver);
+                List<String> registrationTokensByReceiver = new ArrayList<>();
+                // HINT: 자신한테 대댓글 다는 경우
+                if (!receiver.getId().equals(user.getId()) && !postWriter.getId().equals(user.getId())) registrationTokensByReceiver = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
+                // HINT: 게시글 주인이 대댓글 다는 경우
+                if (!registrationTokensByReceiver.isEmpty()) FcmUtil.sendMessage(notificationMessageOfReplyComment, registrationTokensByReceiver);
             }
 
-            FcmUtil.sendMessage(notificationMessageOfPostWriter, registrationTokensOfPostWriter);
+            if (!registrationTokensOfPostWriter.isEmpty()) FcmUtil.sendMessage(notificationMessageOfPostWriter, registrationTokensOfPostWriter);
 
             return comment.getId();
         } catch (Exception e) {
