@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.component.MessageProcessor;
 import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
@@ -19,6 +20,7 @@ import com.ducks.goodsduck.commons.model.entity.Image.Image;
 import com.ducks.goodsduck.commons.model.entity.Image.ItemImage;
 import com.ducks.goodsduck.commons.model.entity.category.ItemCategory;
 import com.ducks.goodsduck.commons.model.enums.*;
+import com.ducks.goodsduck.commons.model.redis.ClickItemDataRedis;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
@@ -39,6 +41,8 @@ import com.ducks.goodsduck.commons.repository.useritem.UserItemRepository;
 import com.ducks.goodsduck.commons.repository.useritem.UserItemRepositoryCustom;
 import com.ducks.goodsduck.commons.util.FcmUtil;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +84,8 @@ public class ItemService {
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final ItemImageRepository itemImageRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
+    private final ObjectMapper objectMapper;
+    private final MessageProcessor messageProcessor;
     private final MessageSource messageSource;
 
     private final ImageUploadService imageUploadService;
@@ -151,7 +157,7 @@ public class ItemService {
         return itemDetailResponse;
     }
 
-    public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) {
+    public ItemDetailResponse showDetailWithLike(Long userId, Long itemId) throws JsonProcessingException {
 
         User loginUser = userRepository.findById(userId).orElse(null);
         if(loginUser == null) {
@@ -195,6 +201,12 @@ public class ItemService {
                 itemDetailResponse.setChatId(chat.getId());
             }
         }
+
+        // 상품 조회 데이터 수집
+        IdolMember idolMember = item.getIdolMember();
+        IdolGroup idolGroup = idolMember.getIdolGroup();
+        ClickItemDataRedis clickItemDataRedis = new ClickItemDataRedis(userId, item, idolGroup.getId(), idolMember.getId());
+        messageProcessor.send(objectMapper.writeValueAsString(clickItemDataRedis));
 
         return itemDetailResponse;
     }

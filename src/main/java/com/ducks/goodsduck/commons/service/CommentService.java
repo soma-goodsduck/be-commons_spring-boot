@@ -10,6 +10,8 @@ import com.ducks.goodsduck.commons.model.entity.Post;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
+import com.ducks.goodsduck.commons.model.redis.NotificationRedis;
+import com.ducks.goodsduck.commons.repository.notification.NotificationRedisTemplate;
 import com.ducks.goodsduck.commons.repository.user.UserRepository;
 import com.ducks.goodsduck.commons.repository.comment.CommentRepository;
 import com.ducks.goodsduck.commons.repository.comment.CommentRepositoryCustom;
@@ -43,6 +45,8 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
+
+    private final NotificationRedisTemplate notificationRedisTemplate;
 
     private final MessageSource messageSource;
 
@@ -153,16 +157,32 @@ public class CommentService {
 
             User postWriter = post.getUser();
             NotificationMessage notificationMessageOfPostWriter = NotificationMessage.ofComment(user, post, COMMENT);
-            List<String> registrationTokensOfPostWriter = deviceRepositoryCustom.getRegistrationTokensByUserId(postWriter.getId());
+            List<String> registrationTokensOfPostWriter = new ArrayList<>();
 
+            NotificationRedis notificationRedis = new NotificationRedis(comment.getId(), post.getId(), commentUploadRequest.getReceiveCommentId(), user.getNickName(), user.getImageUrl());
+
+            // HINT: 게시글 주인이 댓글 다는 경우는 보내지 않음.
+            if (!postWriter.getId().equals(user.getId())) {
+                registrationTokensOfPostWriter = deviceRepositoryCustom.getRegistrationTokensByUserId(postWriter.getId());
+                notificationRedisTemplate.saveNotificationKeyAndValueByUserId(postWriter.getId(), notificationRedis);
+            }
+
+
+            // 대댓글인 경우
             if (!commentUploadRequest.getReceiveCommentId().equals(0L) || commentUploadRequest.getReceiveCommentId() == null) {
                 User receiver = receiveComment.getUser();
                 NotificationMessage notificationMessageOfReplyComment = NotificationMessage.ofComment(user, post, REPLY_COMMENT);
-                List<String> registrationTokensByReceiver = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
-                FcmUtil.sendMessage(notificationMessageOfReplyComment, registrationTokensByReceiver);
+                List<String> registrationTokensByReceiver = new ArrayList<>();
+
+                // HINT: 자신한테 대댓글 다는 경우는 제외
+                if (!receiver.getId().equals(user.getId()) && !postWriter.getId().equals(user.getId())) {
+                    registrationTokensByReceiver = deviceRepositoryCustom.getRegistrationTokensByUserId(receiver.getId());
+                    notificationRedisTemplate.saveNotificationKeyAndValueByUserId(receiver.getId(), notificationRedis);
+                }
+                if (!registrationTokensByReceiver.isEmpty()) FcmUtil.sendMessage(notificationMessageOfReplyComment, registrationTokensByReceiver);
             }
 
-            FcmUtil.sendMessage(notificationMessageOfPostWriter, registrationTokensOfPostWriter);
+            if (!registrationTokensOfPostWriter.isEmpty()) FcmUtil.sendMessage(notificationMessageOfPostWriter, registrationTokensOfPostWriter);
 
             return comment.getId();
         } catch (Exception e) {

@@ -1,53 +1,53 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-# on:
-#   push:
-#     branches:
-#       - develop
+on:
+  push:
+    branches:
+      - develop
     
-# name: (Develop Server) Deploy Spring boot to Amazon EC2
-# env:
-#   PROJECT_NAME: be-commons_spring-boot
+name: (Develop Server) Deploy Spring boot to Amazon EC2
+env:
+  PROJECT_NAME: be-commons_spring-boot
 
-# jobs:
-#   deploy:
-#     name: DEPLOY_FOR_DEVELOP
-#     runs-on: ubuntu-18.04
+jobs:
+  deploy:
+    name: DEPLOY_FOR_DEVELOP
+    runs-on: ubuntu-18.04
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
-#         with:
-#           ref: 'develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: 'develop'
 
-#       - name: Set up JDK 11
-#         uses: actions/setup-java@v2
-#         with:
-#           java-version: '11'
-#           distribution: 'adopt'
-        
-#       - name: Grant execute permission for gradlew
-#         run: chmod +x gradlew
-#         shell: bash
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
 
-#       - name: Build with Gradle
-#         run: ./gradlew clean build
-#         shell: bash
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        shell: bash
 
-#       - name: Make zip file
-#         run: zip -qq -r ./$GITHUB_SHA.zip .
-#         shell: bash
+      - name: Build with Gradle
+        run: ./gradlew clean build
+        shell: bash
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_KEY }}
-#           aws-secret-access-key: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_SECRET }}
-#           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Make zip file
+        run: zip -qq -r ./$GITHUB_SHA.zip .
+        shell: bash
 
-#       - name: Upload to S3
-#         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduckdevelop/$PROJECT_NAME/$GITHUB_SHA.zip
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEPLOY_DEVELOP_IAM_SECRET }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-#       - name: Code Deploy
-#         run: aws deploy create-deployment --application-name be-commons_spring-boot_develop --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons_spring-boot_develop-group --s3-location bucket=backendgoodsduckdevelop,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduck/$PROJECT_NAME/$GITHUB_SHA.zip
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name be-commons_spring-boot --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons --s3-location bucket=backendgoodsduck,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
