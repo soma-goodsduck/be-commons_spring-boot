@@ -50,4 +50,4 @@
          run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://backendgoodsduck/$PROJECT_NAME/$GITHUB_SHA.zip
 
        - name: Code Deploy
-         run: aws deploy create-deployment --application-name be-commons_spring-boot --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons --s3-location bucket=backendgoodsduck,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+         run: aws deploy create-deployment --application-name be-commons_spring-boot --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name be-commons-develop --s3-location bucket=backendgoodsduck,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
