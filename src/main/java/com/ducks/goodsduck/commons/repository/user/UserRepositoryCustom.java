@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepositoryCustom {
     Long updateRoleByUserId(Long userId, UserRole role);
     Long initializeVotedIdolGroupIdAll();
+    Long addDailyVoteAll();
 }

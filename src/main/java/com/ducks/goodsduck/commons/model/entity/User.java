@@ -35,6 +35,8 @@ public class User {
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
     private Long votedIdolGroupId;
+    private Long numberOfVotes;
+
     private LocalDateTime deletedAt;
     private Boolean marketingAgree;
 
@@ -62,6 +64,7 @@ public class User {
         this.reportCount = 0;
         this.bcryptId = createBcryptId();
         this.votedIdolGroupId = 0L;
+        this.numberOfVotes = 0L;
     }
 
     public String createBcryptId() {
@@ -85,16 +88,10 @@ public class User {
         this.lastLoginAt = LocalDateTime.now();
     }
 
-    public void vote(Long idolGroupId) {
+    public void vote(Long idolGroupId, Long voteCount) {
         this.votedIdolGroupId = idolGroupId;
+        this.numberOfVotes -= voteCount;
     }
-
-//    public void gainExp(int exp) {
-//        this.exp += exp;
-//        if(this.exp >= 100) {
-//            levelUp();
-//        }
-//    }
 
     public Integer gainExpByType(ActivityType activityType) {
         this.exp += activityType.getExp();
@@ -104,5 +101,9 @@ public class User {
     public void levelUp() {
         this.level++;
         this.exp -= 100;
+    }
+
+    public void getVoteByActivity(ActivityType activityType){
+        this.numberOfVotes += activityType.getVote();
     }
 }

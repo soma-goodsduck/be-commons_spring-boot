@@ -36,12 +36,12 @@ public class IdolGroupVoteRedisTemplate {
      * 카운트 없는 경우 key, value 생성 (Hash 구조)
      * @param idolGroupId
      */
-    public void addCountByIdolGroupId(Long idolGroupId) {
+    public void addCountByIdolGroupId(Long idolGroupId, Long voteCount) {
         if (!redisHashOperations.hasKey(KEY_VOTE_IDOLGROUP, idolGroupId)) {
-            redisHashOperations.put(KEY_VOTE_IDOLGROUP, idolGroupId, 1L);
+            redisHashOperations.put(KEY_VOTE_IDOLGROUP, idolGroupId, voteCount);
             return;
         }
-        redisHashOperations.increment(KEY_VOTE_IDOLGROUP, idolGroupId, 1L);
+        redisHashOperations.increment(KEY_VOTE_IDOLGROUP, idolGroupId, voteCount);
     }
 
     public Long findByIdolGroupId(Long idolGroupId) {

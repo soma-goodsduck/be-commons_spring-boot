@@ -1,7 +1,9 @@
 package com.ducks.goodsduck.commons.controller;
 
 import com.ducks.goodsduck.commons.annotation.NoCheckJwt;
+import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
+import com.ducks.goodsduck.commons.model.dto.VoteResponse;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
@@ -47,9 +49,10 @@ public class IdolGroupController {
 
     @PostMapping("/v1/idol-groups/{idolGroupId}/vote")
     @ApiOperation("특정 아이돌 그룹에 투표하기 API")
-    public ApiResult<Boolean> voteIdolGroup(HttpServletRequest request, @PathVariable("idolGroupId") Long idolGroupId) {
+    public ApiResult<VoteResponse> voteIdolGroup(HttpServletRequest request, @PathVariable("idolGroupId") Long idolGroupId, @RequestParam("voteCount") Long voteCount) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-        return OK(idolGroupService.voteIdolGroup(userId, idolGroupId));
+        if (voteCount < 1L) throw new InvalidRequestDataException("Vote count must be more than zero.");
+        return OK(idolGroupService.voteIdolGroup(userId, idolGroupId, voteCount));
     }
 
     @DeleteMapping("/v1/idol-groups/vote")

@@ -99,6 +99,8 @@ public class PostService {
                 FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
             }
 
+            user.getVoteByActivity(ActivityType.POST);
+
             return post.getId();
         } catch (Exception e) {
             return -1L;

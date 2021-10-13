@@ -136,6 +136,10 @@ public class ItemService {
             FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
         }
 
+        if (itemUploadRequest.getTradeType().equals(TradeType.BUY)) user.getVoteByActivity(ActivityType.ITEM_BUY);
+        else if (itemUploadRequest.getTradeType().equals(TradeType.SELL)) user.getVoteByActivity(ActivityType.ITEM_SELL);
+
+
         return item.getId();
     }
 
