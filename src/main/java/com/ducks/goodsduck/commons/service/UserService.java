@@ -187,8 +187,7 @@ public class UserService {
     // 회원가입
     public UserDto signUp(UserSignUpRequest userSignUpRequest) {
 
-        if(userSignUpRequest.getPhoneNumber() == null || userSignUpRequest.getEmail() == null ||
-                userSignUpRequest.getNickName() == null || userSignUpRequest.getLikeIdolGroupsId() == null) {
+        if(userSignUpRequest.getPhoneNumber() == "" || userSignUpRequest.getEmail() == "" || userSignUpRequest.getNickName() == "") {
             throw new InvalidRequestDataException();
         }
 
@@ -226,8 +225,7 @@ public class UserService {
     // 회원가입 V2
     public UserDtoV2 signUpV2(UserSignUpRequestV2 userSignUpRequest) {
 
-        if(userSignUpRequest.getPhoneNumber() == null || userSignUpRequest.getEmail() == null ||
-                userSignUpRequest.getNickName() == null || userSignUpRequest.getLikeIdolGroupsId() == null) {
+        if(userSignUpRequest.getPhoneNumber() == "" || userSignUpRequest.getEmail() == "" || userSignUpRequest.getNickName() == "") {
             throw new InvalidRequestDataException();
         }
 
