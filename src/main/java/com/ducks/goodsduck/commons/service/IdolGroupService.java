@@ -5,6 +5,9 @@ import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.VoteResponse;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupWithVote;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupWithVotes;
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
 import com.ducks.goodsduck.commons.model.entity.User;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
@@ -38,16 +41,30 @@ public class IdolGroupService {
     private final MessageSource messageSource;
 
     public List<IdolGroup> getIdolGroups() {
+        return idolGroupRepository.findAll();
+    }
+
+    public IdolGroupWithVotes getIdolGroupsWithVote(Long userId) {
         Map<Long, Long> idolGroupVoteMap = idolGroupVoteRedisTemplate.findAll();
-        return idolGroupRepository.findAll()
+        List<IdolGroupWithVote> idolGroupsWithVotes = idolGroupRepository.findAll()
                 .stream()
                 .map(idolGroup -> {
                     Long idolGroupId = idolGroup.getId();
-                    if (idolGroupVoteMap.containsKey(idolGroupId)) idolGroup.setVotedCount(idolGroupVoteMap.get(idolGroupId));
-                    else idolGroup.setVotedCount(0L);
-                    return idolGroup;
+                    IdolGroupWithVote idolGroupWithVote = new IdolGroupWithVote(idolGroup);
+                    if (idolGroupVoteMap.containsKey(idolGroupId))
+                        idolGroupWithVote.setVotedCount(idolGroupVoteMap.get(idolGroupId));
+                    else idolGroupWithVote.setVotedCount(0L);
+                    return idolGroupWithVote;
                 })
                 .collect(Collectors.toList());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                                new Object[]{"User"}, null)));
+
+
+        return new IdolGroupWithVotes(idolGroupsWithVotes, user.getNumberOfVotes());
     }
 
     public Optional<IdolGroup> getIdolGroup(Long idolGroupId) {

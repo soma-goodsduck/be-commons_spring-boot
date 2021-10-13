@@ -5,6 +5,7 @@ import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.VoteResponse;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
+import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupWithVotes;
 import com.ducks.goodsduck.commons.service.IdolGroupService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import io.swagger.annotations.Api;
@@ -36,6 +37,14 @@ public class IdolGroupController {
                 .map(idolGroup -> new IdolGroupDto(idolGroup))
                 .sorted(Comparator.comparing(IdolGroupDto::getName))
                 .collect(Collectors.toList()));
+    }
+
+    @NoCheckJwt
+    @GetMapping("/v1/idol-groups/vote")
+    @ApiOperation("아이돌 그룹 리스트 가져오기 API")
+    public ApiResult<IdolGroupWithVotes> getIdolGroupsWithVote(HttpServletRequest request) {
+        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(idolGroupService.getIdolGroupsWithVote(userId));
     }
 
     @NoCheckJwt

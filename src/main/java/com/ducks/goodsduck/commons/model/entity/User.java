@@ -64,7 +64,7 @@ public class User {
         this.reportCount = 0;
         this.bcryptId = createBcryptId();
         this.votedIdolGroupId = 0L;
-        this.numberOfVotes = 0L;
+        this.numberOfVotes = 1L;
     }
 
     public String createBcryptId() {
