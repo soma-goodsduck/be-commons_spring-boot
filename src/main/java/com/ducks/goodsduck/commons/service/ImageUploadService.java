@@ -164,18 +164,18 @@ public class ImageUploadService {
 
             // FEAT : 파일이 1MB 이상일 경우 리사이징
             if(bytes >= 1048576) {
-
                 BufferedImage resizedImage = getResizedImage(image);
                 isBright = checkIsBright(resizedImage);
 
+                // TODO : 닉네임 한글에러처리
                 if (imageType.equals(ImageType.CHAT)) {
                     BufferedImage watermarkedImage = getWatermarkedImage(resizedImage, nickname);
                     uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
                 } else {
                     uploadImageToS3(s3Client, uploadName, ext, resizedImage, imageType);
                 }
-
-            } else {
+            }
+            else {
                 if(imageType.equals(ImageType.CHAT)) {
                     BufferedImage watermarkedImage = getWatermarkedImage(image, nickname);
                     uploadImageToS3(s3Client, uploadName, ext, watermarkedImage, imageType);
@@ -183,10 +183,11 @@ public class ImageUploadService {
                     uploadImageToS3(s3Client, uploadName, ext, image, imageType);
                 }
             }
-        } else {
+        }
+        else {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType("gif");
-            s3Client.putObject(new PutObjectRequest(itemS3Bucket, uploadName, multipartFile.getInputStream(), metadata));
+            s3Client.putObject(new PutObjectRequest(postS3Bucket, uploadName, multipartFile.getInputStream(), metadata));
         }
 
         Image savedImage;
