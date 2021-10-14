@@ -47,7 +47,6 @@ public class IdolGroupController {
         return OK(idolGroupService.getIdolGroupsWithVote(userId));
     }
 
-    @NoCheckJwt
     @GetMapping("/v1/idol-groups/{idolGroupId}")
     @ApiOperation("아이돌 그룹 가져오기 API")
     public ApiResult<IdolGroupDto> getIdolGroup(@PathVariable("idolGroupId") Long idolGroupId) {
