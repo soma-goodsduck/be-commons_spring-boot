@@ -34,4 +34,12 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 .set(user.votedIdolGroupId, 0L)
                 .execute();
     }
+
+    @Override
+    public Long addDailyVoteAll() {
+        return queryFactory
+                .update(user)
+                .set(user.numberOfVotes, user.numberOfVotes.add(1L))
+                .execute();
+    }
 }
