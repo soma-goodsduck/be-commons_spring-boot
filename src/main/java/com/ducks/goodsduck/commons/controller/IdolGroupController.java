@@ -39,7 +39,7 @@ public class IdolGroupController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/v1/idol-groups/vote")
+    @GetMapping("/v1/vote/idol-groups")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
     public ApiResult<IdolGroupWithVotes> getIdolGroupsWithVote(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
@@ -63,7 +63,7 @@ public class IdolGroupController {
         return OK(idolGroupService.voteIdolGroup(userId, idolGroupId, voteCount));
     }
 
-    @DeleteMapping("/v1/idol-groups/vote")
+    @DeleteMapping("/v1/vote/idol-groups")
     @ApiOperation("(관리자용) 아이돌 그룹 투표 정보 비우기 API")
     public ApiResult<Boolean> cleanVote(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
