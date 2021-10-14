@@ -39,7 +39,6 @@ public class IdolGroupController {
                 .collect(Collectors.toList()));
     }
 
-    @NoCheckJwt
     @GetMapping("/v1/idol-groups/vote")
     @ApiOperation("아이돌 그룹 리스트 가져오기 API")
     public ApiResult<IdolGroupWithVotes> getIdolGroupsWithVote(HttpServletRequest request) {
