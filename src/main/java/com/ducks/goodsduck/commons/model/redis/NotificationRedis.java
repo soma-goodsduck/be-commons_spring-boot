@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static com.ducks.goodsduck.commons.model.enums.NotificationType.PRICE_PROPOSE;
 import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
 
 @Data
