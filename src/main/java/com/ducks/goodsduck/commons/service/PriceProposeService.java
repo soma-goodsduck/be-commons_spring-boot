@@ -1,6 +1,5 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.component.MessageProcessor;
 import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
 import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
@@ -41,17 +40,15 @@ public class PriceProposeService {
     private final PriceProposeRepository priceProposeRepository;
     private final PriceProposeRepositoryCustom priceProposeRepositoryCustom;
     private final ObjectMapper objectMapper;
-    private final MessageProcessor messageProcessor;
     private final MessageSource messageSource;
 
-    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl, ObjectMapper objectMapper, MessageProcessor messageProcessor, MessageSource messageSource) {
+    public PriceProposeService(UserRepository userRepository, ItemRepository itemRepository, ItemRepositoryCustom itemRepositoryCustom, PriceProposeRepository priceProposeRepository, PriceProposeRepositoryCustomImpl priceProposeRepositoryCustomImpl, ObjectMapper objectMapper, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.itemRepositoryCustom = itemRepositoryCustom;
         this.priceProposeRepository = priceProposeRepository;
         this.priceProposeRepositoryCustom = priceProposeRepositoryCustomImpl;
         this.objectMapper = objectMapper;
-        this.messageProcessor = messageProcessor;
         this.messageSource = messageSource;
     }
 
@@ -89,7 +86,6 @@ public class PriceProposeService {
         IdolMember idolMember = findItem.getIdolMember();
         IdolGroup idolGroup = idolMember.getIdolGroup();
         PriceProposeDataRedis priceProposeDataRedis = new PriceProposeDataRedis(userId, savedPricePropose, findItem, idolGroup.getId(), idolMember.getId());
-        messageProcessor.send(objectMapper.writeValueAsString(priceProposeDataRedis));
 
         return priceProposeResponse;
     }

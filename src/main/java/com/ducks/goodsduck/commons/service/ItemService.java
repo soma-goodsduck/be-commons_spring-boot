@@ -2,7 +2,6 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
-import com.ducks.goodsduck.commons.component.MessageProcessor;
 import com.ducks.goodsduck.commons.exception.common.InvalidStateException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
@@ -85,7 +84,6 @@ public class ItemService {
     private final ItemImageRepository itemImageRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
     private final ObjectMapper objectMapper;
-    private final MessageProcessor messageProcessor;
     private final MessageSource messageSource;
 
     private final ImageUploadService imageUploadService;
@@ -206,7 +204,6 @@ public class ItemService {
         IdolMember idolMember = item.getIdolMember();
         IdolGroup idolGroup = idolMember.getIdolGroup();
         ClickItemDataRedis clickItemDataRedis = new ClickItemDataRedis(userId, item, idolGroup.getId(), idolMember.getId());
-        messageProcessor.send(objectMapper.writeValueAsString(clickItemDataRedis));
 
         return itemDetailResponse;
     }
