@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.ducks.goodsduck.commons.model.enums.ImageType.*;
+
 @Service
 @NoArgsConstructor
 @Slf4j
@@ -84,7 +86,7 @@ public class ImageUploadService {
                 if (isExistObject) {
                     s3Client.deleteObject(chatS3Bucket, uploadName);
                 }
-            }else if(imageType.equals(ImageType.POST)) {
+            }else if(imageType.equals(POST)) {
                 boolean isExistObject = s3Client.doesObjectExist(postS3Bucket, uploadName);
                 if (isExistObject) {
                     s3Client.deleteObject(postS3Bucket, uploadName);
@@ -134,6 +136,12 @@ public class ImageUploadService {
         String EXT = extractExt(originName);
         String ext = EXT.toLowerCase();
         Long bytes = multipartFile.getSize();
+        String s3StoreDestination = "goodsduck-admin/temporary-image";
+        if (imageType.equals(POST)) s3StoreDestination = postS3Bucket;
+        else if (imageType.equals(ITEM)) s3StoreDestination = itemS3Bucket;
+        else if (imageType.equals(PROFILE)) s3StoreDestination = profileS3Bucket;
+        else if (imageType.equals(CHAT)) s3StoreDestination = chatS3Bucket;
+
 
         if(!ext.equals("gif")) {
 
@@ -187,7 +195,7 @@ public class ImageUploadService {
         else {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType("gif");
-            s3Client.putObject(new PutObjectRequest(postS3Bucket, uploadName, multipartFile.getInputStream(), metadata));
+            s3Client.putObject(new PutObjectRequest(s3StoreDestination, uploadName, multipartFile.getInputStream(), metadata));
         }
 
         Image savedImage;
@@ -198,7 +206,7 @@ public class ImageUploadService {
             savedImage = new Image(originName, uploadName, s3Client.getUrl(profileS3Bucket, uploadName).toString());
         } else if(imageType.equals(ImageType.CHAT)) {
             savedImage = new Image(originName, uploadName, s3Client.getUrl(chatS3Bucket, uploadName).toString());
-        }else if(imageType.equals(ImageType.POST)) {
+        }else if(imageType.equals(POST)) {
             savedImage = new Image(originName, uploadName, s3Client.getUrl(postS3Bucket, uploadName).toString());
         } else {
             savedImage = null;
@@ -271,7 +279,7 @@ public class ImageUploadService {
             s3Client.putObject(new PutObjectRequest(profileS3Bucket, uploadName, imageIS, metadata));
         } else if(imageType.equals(ImageType.CHAT)) {
             s3Client.putObject(new PutObjectRequest(chatS3Bucket, uploadName, imageIS, metadata));
-        } else if(imageType.equals(ImageType.POST)) {
+        } else if(imageType.equals(POST)) {
             s3Client.putObject(new PutObjectRequest(postS3Bucket, uploadName, imageIS, metadata));
         } else {
             throw new RuntimeException("Fail to upload image in ImageUploadService.uploadImageToS3");
