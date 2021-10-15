@@ -15,6 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByPhoneNumber(String phoneNumber);
     User findByNickName(String nickName);
     User findByEmail(String email);
+    Boolean existsByEmail(String email);
+    Boolean existsByPhoneNumber(String phoneNumber);
+    Boolean existsByNickName(String nickName);
+
 
     @Query("select u from User u where u.deletedAt is not null and u.phoneNumber is not Null")
     List<User> findAllWithDeleted();

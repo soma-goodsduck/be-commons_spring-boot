@@ -225,14 +225,18 @@ public class UserService {
     // 회원가입 V2
     public UserDtoV2 signUpV2(UserSignUpRequestV2 userSignUpRequest) {
 
-        if(userSignUpRequest.getPhoneNumber() == "" || userSignUpRequest.getEmail() == "" || userSignUpRequest.getNickName() == "") {
-            throw new InvalidRequestDataException();
-        }
+        String nickName = userSignUpRequest.getNickName();
+        String email = userSignUpRequest.getEmail();
+        String phoneNumber = userSignUpRequest.getPhoneNumber();
+
+        // COMMENT: 유효성 검사 (이메일, 핸드폰 번호, 닉네임)
+        if (userRepository.existsByEmail(email) || userRepository.existsByPhoneNumber(phoneNumber) || userRepository.existsByNickName(nickName))
+            throw new InvalidRequestDataException("There is duplicated data in input data.");
 
         User user = userRepository.save(
-                new User(userSignUpRequest.getNickName(),
-                         userSignUpRequest.getEmail(),
-                         userSignUpRequest.getPhoneNumber())
+                new User(nickName,
+                         email,
+                         phoneNumber)
         );
         user.setImageUrl(PropertyUtil.BASIC_IMAGE_URL);
         String encodedPassword = passwordEncoder.encode(userSignUpRequest.getPassword());
