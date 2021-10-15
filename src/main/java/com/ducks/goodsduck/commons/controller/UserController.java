@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class UserController {
     @NoCheckJwt
     @ApiOperation("자체 회원가입 API V2 (비회원)")
     @PostMapping("/v2/users/sign-up")
-    public ApiResult<UserDtoV2> signUpUserV2(@RequestBody UserSignUpRequestV2 userSignUpRequest) {
+    public ApiResult<UserDtoV2> signUpUserV2(@Valid @RequestBody UserSignUpRequestV2 userSignUpRequest) {
         return OK(userService.signUpV2(userSignUpRequest));
     }
 

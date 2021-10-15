@@ -39,6 +39,9 @@ dependencies {
 	implementation 'com.newrelic.telemetry:micrometer-registry-new-relic:0.7.0'
 	implementation 'io.micrometer:micrometer-core:1.6.4'
 
+	// Spring boot Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	// Spring Boot AOP
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
