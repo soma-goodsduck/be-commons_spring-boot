@@ -58,6 +58,7 @@ public class GeneralExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResult<?>> handleValidationException(MethodArgumentNotValidException e) {
         ApplicationException invalidDataException = new ApplicationException(e, -105);
+        log.debug("@Valid Error occured: {}", e.getMessage(), e);
         return newApplicationResponse(invalidDataException, HttpStatus.OK);
     }
 

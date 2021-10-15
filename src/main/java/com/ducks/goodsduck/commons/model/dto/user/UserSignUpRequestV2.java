@@ -22,8 +22,7 @@ public class UserSignUpRequestV2 {
     private String email;
 
     @NotBlank(message = "Password must not be blank.")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@\\#$%<>^&*_-])[A-Za-z\\d$@$!%*#?&]{8,}$", message = "Password must include alphabat, number, special symbol")
-    @Size(min=8, max = 20, message = "Password length must be between 8 and 20.")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[~$@$!%_\\^<>\\-*#?&])[A-Za-z[0-9]~$@$!%_\\^<>\\-*#?&]{8,20}$", message = "Password must include alphabat, number, special symbol and length must be between 8 and 20.")
     private String password;
 
     @NotBlank(message = "Phone number must not be blank.")
