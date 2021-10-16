@@ -4,9 +4,9 @@ public enum ActivityType {
     COMMENT(5, 0),
     ITEM(10, 0),
     REVIEW(20, 0),
-    POST(10, 1),
-    ITEM_SELL(0, 2),
-    ITEM_BUY(0, 1);
+    POST(10, 0),
+    ITEM_SELL(0, 10),
+    ITEM_BUY(0, 0);
 
     private int exp;
     private int vote;

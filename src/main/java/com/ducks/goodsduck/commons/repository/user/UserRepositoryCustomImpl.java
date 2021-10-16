@@ -39,7 +39,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public Long addDailyVoteAll() {
         return queryFactory
                 .update(user)
-                .set(user.numberOfVotes, user.numberOfVotes.add(1L))
+                .set(user.numberOfVotes, user.numberOfVotes.add(2L))
                 .execute();
     }
 }
