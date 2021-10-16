@@ -94,9 +94,11 @@ public class PostService {
 
             if (user.gainExpByType(ActivityType.POST) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
-                user.levelUp();
-                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                boolean success = user.levelUp();
+                if(success) {
+                    List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                    FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                }
             }
 
             return post.getId();
