@@ -54,7 +54,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .select(post, userPost)
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
-                .where(builder)
+                .where(builder.and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
@@ -77,7 +77,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .select(post, userPost)
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
-                .where(builder.and(post.postCategory.name.eq("나눔글")))
+                .where(builder.and(post.postCategory.name.eq("나눔글")).and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
@@ -96,7 +96,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .select(post, userPost)
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
-                .where(post.idolGroup.id.eq(idolGroupId).and(builder))
+                .where(post.idolGroup.id.eq(idolGroupId).and(builder).and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
@@ -115,7 +115,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .select(post, userPost)
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
-                .where(post.idolGroup.id.eq(idolGroupId).and(builder).and(post.postCategory.name.eq("나눔글")))
+                .where(post.idolGroup.id.eq(idolGroupId).and(builder).and(post.postCategory.name.eq("나눔글")).and(post.deletedAt.isNull()))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
