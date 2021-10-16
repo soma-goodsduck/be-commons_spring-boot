@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,9 +49,17 @@ public class GeneralExceptionHandler {
                         InvalidUserRoleException.class, InvalidStateException.class,
                         ImageProcessException.class, InvalidMetadataException.class,
                         Oauth2Exception.class, SmsAuthorizationException.class,
-                        NotFoundDataException.class,})
+                        NotFoundDataException.class})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
+    }
+
+    // HINT: @Valid 예외 처리
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResult<?>> handleValidationException(MethodArgumentNotValidException e) {
+        ApplicationException invalidDataException = new ApplicationException(e, -105);
+        log.debug("@Valid Error occured: {}", e.getMessage(), e);
+        return newApplicationResponse(invalidDataException, HttpStatus.OK);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
