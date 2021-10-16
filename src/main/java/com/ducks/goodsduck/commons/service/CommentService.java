@@ -74,9 +74,11 @@ public class CommentService {
 
             if (user.gainExpByType(ActivityType.COMMENT) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
-                user.levelUp();
-                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                boolean success = user.levelUp();
+                if(success) {
+                    List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                    FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                }
             }
 
             return comment.getId();
@@ -109,9 +111,11 @@ public class CommentService {
 
             if (user.gainExpByType(ActivityType.COMMENT) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
-                user.levelUp();
-                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                boolean success = user.levelUp();
+                if(success) {
+                    List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                    FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                }
             }
 
             return comment.getId();
@@ -150,9 +154,11 @@ public class CommentService {
 
             if (user.gainExpByType(ActivityType.COMMENT) >= 100){
                 if (user.getLevel() == null) user.setLevel(1);
-                user.levelUp();
-                registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                boolean success = user.levelUp();
+                if(success) {
+                    registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                    FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+                }
             }
 
             User postWriter = post.getUser();

@@ -118,9 +118,11 @@ public class NotificationService {
 
         if (sender.gainExpByType(ActivityType.REVIEW) >= 100){
             if (sender.getLevel() == null) sender.setLevel(1);
-            sender.levelUp();
-            List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(sender.getId());
-            FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            boolean success = sender.levelUp();
+            if(success) {
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(sender.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
         }
 
 

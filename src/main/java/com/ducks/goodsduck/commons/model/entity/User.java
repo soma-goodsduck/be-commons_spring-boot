@@ -98,9 +98,14 @@ public class User {
         return exp;
     }
 
-    public void levelUp() {
-        this.level++;
-        this.exp -= 100;
+    public boolean levelUp() {
+        if(this.level + 1 <= 25) {
+            this.level++;
+            this.exp -= 100;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void getVoteByActivity(ActivityType activityType){

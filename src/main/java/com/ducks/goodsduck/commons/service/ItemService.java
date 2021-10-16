@@ -129,9 +129,11 @@ public class ItemService {
 
         if (user.gainExpByType(ActivityType.ITEM) >= 100){
             if (user.getLevel() == null) user.setLevel(1);
-            user.levelUp();
-            List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-            FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            boolean success = user.levelUp();
+            if(success) {
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
         }
 
         if (itemUploadRequest.getTradeType().equals(TradeType.BUY)) user.getVoteByActivity(ActivityType.ITEM_BUY);
