@@ -193,10 +193,10 @@ public class Scheduler {
         }
     }
 
-    // HINT: 자정 마다 투표했던 아이돌 그룹 ID를 0으로 초기화 (클라이언트에서 ID 유무로 투표 참여 여부 체크)
-    @Scheduled(cron = "0 0 0 * * *")
-    public void initializeVoteInfo() {
-        userRepositoryCustom.initializeVotedIdolGroupIdAll();
-        userRepositoryCustom.addDailyVoteAll();
-    }
+    // TODO: 일시 중단 (20211017 일, 자정에 재활성화 예정)
+//    @Scheduled(cron = "0 0 0 * * *")
+//    public void initializeVoteInfo() {
+//        userRepositoryCustom.initializeVotedIdolGroupIdAll();
+//        userRepositoryCustom.addDailyVoteAll();
+//    }
 }

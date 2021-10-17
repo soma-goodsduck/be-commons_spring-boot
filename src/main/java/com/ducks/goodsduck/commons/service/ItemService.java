@@ -136,8 +136,8 @@ public class ItemService {
             }
         }
 
-        if (itemUploadRequest.getTradeType().equals(TradeType.SELL)) user.getVoteByActivity(ActivityType.ITEM_SELL);
-
+        // TODO: 일시 중단 (20211017 일, 자정에 재활성화 예정)
+//        if (itemUploadRequest.getTradeType().equals(TradeType.SELL)) user.getVoteByActivity(ActivityType.ITEM_SELL);
 
         return item.getId();
     }
