@@ -193,10 +193,9 @@ public class Scheduler {
         }
     }
 
-    // TODO: 일시 중단 (20211017 일, 자정에 재활성화 예정)
-//    @Scheduled(cron = "0 0 0 * * *")
-//    public void initializeVoteInfo() {
-//        userRepositoryCustom.initializeVotedIdolGroupIdAll();
-//        userRepositoryCustom.addDailyVoteAll();
-//    }
+    @Scheduled(cron = "0 0 0 * * *")
+    public void initializeVoteInfo() {
+        userRepositoryCustom.initializeVotedIdolGroupIdAll();
+        userRepositoryCustom.addDailyVoteAll();
+    }
 }
