@@ -17,6 +17,7 @@ import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
+import com.ducks.goodsduck.commons.repository.idol.IdolGroupVoteRedisTemplate;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.image.PostImageRepository;
@@ -60,6 +61,8 @@ public class PostService {
     private final PostCategoryRepository postCategoryRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
 
+    private final IdolGroupVoteRedisTemplate idolGroupVoteRedisTemplate;
+
     private final ImageUploadService imageUploadService;
     private final MessageSource messageSource;
 
@@ -90,6 +93,7 @@ public class PostService {
                 }
             }
 
+            idolGroupVoteRedisTemplate.addCountUploadByUserId(userId);
             postRepository.save(post);
 
             if (user.gainExpByType(ActivityType.POST) >= 100){

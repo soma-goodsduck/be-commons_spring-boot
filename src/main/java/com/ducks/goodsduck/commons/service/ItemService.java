@@ -22,6 +22,7 @@ import com.ducks.goodsduck.commons.model.enums.*;
 import com.ducks.goodsduck.commons.model.redis.ClickItemDataRedis;
 import com.ducks.goodsduck.commons.repository.chat.ChatRepository;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
+import com.ducks.goodsduck.commons.repository.idol.IdolGroupVoteRedisTemplate;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.report.ItemReportRepository;
@@ -83,6 +84,7 @@ public class ItemService {
     private final ReviewRepositoryCustom reviewRepositoryCustom;
     private final ItemImageRepository itemImageRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
+    private final IdolGroupVoteRedisTemplate idolGroupVoteRedisTemplate;
     private final ObjectMapper objectMapper;
     private final MessageSource messageSource;
 
@@ -125,6 +127,7 @@ public class ItemService {
             imageRepository.save(itemImage);
         }
 
+        idolGroupVoteRedisTemplate.addCountUploadByUserId(userId);
         itemRepository.save(item);
 
         if (user.gainExpByType(ActivityType.ITEM) >= 100){
