@@ -1,11 +1,9 @@
 package com.ducks.goodsduck.commons.service;
 
-import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
 import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.VoteResponse;
-import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupDto;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupWithVote;
 import com.ducks.goodsduck.commons.model.dto.idol.IdolGroupWithVotes;
 import com.ducks.goodsduck.commons.model.entity.IdolGroup;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +42,7 @@ public class IdolGroupService {
     }
 
     public IdolGroupWithVotes getIdolGroupsWithVote(Long userId) {
-        Map<Long, Long> idolGroupVoteMap = idolGroupVoteRedisTemplate.findAll();
+        Map<Long, Long> idolGroupVoteMap = idolGroupVoteRedisTemplate.findAllVoteOfIdolGroup();
         List<IdolGroupWithVote> idolGroupsWithVotes = idolGroupRepository.findAll()
                 .stream()
                 .map(idolGroup -> {
@@ -96,6 +93,6 @@ public class IdolGroupService {
                         new Object[]{"User"}, null)));
 
         if (!user.getRole().equals(UserRole.ADMIN)) throw new UnauthorizedException();
-        return idolGroupVoteRedisTemplate.clean();
+        return idolGroupVoteRedisTemplate.cleanVotesOfIdolGroup();
     }
 }

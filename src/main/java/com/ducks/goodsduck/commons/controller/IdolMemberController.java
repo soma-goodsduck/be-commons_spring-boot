@@ -46,7 +46,7 @@ public class IdolMemberController {
     }
 
     @NoCheckJwt
-    @GetMapping("/v1/idol/member/{idol_member_id}")
+    @GetMapping("/v1/idol-members/{idol_member_id}")
     @ApiOperation("특정 아이돌 멤버 가져오기 API")
     public ApiResult<IdolMemberDto> getIdolMember(@PathVariable("idol_member_id") Long idolMemberId) {
         return OK(idolMemberService.findIdolMemberById(idolMemberId)

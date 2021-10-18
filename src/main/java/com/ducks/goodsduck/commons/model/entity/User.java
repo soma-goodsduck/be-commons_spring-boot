@@ -34,6 +34,7 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
+    private Boolean haveGetGrantOfAttend;
     private Long votedIdolGroupId;
     private Long numberOfVotes;
 
@@ -63,8 +64,9 @@ public class User {
         this.exp = 0;
         this.reportCount = 0;
         this.bcryptId = createBcryptId();
+        this.haveGetGrantOfAttend = false;
         this.votedIdolGroupId = 0L;
-        this.numberOfVotes = 1L;
+        this.numberOfVotes = 2L;
     }
 
     public String createBcryptId() {
@@ -110,5 +112,10 @@ public class User {
 
     public void getVoteByActivity(ActivityType activityType){
         this.numberOfVotes += activityType.getVote();
+    }
+
+    public void grantOfAttend() {
+        this.numberOfVotes += 2L;
+        this.haveGetGrantOfAttend = true;
     }
 }
