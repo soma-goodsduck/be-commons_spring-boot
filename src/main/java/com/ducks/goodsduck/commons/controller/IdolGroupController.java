@@ -55,14 +55,13 @@ public class IdolGroupController {
                 .orElseGet(() -> new IdolGroupDto()));
     }
 
-    // TODO: 일시 중단 (20211017 일, 자정에 재활성화 예정)
-//    @PostMapping("/v1/idol-groups/{idolGroupId}/vote")
-//    @ApiOperation("특정 아이돌 그룹에 투표하기 API")
-//    public ApiResult<VoteResponse> voteIdolGroup(HttpServletRequest request, @PathVariable("idolGroupId") Long idolGroupId, @RequestParam("voteCount") Long voteCount) {
-//        var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
-//        if (voteCount < 1L) throw new InvalidRequestDataException("Vote count must be more than zero.");
-//        return OK(idolGroupService.voteIdolGroup(userId, idolGroupId, voteCount));
-//    }
+   @PostMapping("/v1/idol-groups/{idolGroupId}/vote")
+   @ApiOperation("특정 아이돌 그룹에 투표하기 API")
+   public ApiResult<VoteResponse> voteIdolGroup(HttpServletRequest request, @PathVariable("idolGroupId") Long idolGroupId, @RequestParam("voteCount") Long voteCount) {
+       var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+       if (voteCount < 1L) throw new InvalidRequestDataException("Vote count must be more than zero.");
+       return OK(idolGroupService.voteIdolGroup(userId, idolGroupId, voteCount));
+   }
 
     @DeleteMapping("/v1/vote/idol-groups")
     @ApiOperation("(관리자용) 아이돌 그룹 투표 정보 비우기 API")
