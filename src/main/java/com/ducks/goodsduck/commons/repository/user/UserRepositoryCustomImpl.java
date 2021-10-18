@@ -42,4 +42,12 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 .set(user.numberOfVotes, user.numberOfVotes.add(2L))
                 .execute();
     }
+
+    @Override
+    public Long initializeGrantOfAttendAll() {
+        return queryFactory
+                .update(user)
+                .set(user.haveGetGrantOfAttend, false)
+                .execute();
+    }
 }

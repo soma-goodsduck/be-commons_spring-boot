@@ -196,6 +196,7 @@ public class Scheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void initializeVoteInfo() {
         userRepositoryCustom.initializeVotedIdolGroupIdAll();
-        userRepositoryCustom.addDailyVoteAll();
+//        userRepositoryCustom.addDailyVoteAll();
+        userRepositoryCustom.initializeGrantOfAttendAll();
     }
 }

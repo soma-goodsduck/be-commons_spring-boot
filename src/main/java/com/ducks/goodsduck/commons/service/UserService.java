@@ -278,8 +278,17 @@ public class UserService {
 
         Long userId = Long.valueOf((Integer) payloads.get(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS));
 
-        if (userRepository.existsById(userId)) return userId;
-        else return -1L;
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) return -1L;
+        else {
+            User user = userOpt.get();
+            user.setLastLoginAt(LocalDateTime.now());
+            if (!user.getHaveGetGrantOfAttend()) {
+                user.grantOfAttend();
+                user.setHaveGetGrantOfAttend(true);
+            }
+            return user.getId();
+        }
     }
 
     public Boolean updateProfile(Long userId, MultipartFile multipartFile, UpdateProfileRequest updateProfileRequest) throws IOException {

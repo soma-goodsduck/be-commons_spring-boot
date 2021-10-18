@@ -1,6 +1,9 @@
 package com.ducks.goodsduck.commons.service;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
+import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
 import com.ducks.goodsduck.commons.model.dto.LoginUser;
 import com.ducks.goodsduck.commons.model.dto.category.CategoryResponse;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
@@ -17,6 +20,7 @@ import com.ducks.goodsduck.commons.model.enums.ImageType;
 import com.ducks.goodsduck.commons.repository.category.PostCategoryRepository;
 import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupRepository;
+import com.ducks.goodsduck.commons.repository.idol.IdolGroupVoteRedisTemplate;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.image.PostImageRepository;
@@ -60,26 +64,28 @@ public class PostService {
     private final PostCategoryRepository postCategoryRepository;
     private final DeviceRepositoryCustom deviceRepositoryCustom;
 
+    private final IdolGroupVoteRedisTemplate idolGroupVoteRedisTemplate;
+
     private final ImageUploadService imageUploadService;
     private final MessageSource messageSource;
 
-    public Long upload(PostUploadRequest postUploadRequest, List<MultipartFile> multipartFiles, Long userId) {
+    public Long upload(PostUploadRequest postUploadRequest, List<MultipartFile> multipartFiles, Long userId) throws IOException, MetadataException {
+
+        Post post = new Post(postUploadRequest);
+
+        /** Post-User 연관관계 삽입 **/
+        User user = userRepository.findById(userId).get();
+        post.setUser(user);
+
+        /** Post-IdolGroup 연관관계 삽입 **/
+        IdolGroup idolGroup = idolGroupRepository.findById(postUploadRequest.getIdolGroupId()).get();
+        post.setIdolGroup(idolGroup);
+
+        /** Post-Category 연관관계 삽입 **/
+        PostCategory postCategory = postCategoryRepository.findById(postUploadRequest.getPostCategoryId()).get();
+        post.setPostCategory(postCategory);
 
         try {
-            Post post = new Post(postUploadRequest);
-
-            /** Post-User 연관관계 삽입 **/
-            User user = userRepository.findById(userId).get();
-            post.setUser(user);
-
-            /** Post-IdolGroup 연관관계 삽입 **/
-            IdolGroup idolGroup = idolGroupRepository.findById(postUploadRequest.getIdolGroupId()).get();
-            post.setIdolGroup(idolGroup);
-
-            /** Post-Category 연관관계 삽입 **/
-            PostCategory postCategory = postCategoryRepository.findById(postUploadRequest.getPostCategoryId()).get();
-            post.setPostCategory(postCategory);
-
             /** 이미지 업로드 처리 & Image-Post 연관관계 삽입 **/
             if(multipartFiles != null) {
                 List<Image> images = imageUploadService.uploadImages(multipartFiles, ImageType.POST, user.getNickName());
@@ -90,21 +96,23 @@ public class PostService {
                 }
             }
 
-            postRepository.save(post);
-
-            if (user.gainExpByType(ActivityType.POST) >= 100){
-                if (user.getLevel() == null) user.setLevel(1);
-                boolean success = user.levelUp();
-                if(success) {
-                    List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
-                    FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
-                }
-            }
-
-            return post.getId();
-        } catch (Exception e) {
-            return -1L;
+        } catch (ImageProcessingException e) {
+            throw new ImageProcessException(e);
         }
+
+        idolGroupVoteRedisTemplate.addCountUploadByUserId(userId);
+        postRepository.save(post);
+
+        if (user.gainExpByType(ActivityType.POST) >= 100){
+            if (user.getLevel() == null) user.setLevel(1);
+            boolean success = user.levelUp();
+            if(success) {
+                List<String> registrationTokensByUserId = deviceRepositoryCustom.getRegistrationTokensByUserId(user.getId());
+                FcmUtil.sendMessage(NotificationMessage.ofLevelUp(), registrationTokensByUserId);
+            }
+        }
+
+        return post.getId();
     }
 
     public PostDetailResponse showDetailWithLike(Long userId, Long postId) {

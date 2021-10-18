@@ -6,9 +6,9 @@
     <!-- err log file name -->
     <property name="ERR_LOG_FILE_NAME" value="err_log"/>
     <!-- log file path -->
-    <property name="LOG_PATH" value="${log.config.path}"/>
+    <property name="LOG_PATH" value="/opt/logs"/>
     <!-- log file name -->
-    <property name="LOG_FILE_NAME" value="${log.config.filename}"/>
+    <property name="LOG_FILE_NAME" value="commons_log"/>
 
     <!-- Configure the Console appender -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
@@ -69,7 +69,7 @@
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
             <!-- 일자별 로그파일 최대 보관주기(~일), 해당 설정일 이상된 파일은 자동으로 제거-->
-            <maxHistory>60</maxHistory>
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
 

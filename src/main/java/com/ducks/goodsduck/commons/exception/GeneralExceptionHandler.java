@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.exception;
 
+import com.drew.imaging.ImageProcessingException;
 import com.ducks.goodsduck.commons.exception.common.*;
 import com.ducks.goodsduck.commons.exception.image.ImageProcessException;
 import com.ducks.goodsduck.commons.exception.image.InvalidMetadataException;
@@ -49,7 +50,7 @@ public class GeneralExceptionHandler {
                         InvalidUserRoleException.class, InvalidStateException.class,
                         ImageProcessException.class, InvalidMetadataException.class,
                         Oauth2Exception.class, SmsAuthorizationException.class,
-                        NotFoundDataException.class})
+                        NotFoundDataException.class, UploadRequestExceedException.class})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
     }
@@ -81,7 +82,7 @@ public class GeneralExceptionHandler {
     @ExceptionHandler({InvalidRequestDataException.class, DuplicateRequestException.class,
                        IllegalArgumentException.class, IllegalStateException.class,
                        MultipartException.class, MissingServletRequestParameterException.class,
-                       InvalidArgumentException.class})
+                       InvalidArgumentException.class, ImageProcessingException.class})
     public ResponseEntity<ApiResult<?>> handleInvalidInputDataException(Exception e) {
         log.debug("Bad request exception occured: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.BAD_REQUEST);
