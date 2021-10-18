@@ -50,7 +50,7 @@ public class GeneralExceptionHandler {
                         InvalidUserRoleException.class, InvalidStateException.class,
                         ImageProcessException.class, InvalidMetadataException.class,
                         Oauth2Exception.class, SmsAuthorizationException.class,
-                        NotFoundDataException.class})
+                        NotFoundDataException.class, InvalidRequestDataException.class})
     public ResponseEntity<ApiResult<?>> handleApplicationException(ApplicationException e) {
         return newApplicationResponse(e, HttpStatus.OK);
     }
