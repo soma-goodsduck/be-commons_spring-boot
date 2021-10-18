@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.controller;
 
+import com.drew.metadata.MetadataException;
 import com.ducks.goodsduck.commons.model.dto.ApiResult;
 import com.ducks.goodsduck.commons.model.dto.home.HomeResponse;
 import com.ducks.goodsduck.commons.model.dto.post.PostDetailResponse;
@@ -39,7 +40,7 @@ public class PostController {
     @PostMapping("/v1/posts")
     public ApiResult<Long> uploadPost(@RequestParam String stringPostDto,
                                       @RequestParam(required = false) List<MultipartFile> multipartFiles,
-                                      HttpServletRequest request) throws JsonProcessingException {
+                                      HttpServletRequest request) throws IOException, MetadataException {
 
         PostUploadRequest postUploadRequest = new ObjectMapper().readValue(stringPostDto, PostUploadRequest.class);
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
