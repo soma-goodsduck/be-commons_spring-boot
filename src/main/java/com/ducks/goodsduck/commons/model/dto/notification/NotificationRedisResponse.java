@@ -53,18 +53,19 @@ public class NotificationRedisResponse implements Serializable {
         this.isRead = notificationRedis.getIsRead();
 
         String title = "GOODSDUCK";
-        String body = String.format("%s님이 \"%s\" 굿즈", senderNickName,
-                itemName.length() < 12 ? itemName : itemName.substring(0, 12).concat("..."));
+        String body = "";
         String messageUri = "";
         String iconUri = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
         switch (type) {
             case PRICE_PROPOSE:
-                body = body.concat(String.format("에 %s을 했어요. [%d원]", type.getKorName(), priceProposePrice));
+                body = body.concat(String.format("%s님이 \"%s\" 굿즈에 %s을 했어요. [%d원]", senderNickName,
+                        itemName.length() < 12 ? itemName : itemName.substring(0, 12).concat("..."), type.getKorName(), priceProposePrice));
                 messageUri = messageUri.concat(String.format("price/%d", itemId));
                 break;
 
             case CHAT:
-                body = body.concat(String.format("에 %s를 보냈어요.", type.getKorName()));
+                body = body.concat(String.format("%s님이 \"%s\" 굿즈에 %s를 보냈어요.", senderNickName,
+                        itemName.length() < 12 ? itemName : itemName.substring(0, 12).concat("..."), type.getKorName()));
                 messageUri = messageUri.concat("chatting");
                 break;
 
