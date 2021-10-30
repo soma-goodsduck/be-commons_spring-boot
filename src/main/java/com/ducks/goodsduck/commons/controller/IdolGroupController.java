@@ -40,7 +40,7 @@ public class IdolGroupController {
     }
 
     @GetMapping("/v1/vote/idol-groups")
-    @ApiOperation("아이돌 그룹 리스트 가져오기 API")
+    @ApiOperation("투표 정보를 포함한 아이돌 그룹 리스트 가져오기 API")
     public ApiResult<IdolGroupWithVotes> getIdolGroupsWithVote(HttpServletRequest request) {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(idolGroupService.getIdolGroupsWithVote(userId));

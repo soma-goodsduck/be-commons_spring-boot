@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -64,6 +65,7 @@ public class UserService {
     private final CustomJwtService jwtService;
     private final ImageUploadService imageUploadService;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager em;
 
     private final UserRepository userRepository;
     private final UserRepositoryCustom userRepositoryCustom;
@@ -219,6 +221,10 @@ public class UserService {
         userDto.setSocialType(userSignUpRequest.getSocialAccountType());
         userDto.setSocialAccountId(userSignUpRequest.getSocialAccountId());
         userDto.setJwt(jwt);
+
+        em.flush();
+        em.close();
+
         return userDto;
     }
 
