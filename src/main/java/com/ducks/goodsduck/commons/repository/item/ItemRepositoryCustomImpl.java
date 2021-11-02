@@ -336,7 +336,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId) {
+    public List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId, List<Long> blockedUserIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -350,6 +350,21 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             builder.and(item.id.lt(itemId));
         }
 
+        if (blockedUserIdList == null) {
+            return queryFactory
+                    .select(item, userItem)
+                    .from(item)
+                    .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                    .join(item.idolMember, idolMember)
+                    .join(item.idolMember.idolGroup, idolGroup)
+                    .join(item.itemCategory, itemCategory)
+                    .join(item.user, user)
+                    .where(builder.and(item.deletedAt.isNull()))
+                    .orderBy(item.id.desc())
+                    .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                    .fetch();
+        }
+
         return queryFactory
                 .select(item, userItem)
                 .from(item)
@@ -359,7 +374,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder.and(item.deletedAt.isNull())
-                    .and(item.user.id.notIn(item.user.blockedUsers)))
+                    .and(item.user.id.notIn(blockedUserIdList)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -452,7 +467,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId) {
+    public List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId, List<Long> blockedUserIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -460,13 +475,24 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             builder.and(item.id.lt(itemId));
         }
 
+        if (blockedUserIdList == null) {
+            return queryFactory
+                    .select(item, userItem)
+                    .from(item)
+                    .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                    .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
+                            .and(item.user.role.ne(UserRole.RESIGNED)))
+                    .orderBy(item.id.desc())
+                    .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                    .fetch();
+        }
         return queryFactory
                 .select(item, userItem)
                 .from(item)
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
                         .and(item.user.role.ne(UserRole.RESIGNED))
-                        .and(item.user.id.notIn(item.user.blockedUsers)))
+                        .and(item.user.id.notIn(blockedUserIdList)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -590,7 +616,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+    public List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId, List<Long> blockedUserIdList) {
 
         Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
@@ -620,17 +646,30 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
         if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
 
-        return queryFactory
-                .select(item, userItem)
-                .from(item)
-                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
-                .join(item.idolMember.idolGroup, idolGroup)
-                .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
+        if (blockedUserIdList == null) {
+            return queryFactory
+                    .select(item, userItem)
+                    .from(item)
+                    .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                    .join(item.idolMember.idolGroup, idolGroup)
+                    .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
+                            .and(item.tradeStatus.ne(COMPLETE)))
+                    .orderBy(item.id.desc())
+                    .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                    .fetch();
+        } else {
+            return queryFactory
+                    .select(item, userItem)
+                    .from(item)
+                    .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                    .join(item.idolMember.idolGroup, idolGroup)
+                    .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
                         .and(item.tradeStatus.ne(COMPLETE))
-                        .and(item.user.id.notIn(item.user.blockedUsers)))
-                .orderBy(item.id.desc())
-                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
-                .fetch();
+                        .and(item.user.id.notIn(blockedUserIdList)))
+                    .orderBy(item.id.desc())
+                    .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                    .fetch();
+        }
     }
 
     @Override

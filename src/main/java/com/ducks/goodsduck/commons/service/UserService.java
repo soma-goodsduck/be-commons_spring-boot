@@ -614,7 +614,7 @@ public class UserService {
                         new Object[]{"User"}, null)));
 
         User blockedUser = userRepository.findByBcryptId(bcryptId);
-        List<Long> blockedUsers = user.getBlockedUsers();
+        List<Long> blockedUsers = user.getBlockedUserIds();
         blockedUsers.add(blockedUser.getId());
         em.flush();
         em.clear();

@@ -25,7 +25,6 @@ import com.ducks.goodsduck.commons.repository.device.DeviceRepositoryCustom;
 import com.ducks.goodsduck.commons.repository.idol.IdolGroupVoteRedisTemplate;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepository;
 import com.ducks.goodsduck.commons.repository.pricepropose.PriceProposeRepositoryCustom;
-import com.ducks.goodsduck.commons.repository.report.ItemReportRepository;
 import com.ducks.goodsduck.commons.repository.category.ItemCategoryRepository;
 import com.ducks.goodsduck.commons.repository.idol.IdolMemberRepository;
 import com.ducks.goodsduck.commons.repository.image.ImageRepository;
@@ -564,7 +563,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV4(userId, userIdolGroups, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV4(userId, userIdolGroups, itemId, user.getBlockedUserIds());
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -688,7 +687,11 @@ public class ItemService {
     // FEAT : 회원용 홈 필터링 (아이돌그룹) V3
     public List<ItemHomeResponse> getItemListFilterByIdolGroupForUserV3(Long userId, Long idolGroupId, Long itemId) {
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV4(userId, idolGroupId, itemId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV4(userId, idolGroupId, itemId, user.getBlockedUserIds());
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
@@ -812,7 +815,11 @@ public class ItemService {
     // FEAT : 회원용 홈 필터링 (ALL) V3
     public List<ItemHomeResponse> getItemListFilterByAllForUserV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV4(userId, itemFilterDto, itemId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV4(userId, itemFilterDto, itemId, user.getBlockedUserIds());
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()

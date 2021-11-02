@@ -55,7 +55,7 @@ public class User {
     private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
 
     @Convert(converter = IntegerArrayConverter.class)
-    private List<Long> blockedUsers = new ArrayList<>();
+    private List<Long> blockedUserIds = new ArrayList<>();
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
