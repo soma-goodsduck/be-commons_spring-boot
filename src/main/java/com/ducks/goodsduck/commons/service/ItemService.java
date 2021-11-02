@@ -564,7 +564,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV3(userId, userIdolGroups, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV4(userId, userIdolGroups, itemId);
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -688,7 +688,7 @@ public class ItemService {
     // FEAT : 회원용 홈 필터링 (아이돌그룹) V3
     public List<ItemHomeResponse> getItemListFilterByIdolGroupForUserV3(Long userId, Long idolGroupId, Long itemId) {
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV3(userId, idolGroupId, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV4(userId, idolGroupId, itemId);
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
@@ -812,7 +812,7 @@ public class ItemService {
     // FEAT : 회원용 홈 필터링 (ALL) V3
     public List<ItemHomeResponse> getItemListFilterByAllForUserV3(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV3(userId, itemFilterDto, itemId);
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV4(userId, itemFilterDto, itemId);
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()

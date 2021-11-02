@@ -1,5 +1,6 @@
 package com.ducks.goodsduck.commons.model.entity;
 
+import com.ducks.goodsduck.commons.annotation.IntegerArrayConverter;
 import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.model.enums.UserRole;
 import lombok.AccessLevel;
@@ -52,6 +53,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserIdolGroup> userIdolGroups = new ArrayList<>();
+
+    @Convert(converter = IntegerArrayConverter.class)
+    private List<Long> blockedUsers = new ArrayList<>();
 
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;

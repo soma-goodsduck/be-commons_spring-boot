@@ -389,6 +389,14 @@ public class UserController {
         return OK(userService.findVoteInfoByUser(userId));
     }
 
+    // 특정 유저 차단 API
+    @PostMapping("/v1/users/blocked-users/{bcryptId}")
+    @ApiOperation(value = "특정 유저 차단 API", notes = "특정 유저를 사용자의 차단 리스트에 추가함.")
+    public ApiResult<Boolean> addBlockedUser(HttpServletRequest request, @PathVariable("bcryptId") String bcryptId) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.addBlockedUser(userId, bcryptId));
+    }
+
     @NoCheckJwt
     @GetMapping("/v1/users")
     @ApiOperation("(개발용) 모든 유저 정보 조회 API")

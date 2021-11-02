@@ -336,6 +336,36 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
+    public List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (userIdolGroups.size() != 0) {
+            for (UserIdolGroup userIdolGroup : userIdolGroups) {
+                builder.or(idolGroup.id.eq(userIdolGroup.getIdolGroup().getId()));
+            }
+        }
+
+        if(itemId != 0) {
+            builder.and(item.id.lt(itemId));
+        }
+
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .join(item.idolMember, idolMember)
+                .join(item.idolMember.idolGroup, idolGroup)
+                .join(item.itemCategory, itemCategory)
+                .join(item.user, user)
+                .where(builder.and(item.deletedAt.isNull())
+                    .and(item.user.id.notIn(item.user.blockedUsers)))
+                .orderBy(item.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
     public List<Tuple> findAllByUserIdolGroupsWithUserItemV2(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable, String keyword) {
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -416,6 +446,27 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
                         .and(item.user.role.ne(UserRole.RESIGNED)))
+                .orderBy(item.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(itemId != 0) {
+            builder.and(item.id.lt(itemId));
+        }
+
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
+                        .and(item.user.role.ne(UserRole.RESIGNED))
+                        .and(item.user.id.notIn(item.user.blockedUsers)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -533,6 +584,50 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .join(item.idolMember.idolGroup, idolGroup)
                 .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
                         .and(item.tradeStatus.ne(COMPLETE)))
+                .orderBy(item.id.desc())
+                .limit(PropertyUtil.PAGEABLE_SIZE + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId) {
+
+        Long idolGroupId = itemFilterDto.getIdolGroupId();
+        List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
+        TradeType tradeType = itemFilterDto.getTradeType();
+        Long itemCategoryId = itemFilterDto.getItemCategoryId();
+        GradeStatus gradeStatus = itemFilterDto.getGradeStatus();
+        Long minPrice = itemFilterDto.getMinPrice();
+        Long maxPrice = itemFilterDto.getMaxPrice();
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if(idolMembersId != null) {
+            for (Long idolMemberId : idolMembersId) {
+                builder.or(item.idolMember.id.eq(idolMemberId));
+            }
+        } else {
+            builder.and(item.idolMember.idolGroup.id.eq(idolGroupId));
+        }
+
+        if(itemId != 0) {
+            builder.and(item.id.lt(itemId));
+        }
+
+        if(tradeType != null && !tradeType.equals(TradeType.ALL)) { builder.and(item.tradeType.eq(tradeType)); }
+        if(itemCategoryId != null) { builder.and(item.itemCategory.id.eq(itemCategoryId)); }
+        if(gradeStatus != null) { builder.and(item.gradeStatus.eq(gradeStatus)); }
+        if(minPrice != null) { builder.and(item.price.goe(minPrice)); }
+        if(maxPrice != null) { builder.and(item.price.loe(maxPrice)); }
+
+        return queryFactory
+                .select(item, userItem)
+                .from(item)
+                .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
+                .join(item.idolMember.idolGroup, idolGroup)
+                .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
+                        .and(item.tradeStatus.ne(COMPLETE))
+                        .and(item.user.id.notIn(item.user.blockedUsers)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();

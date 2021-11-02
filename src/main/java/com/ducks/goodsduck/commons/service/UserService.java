@@ -607,4 +607,17 @@ public class UserService {
         if (votedIdolGroupId == null) return new UserVoteResponse(0L);
         return new UserVoteResponse(votedIdolGroupId);
     }
+
+    public Boolean addBlockedUser(Long userId, String bcryptId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        User blockedUser = userRepository.findByBcryptId(bcryptId);
+        List<Long> blockedUsers = user.getBlockedUsers();
+        blockedUsers.add(blockedUser.getId());
+        em.flush();
+        em.clear();
+        return true;
+    }
 }
