@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.annotation;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ public class IntegerArrayConverter implements AttributeConverter<List<Integer>, 
 
     @Override
     public String convertToDatabaseColumn(List<Integer> attribute) {
+        if (attribute == null) return "";
         return attribute.stream().map(String::valueOf).collect(Collectors.joining(SPLIT_CHAR));
     }
 
