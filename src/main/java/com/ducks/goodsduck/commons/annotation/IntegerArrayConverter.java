@@ -20,7 +20,7 @@ public class IntegerArrayConverter implements AttributeConverter<List<Long>, Str
 
     @Override
     public List<Long> convertToEntityAttribute(String dbData) {
-        if (dbData == null) return new ArrayList<>();
+        if (dbData == null) return null;
         return Arrays.stream(dbData.split(SPLIT_CHAR))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
