@@ -14,7 +14,7 @@ public class IntegerArrayConverter implements AttributeConverter<List<Long>, Str
 
     @Override
     public String convertToDatabaseColumn(List<Long> attribute) {
-        if (attribute == null) return "";
+        if (attribute == null) return null;
         return attribute.stream().map(String::valueOf).collect(Collectors.joining(SPLIT_CHAR));
     }
 
