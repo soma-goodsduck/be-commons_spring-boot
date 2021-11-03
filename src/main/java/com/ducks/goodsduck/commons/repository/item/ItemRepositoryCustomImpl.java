@@ -336,7 +336,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId, List<Long> blockedUserIdList) {
+    public List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -374,7 +374,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .join(item.itemCategory, itemCategory)
                 .join(item.user, user)
                 .where(builder.and(item.deletedAt.isNull())
-                    .and(item.user.id.notIn(blockedUserIdList)))
+                    .and(item.user.id.notIn(blockedUserIdList))
+                    .and(item.id.notIn(blockedItemIdList)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -467,7 +468,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId, List<Long> blockedUserIdList) {
+    public List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -492,7 +493,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 .leftJoin(userItem).on(userItem.user.id.eq(userId), userItem.item.id.eq(item.id))
                 .where(item.idolMember.idolGroup.id.eq(idolGroupId).and(builder).and(item.deletedAt.isNull())
                         .and(item.user.role.ne(UserRole.RESIGNED))
-                        .and(item.user.id.notIn(blockedUserIdList)))
+                        .and(item.user.id.notIn(blockedUserIdList))
+                        .and(item.id.notIn(blockedItemIdList)))
                 .orderBy(item.id.desc())
                 .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                 .fetch();
@@ -616,7 +618,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId, List<Long> blockedUserIdList) {
+    public List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList) {
 
         Long idolGroupId = itemFilterDto.getIdolGroupId();
         List<Long> idolMembersId = itemFilterDto.getIdolMembersId();
@@ -665,7 +667,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                     .join(item.idolMember.idolGroup, idolGroup)
                     .where(builder.and(item.deletedAt.isNull()).and(item.user.role.ne(UserRole.RESIGNED))
                         .and(item.tradeStatus.ne(COMPLETE))
-                        .and(item.user.id.notIn(blockedUserIdList)))
+                        .and(item.user.id.notIn(blockedUserIdList))
+                        .and(item.id.notIn(blockedItemIdList)))
                     .orderBy(item.id.desc())
                     .limit(PropertyUtil.PAGEABLE_SIZE + 1)
                     .fetch();

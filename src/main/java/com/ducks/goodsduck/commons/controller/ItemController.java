@@ -250,4 +250,12 @@ public class ItemController {
         var userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(userItemService.getLikeItemsOfUserV2(userId));
     }
+
+    // 특정 아이템 차단 API
+    @PostMapping("/v1/items/blocked-items/{itemId}")
+    @ApiOperation(value = "특정 아이템 차단 API", notes = "특정 아이템 게시글을 사용자의 차단 리스트에 추가함.")
+    public ApiResult<Boolean> addBlockedUser(HttpServletRequest request, @PathVariable("itemId") Long itemId) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.addBlockedItem(userId, itemId));
+    }
 }

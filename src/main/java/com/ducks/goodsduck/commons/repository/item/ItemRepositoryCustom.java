@@ -43,19 +43,19 @@ public interface ItemRepositoryCustom {
     List<Tuple> findAllByUserIdolGroupsWithUserItem(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable);
     List<Tuple> findAllByUserIdolGroupsWithUserItemV2(Long userId, List<UserIdolGroup> userIdolGroups, Pageable pageable, String keyword);
     List<Tuple> findAllByUserIdolGroupsWithUserItemV3(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId);
-    List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId, List<Long> blockedUserIdList);  // 차단한 사용자 반영
+    List<Tuple> findAllByUserIdolGroupsWithUserItemV4(Long userId, List<UserIdolGroup> userIdolGroups, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList);  // 차단한 사용자 반영
 
     // 회원 홈 (아이돌필터링)
     List<Tuple> findAllByIdolGroupWithUserItem(Long userId, Long idolGroupId, Pageable pageable);
     List<Tuple> findAllByIdolGroupWithUserItemV2(Long userId, Long idolGroupId, Pageable pageable, String keyword);
     List<Tuple> findAllByIdolGroupWithUserItemV3(Long userId, Long idolGroupId, Long itemId);
-    List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId, List<Long> blockedUserIdList);   // 차단한 사용자 반영
+    List<Tuple> findAllByIdolGroupWithUserItemV4(Long userId, Long idolGroupId, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList);   // 차단한 사용자 반영
 
     // 회원 홈 (전체필터링)
     List<Tuple> findAllByFilter(Long userId, ItemFilterDto itemFilterDto, Pageable pageable);
     List<Tuple> findAllByFilterV2(Long userId, ItemFilterDto itemFilterDto, Pageable pageable, String keyword);
     List<Tuple> findAllByFilterV3(Long userId, ItemFilterDto itemFilterDto, Long itemId);
-    List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId, List<Long> blockedUserIdList);   // 차단한 사용자 반영
+    List<Tuple> findAllByFilterV4(Long userId, ItemFilterDto itemFilterDto, Long itemId, List<Long> blockedUserIdList, List<Long> blockedItemIdList);   // 차단한 사용자 반영
 
     Tuple findItemAndUserByItemId(Long itemId);
 

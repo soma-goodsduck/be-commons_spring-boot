@@ -57,6 +57,12 @@ public class User {
     @Convert(converter = IntegerArrayConverter.class)
     private List<Long> blockedUserIds = new ArrayList<>();
 
+    @Convert(converter = IntegerArrayConverter.class)
+    private List<Long> blockedItemIds = new ArrayList<>();
+
+    @Convert(converter = IntegerArrayConverter.class)
+    private List<Long> blockedPostIds = new ArrayList<>();
+
     public User(String nickName, String email, String phoneNumber) {
         this.nickName = nickName;
         this.email = email;

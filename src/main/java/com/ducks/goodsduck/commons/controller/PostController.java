@@ -8,6 +8,7 @@ import com.ducks.goodsduck.commons.model.dto.post.PostUpdateRequest;
 import com.ducks.goodsduck.commons.model.dto.post.PostUploadRequest;
 import com.ducks.goodsduck.commons.service.PostService;
 import com.ducks.goodsduck.commons.service.UserPostService;
+import com.ducks.goodsduck.commons.service.UserService;
 import com.ducks.goodsduck.commons.util.PropertyUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +34,7 @@ import static com.ducks.goodsduck.commons.model.dto.ApiResult.*;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
     private final UserPostService userPostService;
 
     // TODO : gif 리사이즈...
@@ -109,5 +111,13 @@ public class PostController {
 
         Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
         return OK(postService.getPostListFilterByIdolGroup(userId, idolGroupId, postId));
+    }
+
+    // 특정 포스트 차단 API
+    @PostMapping("/v1/posts/blocked-posts/{postId}")
+    @ApiOperation(value = "특정 커뮤니티 게시글 차단 API", notes = "특정 포스트를 사용자의 차단 리스트에 추가함.")
+    public ApiResult<Boolean> addBlockedUser(HttpServletRequest request, @PathVariable("postId") Long postId) {
+        Long userId = (Long) request.getAttribute(PropertyUtil.KEY_OF_USERID_IN_JWT_PAYLOADS);
+        return OK(userService.addBlockedPost(userId, postId));
     }
 }

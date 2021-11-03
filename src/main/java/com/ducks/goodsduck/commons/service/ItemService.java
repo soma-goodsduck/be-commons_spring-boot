@@ -51,6 +51,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -563,7 +564,7 @@ public class ItemService {
         user.updateLastLoginAt();
         List<UserIdolGroup> userIdolGroups = user.getUserIdolGroups();
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV4(userId, userIdolGroups, itemId, user.getBlockedUserIds());
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByUserIdolGroupsWithUserItemV4(userId, userIdolGroups, itemId, user.getBlockedUserIds(), user.getBlockedItemIds());
 
         List<ItemHomeResponse> tupleToList =  listOfTuple
                 .stream()
@@ -691,7 +692,7 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV4(userId, idolGroupId, itemId, user.getBlockedUserIds());
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByIdolGroupWithUserItemV4(userId, idolGroupId, itemId, user.getBlockedUserIds(), user.getBlockedItemIds());
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()
@@ -819,7 +820,7 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
                         new Object[]{"User"}, null)));
 
-        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV4(userId, itemFilterDto, itemId, user.getBlockedUserIds());
+        List<Tuple> listOfTuple = itemRepositoryCustom.findAllByFilterV4(userId, itemFilterDto, itemId, user.getBlockedUserIds(), user.getBlockedItemIds());
 
         List<ItemHomeResponse> tupleToList = listOfTuple
                 .stream()

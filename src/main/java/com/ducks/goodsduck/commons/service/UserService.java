@@ -620,4 +620,28 @@ public class UserService {
         em.clear();
         return true;
     }
+
+    public Boolean addBlockedItem(Long userId, Long itemId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        List<Long> blockedItemIds = user.getBlockedItemIds();
+        blockedItemIds.add(itemId);
+        em.flush();
+        em.clear();
+        return true;
+    }
+
+    public Boolean addBlockedPost(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                        new Object[]{"User"}, null)));
+
+        List<Long> blockedPostIds = user.getBlockedPostIds();
+        blockedPostIds.add(postId);
+        em.flush();
+        em.clear();
+        return true;
+    }
 }
