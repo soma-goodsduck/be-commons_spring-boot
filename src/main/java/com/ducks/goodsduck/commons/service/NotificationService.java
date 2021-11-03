@@ -399,38 +399,34 @@ public class NotificationService {
 
         if (!user.getRole().equals(ADMIN)) throw new UnauthorizedException();
 
+        String messageBody = customNotificationRequest.getMessage();
+
         try {
             // 사용자가 등록한 Device(FCM 토큰) 조회
             List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensAll();
+            int size = registrationTokens.size();
 
-            // HINT: 알림 Message 구성
-            MulticastMessage message = MulticastMessage.builder()
-                    .setNotification(builder()
-                            .setTitle(NOTIFICATION_TITLE)
-                            .setBody(customNotificationRequest.getMessage())
-                            .build())
-                    .setAndroidConfig(AndroidConfig.builder()
-                            .setNotification(AndroidNotification.builder()
-                                    .setTitle(NOTIFICATION_TITLE)
-                                    .setColor("#ffce00")
-                                    .setBody(customNotificationRequest.getMessage())
-                                    .setIcon("ic_notification")
-                                    .setClickAction(ANDROID_CLICK_ACTION)
-                                    .build())
-                            .build())
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .setIcon(NOTIFICATION_ICON_URI)
-                                    .build())
-                            .setFcmOptions(WebpushFcmOptions.builder()
-                                    .setLink("")
-                                    .build())
-                            .build())
-                    .addAllTokens(registrationTokens)
-                    .build();
 
-            // HINT: 파이어베이스에 Cloud Messaging 요청
-            requestCloudMessagingToFirebase(registrationTokens, message);
+            MulticastMessage message;
+            if (size < 500) {
+                // HINT: 알림 Message 구성
+                message = getCustomMulticastMessage(registrationTokens, messageBody);
+                // HINT: 파이어베이스에 Cloud Messaging 요청
+                requestCloudMessagingToFirebase(registrationTokens, message);
+            } else {
+                int cnt = size / 500;
+                int remain = size % 500;
+                List<String> registrationTokenList;
+                for (int i = 0; i <= cnt; i++) {
+                    if (i == cnt) {
+                        registrationTokenList = new ArrayList<>(registrationTokens.subList(i*500, size));
+                    } else {
+                        registrationTokenList = new ArrayList<>(registrationTokens.subList(i*500, (i+1) * 500));
+                    }
+                    message = getCustomMulticastMessage(registrationTokenList, messageBody);
+                    requestCloudMessagingToFirebase(registrationTokenList, message);
+                }
+            }
         } catch (FirebaseMessagingException e) {
             log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
             return false;
@@ -440,5 +436,32 @@ public class NotificationService {
         }
 
         return true;
+    }
+
+    public MulticastMessage getCustomMulticastMessage(List<String> registrationTokens, String messageBody) {
+        return MulticastMessage.builder()
+                .setNotification(builder()
+                        .setTitle(NOTIFICATION_TITLE)
+                        .setBody(messageBody)
+                        .build())
+                .setAndroidConfig(AndroidConfig.builder()
+                        .setNotification(AndroidNotification.builder()
+                                .setTitle(NOTIFICATION_TITLE)
+                                .setColor("#ffce00")
+                                .setBody(messageBody)
+                                .setIcon("ic_notification")
+                                .setClickAction(ANDROID_CLICK_ACTION)
+                                .build())
+                        .build())
+                .setWebpushConfig(WebpushConfig.builder()
+                        .setNotification(WebpushNotification.builder()
+                                .setIcon(NOTIFICATION_ICON_URI)
+                                .build())
+                        .setFcmOptions(WebpushFcmOptions.builder()
+                                .setLink("")
+                                .build())
+                        .build())
+                .addAllTokens(registrationTokens)
+                .build();
     }
 }
