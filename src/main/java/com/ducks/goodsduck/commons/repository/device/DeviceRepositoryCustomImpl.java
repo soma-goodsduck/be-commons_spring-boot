@@ -28,6 +28,15 @@ public class DeviceRepositoryCustomImpl implements DeviceRepositoryCustom {
     }
 
     @Override
+    public List<String> getRegistrationTokensAll() {
+        return queryFactory
+                .select(device.registrationToken)
+                .from(device)
+                .where(device.isAllowed.isTrue())
+                .fetch();
+    }
+
+    @Override
     public Long updateRegistrationTokenByUserId(Long userId, String registrationToken) {
         return queryFactory.update(device)
                 .set(device.registrationToken, registrationToken)

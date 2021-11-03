@@ -5,10 +5,8 @@ import com.ducks.goodsduck.commons.exception.user.UnauthorizedException;
 import com.ducks.goodsduck.commons.model.dto.chat.ChatMessageRequest;
 import com.ducks.goodsduck.commons.model.dto.notification.*;
 import com.ducks.goodsduck.commons.model.dto.pricepropose.PriceProposeResponse;
+import com.ducks.goodsduck.commons.model.entity.*;
 import com.ducks.goodsduck.commons.model.entity.Notification;
-import com.ducks.goodsduck.commons.model.entity.Review;
-import com.ducks.goodsduck.commons.model.entity.User;
-import com.ducks.goodsduck.commons.model.entity.UserChat;
 import com.ducks.goodsduck.commons.model.enums.ActivityType;
 import com.ducks.goodsduck.commons.model.enums.NotificationType;
 import com.ducks.goodsduck.commons.model.redis.ChatRedis;
@@ -37,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ducks.goodsduck.commons.model.enums.NotificationType.*;
+import static com.ducks.goodsduck.commons.model.enums.UserRole.ADMIN;
 import static com.google.firebase.messaging.Notification.*;
 
 @Service
@@ -54,6 +53,11 @@ public class NotificationService {
     private final MessageSource messageSource;
 
     private final ObjectMapper objectMapper;
+
+    static final String DOMAIN_ADDRESS = "https://goods-duck.com/";
+    static final String ANDROID_CLICK_ACTION = "android.intent.action.MAIN";
+    static final String NOTIFICATION_TITLE = "GOODSDUCK";
+    static final String NOTIFICATION_ICON_URI = "https://goodsduck-s3.s3.ap-northeast-2.amazonaws.com/sample_goodsduck.png";
 
     public NotificationService(DeviceRepositoryCustomImpl userDeviceRepositoryCustom,
                                NotificationRepository notificationRepository,
@@ -288,18 +292,16 @@ public class NotificationService {
     private MulticastMessage.Builder getMulticastMessage(Notification notification, List<String> registrationTokens) {
         var notificationResponse = new NotificationResponse(notification);
         var notificationMessage = notificationResponse.getMessage();
-        final String DOMAIN_ADDRESS = "https://goods-duck.com/";
-        final String ANDROID_CLICK_ACTION = "android.intent.action.MAIN";
 
         return MulticastMessage.builder()
                 .setNotification(builder()
-                        .setTitle(notificationMessage.getMessageTitle())
+                        .setTitle(NOTIFICATION_TITLE)
                         .setBody(notificationMessage.getMessageBody())
                         .setImage(notification.getSenderImageUrl())
                         .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setNotification(AndroidNotification.builder()
-                                .setTitle(notificationMessage.getMessageTitle())
+                                .setTitle(NOTIFICATION_TITLE)
                                 .setColor("#ffce00")
                                 .setBody(notificationMessage.getMessageBody())
                                 .setIcon("ic_notification")
@@ -384,5 +386,58 @@ public class NotificationService {
 
     public Boolean cleanOfNotificationsOfUser(Long userId) {
         return notificationRedisTemplate.deleteKeyByUserId(userId);
+    }
+
+    /** 유저 전체에 FCM 푸시 알림 전송 */
+    public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                    new Object[]{"User"}, null));
+        });
+
+        if (!user.getRole().equals(ADMIN)) throw new UnauthorizedException();
+
+        try {
+            // 사용자가 등록한 Device(FCM 토큰) 조회
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensAll();
+
+            // HINT: 알림 Message 구성
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(builder()
+                            .setTitle(NOTIFICATION_TITLE)
+                            .setBody(customNotificationRequest.getMessage())
+                            .build())
+                    .setAndroidConfig(AndroidConfig.builder()
+                            .setNotification(AndroidNotification.builder()
+                                    .setTitle(NOTIFICATION_TITLE)
+                                    .setColor("#ffce00")
+                                    .setBody(customNotificationRequest.getMessage())
+                                    .setIcon("ic_notification")
+                                    .setClickAction(ANDROID_CLICK_ACTION)
+                                    .build())
+                            .build())
+                    .setWebpushConfig(WebpushConfig.builder()
+                            .setNotification(WebpushNotification.builder()
+                                    .setIcon(NOTIFICATION_ICON_URI)
+                                    .build())
+                            .setFcmOptions(WebpushFcmOptions.builder()
+                                    .setLink("")
+                                    .build())
+                            .build())
+                    .addAllTokens(registrationTokens)
+                    .build();
+
+            // HINT: 파이어베이스에 Cloud Messaging 요청
+            requestCloudMessagingToFirebase(registrationTokens, message);
+        } catch (FirebaseMessagingException e) {
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+            return false;
+        } catch (Exception e) {
+            log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
+            return false;
+        }
+
+        return true;
     }
 }
