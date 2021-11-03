@@ -57,7 +57,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedPostIdList) {
+    public List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
         BooleanBuilder builder = new BooleanBuilder();
 
         for (UserIdolGroup userIdolGroup : userIdolGroups) {
@@ -83,7 +83,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(post)
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(post.deletedAt.isNull())
-                    .and(post.id.notIn(blockedPostIdList)))
+                        .and(post.user.id.notIn(blockedUserIdList))
+                        .and(post.id.notIn(blockedPostIdList)))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();
@@ -114,7 +115,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedPostIdList) {
+    public List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
         BooleanBuilder builder = new BooleanBuilder();
 
         for (UserIdolGroup userIdolGroup : userIdolGroups) {
@@ -142,6 +143,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(post.postCategory.name.eq("나눔글"))
                         .and(post.deletedAt.isNull())
+                        .and(post.user.id.notIn(blockedUserIdList))
                         .and(post.id.notIn(blockedPostIdList)))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
@@ -169,7 +171,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedPostIdList) {
+    public List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -196,6 +198,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(post.idolGroup.id.eq(idolGroupId)
                         .and(builder)
                         .and(post.deletedAt.isNull())
+                        .and(post.user.id.notIn(blockedUserIdList))
                         .and(post.id.notIn(blockedPostIdList)))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
@@ -225,7 +228,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedPostIdList) {
+    public List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList,  List<Long> blockedPostIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -253,6 +256,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(post.idolGroup.id.eq(idolGroupId).and(builder)
                         .and(post.postCategory.name.eq("나눔글"))
                         .and(post.deletedAt.isNull())
+                        .and(post.user.id.notIn(blockedUserIdList))
                         .and(post.id.notIn(blockedPostIdList)))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
@@ -299,7 +303,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Tuple> findAllWithUserPost(Long userId, Long postId, List<Long> blockedPostIdList) {
+    public List<Tuple> findAllWithUserPost(Long userId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -322,7 +326,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(post)
                 .innerJoin(userPost).on(userPost.user.id.eq(userId), userPost.post.id.eq(post.id))
                 .where(builder.and(userPost.deletedAt.isNull())
-                      .and(post.id.notIn(blockedPostIdList)))
+                        .and(post.user.id.notIn(blockedUserIdList))
+                        .and(post.id.notIn(blockedPostIdList)))
                 .orderBy(post.id.desc())
                 .limit(PropertyUtil.POST_PAGEABLE_SIZE + 1)
                 .fetch();

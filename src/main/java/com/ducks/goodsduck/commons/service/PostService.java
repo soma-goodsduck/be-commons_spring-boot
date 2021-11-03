@@ -274,7 +274,7 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostService.getPosts"));
 
-        return postRepositoryCustom.findBylikeIdolGroupsWithUserPost(userId, user.getUserIdolGroups(), postId)
+        return postRepositoryCustom.findBylikeIdolGroupsWithUserPost(userId, user.getUserIdolGroups(), postId, user.getBlockedUserIds(), user.getBlockedPostIds())
                 .stream()
                 .map(tuple -> {
                     Post post = tuple.get(0, Post.class);
@@ -295,9 +295,9 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public List<PostDetailResponse> getPostListFilterByIdolGroupForUser(Long userId, Long idolGroupId, Long postId) {
+    public List<PostDetailResponse> getPostListFilterByIdolGroupForUser(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
 
-        return postRepositoryCustom.findByUserIdolGroupWithUserPost(userId, idolGroupId, postId)
+        return postRepositoryCustom.findByUserIdolGroupWithUserPost(userId, idolGroupId, postId, blockedUserIdList, blockedPostIdList)
                 .stream()
                 .map(tuple -> {
                     Post post = tuple.get(0, Post.class);
@@ -343,7 +343,7 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
 
-        List<PostDetailResponse> postList = getPostListFilterByIdolGroupForUser(userId, idolGroupId, postId);
+        List<PostDetailResponse> postList = getPostListFilterByIdolGroupForUser(userId, idolGroupId, postId, user.getBlockedUserIds(), user.getBlockedPostIds());
         if(postList.size() == pageableSize + 1) {
             hasNext = true;
             postList.remove(pageableSize);

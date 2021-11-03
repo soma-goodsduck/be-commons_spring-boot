@@ -15,24 +15,24 @@ public interface PostRepositoryCustom {
 
     // 포스트 목록 조회 (좋아하는 아이돌 전체)
     List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId);
-    List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedPostIdList);
+    List<Tuple> findBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList);
 
     // 나눔글 포스트 목록 조회 (좋아하는 아이돌 전체)
     List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId);
-    List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedPostIdList);
+    List<Tuple> findFreeBylikeIdolGroupsWithUserPost(Long userId, List<UserIdolGroup> userIdolGroups, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList);
 
     // 포스트 목록 조회 (아이돌 1개)
     List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId);
-    List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedPostIdList);
+    List<Tuple> findByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList);
 
     // 나눔글 포스트 목록 조회 (아이돌 1개)
     List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId);
-    List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedPostIdList);
+    List<Tuple> findFreeByUserIdolGroupWithUserPost(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList);
 
     // 내가 작성한 포스트 목록 조회
     List<Tuple> findByUserId(Long userId, Long postId);
     
     // 좋아요한 포스트 목록 조회
     List<Tuple> findAllWithUserPost(Long userId, Long postId);
-    List<Tuple> findAllWithUserPost(Long userId, Long postId, List<Long> blockedPostIdList);
+    List<Tuple> findAllWithUserPost(Long userId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList);
 }

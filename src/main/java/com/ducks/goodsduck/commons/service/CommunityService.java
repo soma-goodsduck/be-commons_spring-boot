@@ -146,7 +146,7 @@ public class CommunityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
 
-        List<PostDetailResponse> postList = postRepositoryCustom.findAllWithUserPost(userId, postId)
+        List<PostDetailResponse> postList = postRepositoryCustom.findAllWithUserPost(userId, postId, user.getBlockedUserIds(), user.getBlockedPostIds())
                 .stream()
                 .map(tuple -> {
                     Post post = tuple.get(0, Post.class);
@@ -199,7 +199,7 @@ public class CommunityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostController.getPostsWithFilterIdolGroup"));
 
-        List<PostDetailResponse> postList = getFreePostListFilterByIdolGroupForUser(userId, idolGroupId, postId);
+        List<PostDetailResponse> postList = getFreePostListFilterByIdolGroupForUser(userId, idolGroupId, postId, user.getBlockedUserIds(), user.getBlockedPostIds());
         if(postList.size() == pageableSize + 1) {
             hasNext = true;
             postList.remove(pageableSize);
@@ -213,7 +213,7 @@ public class CommunityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoResultException("Not find user in PostService.getPosts"));
 
-        return postRepositoryCustom.findFreeBylikeIdolGroupsWithUserPost(userId, user.getUserIdolGroups(), postId)
+        return postRepositoryCustom.findFreeBylikeIdolGroupsWithUserPost(userId, user.getUserIdolGroups(), postId, user.getBlockedUserIds(), user.getBlockedPostIds())
                 .stream()
                 .map(tuple -> {
                     Post post = tuple.get(0, Post.class);
@@ -234,9 +234,9 @@ public class CommunityService {
                 .collect(Collectors.toList());
     }
 
-    public List<PostDetailResponse> getFreePostListFilterByIdolGroupForUser(Long userId, Long idolGroupId, Long postId) {
+    public List<PostDetailResponse> getFreePostListFilterByIdolGroupForUser(Long userId, Long idolGroupId, Long postId, List<Long> blockedUserIdList, List<Long> blockedPostIdList) {
 
-        return postRepositoryCustom.findFreeByUserIdolGroupWithUserPost(userId, idolGroupId, postId)
+        return postRepositoryCustom.findFreeByUserIdolGroupWithUserPost(userId, idolGroupId, postId, blockedUserIdList, blockedPostIdList)
                 .stream()
                 .map(tuple -> {
                     Post post = tuple.get(0, Post.class);

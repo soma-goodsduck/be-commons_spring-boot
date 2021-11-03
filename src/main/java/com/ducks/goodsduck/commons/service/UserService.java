@@ -2,6 +2,7 @@ package com.ducks.goodsduck.commons.service;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
+import com.ducks.goodsduck.commons.exception.common.DuplicatedDataException;
 import com.ducks.goodsduck.commons.exception.common.NotFoundDataException;
 import com.ducks.goodsduck.commons.model.dto.CheckNicknameDto;
 import com.ducks.goodsduck.commons.exception.common.InvalidRequestDataException;
@@ -614,8 +615,9 @@ public class UserService {
                         new Object[]{"User"}, null)));
 
         User blockedUser = userRepository.findByBcryptId(bcryptId);
-        List<Long> blockedUsers = user.getBlockedUserIds();
-        blockedUsers.add(blockedUser.getId());
+        List<Long> blockedUserIds = user.getBlockedUserIds();
+        if (blockedUserIds.contains(blockedUser.getId())) throw new DuplicatedDataException("Already exists.");
+        blockedUserIds.add(blockedUser.getId());
         em.flush();
         em.clear();
         return true;
@@ -627,6 +629,7 @@ public class UserService {
                         new Object[]{"User"}, null)));
 
         List<Long> blockedItemIds = user.getBlockedItemIds();
+        if (blockedItemIds.contains(itemId)) throw new DuplicatedDataException("Already exists.");
         blockedItemIds.add(itemId);
         em.flush();
         em.clear();
@@ -639,6 +642,7 @@ public class UserService {
                         new Object[]{"User"}, null)));
 
         List<Long> blockedPostIds = user.getBlockedPostIds();
+        if (blockedPostIds.contains(postId)) throw new DuplicatedDataException("Already exists.");
         blockedPostIds.add(postId);
         em.flush();
         em.clear();
