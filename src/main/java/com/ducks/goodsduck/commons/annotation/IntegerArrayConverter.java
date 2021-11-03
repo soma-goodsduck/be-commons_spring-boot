@@ -1,5 +1,7 @@
 package com.ducks.goodsduck.commons.annotation;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.ArrayList;
@@ -20,10 +22,9 @@ public class IntegerArrayConverter implements AttributeConverter<List<Long>, Str
 
     @Override
     public List<Long> convertToEntityAttribute(String dbData) {
-        if (dbData == null) return null;
+        if (StringUtils.isEmpty(dbData)) return new ArrayList<>();
         return Arrays.stream(dbData.split(SPLIT_CHAR))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-
     }
 }

@@ -391,10 +391,11 @@ public class NotificationService {
     /** 유저 전체에 FCM 푸시 알림 전송 */
     public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
-                    new Object[]{"User"}, null));
-        });
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NotFoundDataException(messageSource.getMessage(NotFoundDataException.class.getSimpleName(),
+                            new Object[]{"User"}, null));
+                });
 
         if (!user.getRole().equals(ADMIN)) throw new UnauthorizedException();
 
