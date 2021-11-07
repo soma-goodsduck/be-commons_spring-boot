@@ -308,7 +308,7 @@ public class UserService {
             // 기본 이미지인 경우 삭제 X
             if(!user.getImageUrl().equals(PropertyUtil.BASIC_IMAGE_URL)) {
                 Image nowImage = imageRepository.findByUrl(user.getImageUrl());
-                imageUploadService.deleteImage(nowImage, ImageType.PROFILE);
+//                imageUploadService.deleteImage(nowImage, ImageType.PROFILE);
                 imageRepository.delete(nowImage);
             }
 
