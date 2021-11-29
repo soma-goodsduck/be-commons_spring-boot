@@ -389,7 +389,7 @@ public class NotificationService {
     }
 
     /** 유저 전체에 FCM 푸시 알림 전송 */
-    public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest) {
+    public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest, Long startDeviceId, Long offset) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -403,30 +403,16 @@ public class NotificationService {
 
         try {
             // 사용자가 등록한 Device(FCM 토큰) 조회
-            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensAll();
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensWithCursor(startDeviceId, offset);
             int size = registrationTokens.size();
 
 
             MulticastMessage message;
-            if (size < 500) {
-                // HINT: 알림 Message 구성
-                message = getCustomMulticastMessage(registrationTokens, messageBody);
-                // HINT: 파이어베이스에 Cloud Messaging 요청
-                requestCloudMessagingToFirebase(registrationTokens, message);
-            } else {
-                int cnt = size / 500;
-                int remain = size % 500;
-                List<String> registrationTokenList;
-                for (int i = 0; i <= cnt; i++) {
-                    if (i == cnt) {
-                        registrationTokenList = new ArrayList<>(registrationTokens.subList(i*500, size));
-                    } else {
-                        registrationTokenList = new ArrayList<>(registrationTokens.subList(i*500, (i+1) * 500));
-                    }
-                    message = getCustomMulticastMessage(registrationTokenList, messageBody);
-                    requestCloudMessagingToFirebase(registrationTokenList, message);
-                }
-            }
+            // HINT: 알림 Message 구성
+            message = getCustomMulticastMessage(registrationTokens, messageBody);
+            // HINT: 파이어베이스에 Cloud Messaging 요청
+            requestCloudMessagingToFirebase(registrationTokens, message);
+
         } catch (FirebaseMessagingException e) {
             log.debug("exception occured in processing firebase message, \n" + e.getMessage(), e); // 알림은 예외 발생 시 기능 처리에 영향을 주지 않도록 한다.
             return false;
