@@ -41,7 +41,8 @@ public class DeviceRepositoryCustomImpl implements DeviceRepositoryCustom {
         return queryFactory
                 .select(device.registrationToken)
                 .from(device)
-                .where(device.isAllowed.isTrue().and(device.id.goe(deviceId)))
+                .where(device.isAllowed.isTrue().and(device.id.goe(deviceId))
+                        .and(device.registrationToken.ne("")))
                 .offset(offset)
                 .fetch();
     }
