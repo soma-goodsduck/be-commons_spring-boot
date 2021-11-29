@@ -389,7 +389,7 @@ public class NotificationService {
     }
 
     /** 유저 전체에 FCM 푸시 알림 전송 */
-    public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest, Long startDeviceId, Long offset) {
+    public Boolean sendPushNotificationToAll(Long userId, CustomNotificationRequest customNotificationRequest, Long startDeviceId, Long limit) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -403,7 +403,7 @@ public class NotificationService {
 
         try {
             // 사용자가 등록한 Device(FCM 토큰) 조회
-            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensWithCursor(startDeviceId, offset);
+            List<String> registrationTokens = deviceRepositoryCustom.getRegistrationTokensWithCursor(startDeviceId, limit);
 
             MulticastMessage message;
             // HINT: 알림 Message 구성

@@ -37,13 +37,13 @@ public class DeviceRepositoryCustomImpl implements DeviceRepositoryCustom {
     }
 
     @Override
-    public List<String> getRegistrationTokensWithCursor(Long deviceId, Long offset) {
+    public List<String> getRegistrationTokensWithCursor(Long deviceId, Long limit) {
         return queryFactory
                 .select(device.registrationToken)
                 .from(device)
                 .where(device.isAllowed.isTrue().and(device.id.goe(deviceId))
                         .and(device.registrationToken.ne("")))
-                .offset(offset)
+                .limit(limit)
                 .fetch();
     }
 
