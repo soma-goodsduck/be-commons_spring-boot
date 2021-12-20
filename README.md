@@ -32,7 +32,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/soma-goodsduck/goodsduck_front">
-    <img src="https://raw.githubusercontent.com/Ting-Kim/Ting-kim.github.io/main/images/53E80827-4D0A-418E-AACF-61E440052924.png" alt="Logo" width="400" height="80">
+    <img src="https://raw.githubusercontent.com/Ting-Kim/Ting-kim.github.io/main/images/53E80827-4D0A-418E-AACF-61E440052924.png" alt="Logo" width="400" height="110">
   </a>
 
   <p align="center">
