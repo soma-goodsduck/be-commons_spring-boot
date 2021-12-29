@@ -38,7 +38,7 @@
   <p align="center">
     굿즈를 모으는 덕후들을 위한 서비스
     <br />
-    <a href="https://www.goods-duck.com/"><strong>goods-duck.com »</strong></a>
+    <a href="https://github.com/soma-goodsduck/be-commons_spring-boot/#"><strong>goods-duck.com » (Service terminated)</strong></a>
   </p>
 </p>
 
