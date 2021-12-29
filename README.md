@@ -136,7 +136,7 @@
 3. Clone the repository.
 4. Set the environment variables and files.
     - MySQL
-    - OAuth2 ([Naver](https://developers.naver.com/docs/login/devguide/devguide.md#%EB%84%A4%EC%9D%B4%EB%B2%84%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C), [Kakao](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api))
+    - ~~OAuth2 ([Naver](https://developers.naver.com/docs/login/devguide/devguide.md#%EB%84%A4%EC%9D%B4%EB%B2%84%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C), [Kakao](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api)) - deprecated~~
     - FCM (Firebase Cloud Messaging)
     - (We've used AWS Secrets Manager for managing some secret environment variables. you can also use it if you want.)
 5. Run the application.
