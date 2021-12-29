@@ -21,10 +21,12 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
+![java-shield]
 ![springboot-shield]
 ![mysql-shield]
 ![aws-shield]
 ![s3-shield]
+![redis-shield]
 ![firebase-shield]
 
  
@@ -238,6 +240,7 @@ firebase:
 - Web MVC Pattern
 - Spring Data JPA
 - QueryDSL
+- Redis
 - FCM (Firebase Cloud Messaging)
 
 <!-- CONTRIBUTING -->
@@ -295,4 +298,5 @@ $ git push origin [feature/YOUR_REPOSITORY]
 [aws-shield]: https://img.shields.io/badge/AmazonAWS-232F3E.svg?&style=for-the-badge&logo=AmazonAWS&logoColor=white
 [mysql-shield]: https://img.shields.io/badge/MySQL-569A31.svg?&style=for-the-badge&logo=MySQL&logoColor=white
 [springboot-shield]: https://img.shields.io/badge/SpringBoot-6DB33F.svg?&style=for-the-badge&logo=SpringBoot&logoColor=white
-
+[java-shield]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white
+[redis-shield]: https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white
