@@ -89,9 +89,30 @@
 * 투표 기능을 제공하면 유저들의 유입방안이 되고, 커뮤니티가 있으면 재밌어서 유저가 오래 머물 것이다.
 * 개인화 추천 기능을 제공하면 사용자들이 우리 플랫폼을 선호하는 이유가 될 것이다.
 
-현재 지속적으로 애자일(Agile) 방법론을 기반으로 개발을 진행하고 있습니다. 제공하는 서비스의 중심이 거래이기 때문에, 거래 기능 사이클의 완성을 1차 목표(~8월 중순)로 하고 있습니다. 추가적인 투표 및 커뮤니티 기능은 2차 목표(~9월 말), 추천 시스템 적용은 3차 목표(~10월 중순)로 계획하고 있습니다.
+현재 지속적으로 애자일(Agile) 방법론을 기반으로 개발을 진행하고 있습니다. 제공하는 서비스의 중심이 거래이기 때문에, 거래 기능 사이클은 9월 중순, 추가적인 투표 및 커뮤니티 기능은 10월 중순에 완료하였습니다. 또한, 거래 기능이 완료된 9월 중순부터 웹, ios, Android 앱을 배포하여 운영했습니다.
 
-현재 구현된 기능(API)에 대한 명세서는 <a href="https://api.goods-duck.com/swagger-ui/index.html">여기</a>서 확인하실 수 있습니다.
+구현한 기능(REST API)에 대한 명세는 아래와 같습니다.
+(채팅 기능은 클라이언트에서 Firebase Realtime Database와 연동하였으며, 본 레포지토리에서는 채팅방에 관련된 부가적인 API만을 제공합니다.)
+
+**1. 가격제안 API**
+![image](https://user-images.githubusercontent.com/59888684/147662715-f28aeea1-e8c6-4066-bde0-eb077dfb514c.png)
+
+
+**2. 아이템 API**
+![image](https://user-images.githubusercontent.com/59888684/147662789-a7bee7c6-ec21-4a87-ae20-5d4946769bc7.png)
+
+
+**3. 리뷰 API**
+![image](https://user-images.githubusercontent.com/59888684/147662820-e70cee07-c1dc-4f36-b227-0ff8fbdf91cd.png)
+
+
+**4. 채팅 관련 API**
+![image](https://user-images.githubusercontent.com/59888684/147662837-9360bc31-0780-4b50-bfbc-e3cf8b1d8d63.png)
+
+
+**5. 유저 관련 API**
+![image](https://user-images.githubusercontent.com/59888684/147663029-07eb00ca-b5d8-4427-b5fc-fbf4d656a15f.png)
+
 
 ### Built With
 
@@ -117,6 +138,7 @@
     - MySQL
     - OAuth2 ([Naver](https://developers.naver.com/docs/login/devguide/devguide.md#%EB%84%A4%EC%9D%B4%EB%B2%84%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C), [Kakao](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api))
     - FCM (Firebase Cloud Messaging)
+    - (We've used AWS Secrets Manager for managing some secret environment variables. you can also use it if you want.)
 5. Run the application.
 
 ### Setting Environment Variables
